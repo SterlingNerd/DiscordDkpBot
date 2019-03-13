@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.489
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscordDkpBot", "DiscordDkpBot\DiscordDkpBot.csproj", "{3FA08BF1-DC87-4FE8-A6A4-0FCABBDBEEFA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3FA08BF1-DC87-4FE8-A6A4-0FCABBDBEEFA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3FA08BF1-DC87-4FE8-A6A4-0FCABBDBEEFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3FA08BF1-DC87-4FE8-A6A4-0FCABBDBEEFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3FA08BF1-DC87-4FE8-A6A4-0FCABBDBEEFA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8C12EE97-8E69-4F2F-A608-28F02E6F5438}
+	EndGlobalSection
+EndGlobal
