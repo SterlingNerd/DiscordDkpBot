@@ -29,6 +29,7 @@ namespace DiscordDkpBot.Commands
 
 		public Task ProcessCommand (SocketMessage message)
 		{
+			log.LogTrace($"{message.Author} ({message.Channel}): {message}");
 			string commandWord = GetCommandWord(message);
 
 			if (!string.IsNullOrWhiteSpace(commandWord)

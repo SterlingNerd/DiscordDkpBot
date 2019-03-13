@@ -1,8 +1,10 @@
 ﻿{
-	"Discord": {
-		"Token": "Jimmy!"
-	},
-	"EqDkp": {
+	"DkpBot": {
+		"Discord": {
+			"Token": "Jimmy!"
+		},
+		"EqDkp": {
 	
+		}
 	}
 }

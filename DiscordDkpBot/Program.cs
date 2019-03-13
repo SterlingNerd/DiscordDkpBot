@@ -17,14 +17,14 @@ namespace DiscordDkpBot
 	{
 		public static async Task Main (string[] args)
 		{
-			DkpBotConfiguration configuration = GetConfiguration();
+			IConfigurationRoot configuration = GetConfiguration();
 
 			ServiceProvider services = ConfigureServices(configuration);
 
 			await services.GetRequiredService<DkpBot>().Run();
 		}
 
-		private static ServiceProvider ConfigureServices (DkpBotConfiguration configuration)
+		private static ServiceProvider ConfigureServices (IConfigurationRoot configuration)
 		{
 			return new ServiceCollection()
 				.AddSingleton(new CommandCollection(
@@ -33,21 +33,29 @@ namespace DiscordDkpBot
 				.AddSingleton<ICommandProcessor, CommandProcessor>()
 				.AddTransient<DiscordSocketClient>()
 				.AddSingleton<DkpBot>()
-				.AddSingleton(configuration)
-				.AddLogging(c => { c.AddConsole(); })
+				.AddLogging(c =>
+							{
+								c.AddConfiguration(configuration.GetSection("Logging"));
+								c.AddConsole();
+							})
+				.AddSingleton(GetBotConfiguration(configuration))
 				.BuildServiceProvider();
 		}
 
-		private static DkpBotConfiguration GetConfiguration ()
+		private static DkpBotConfiguration GetBotConfiguration (IConfigurationRoot configuration)
+		{
+			DkpBotConfiguration botConfig = new DkpBotConfiguration();
+			configuration.GetSection("DkpBot").Bind(botConfig);
+			return botConfig;
+		}
+
+		private static IConfigurationRoot GetConfiguration ()
 		{
 			IConfigurationBuilder builder = new ConfigurationBuilder()
 				.SetBasePath(Directory.GetCurrentDirectory())
 				.AddJsonFile("appsettings.json", true, false)
 				.AddJsonFile("AuthSettings.json", false, false);
-
-			DkpBotConfiguration configuration = new DkpBotConfiguration();
-			builder.Build().Bind(configuration);
-			return configuration;
+			return builder.Build();
 		}
 	}
 }
