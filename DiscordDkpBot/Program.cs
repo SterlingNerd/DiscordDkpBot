@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 using Discord.WebSocket;
@@ -13,7 +15,7 @@ using Microsoft.Extensions.Logging;
 
 namespace DiscordDkpBot
 {
-	public class Program
+	public static class Program
 	{
 		public static async Task Main (string[] args)
 		{
@@ -24,28 +26,55 @@ namespace DiscordDkpBot
 			await services.GetRequiredService<DkpBot>().Run();
 		}
 
+		private static IServiceCollection AddChatCommands (this IServiceCollection services)
+		{
+			// Add all implemntations of IChatCommand to DI.
+			foreach (TypeInfo type in Assembly.GetCallingAssembly().DefinedTypes
+				.Where(x => x.ImplementedInterfaces.Contains(typeof(IChatCommand)) && x.IsAbstract == false))
+			{
+				services.AddSingleton(typeof(IChatCommand), type);
+			}
+			return services;
+		}
+
+		private static IServiceCollection AddDiscordNet (this IServiceCollection services)
+		{
+			return services.AddTransient<DiscordSocketClient>();
+		}
+
+		private static IServiceCollection AddDkpBot (this IServiceCollection services, IConfigurationSection dkpBotConfiguration)
+		{
+			return
+				services
+					.AddSingleton(GetBotConfiguration(dkpBotConfiguration))
+					.AddChatCommands()
+					.AddSingleton<ICommandProcessor, CommandProcessor>()
+					.AddSingleton<DkpBot>()
+					.AddDiscordNet()
+				;
+		}
+
+		private static IServiceCollection AddLogging (this IServiceCollection services, IConfigurationSection loggingConfiguration)
+		{
+			return services.AddLogging(c =>
+										{
+											c.AddConfiguration(loggingConfiguration);
+											c.AddConsole();
+										});
+		}
+
 		private static ServiceProvider ConfigureServices (IConfigurationRoot configuration)
 		{
 			return new ServiceCollection()
-				.AddSingleton(new CommandCollection(
-					new PingCommand())
-				)
-				.AddSingleton<ICommandProcessor, CommandProcessor>()
-				.AddTransient<DiscordSocketClient>()
-				.AddSingleton<DkpBot>()
-				.AddLogging(c =>
-							{
-								c.AddConfiguration(configuration.GetSection("Logging"));
-								c.AddConsole();
-							})
-				.AddSingleton(GetBotConfiguration(configuration))
+				.AddLogging(configuration.GetSection("Logging"))
+				.AddDkpBot(configuration.GetSection("DkpBot"))
 				.BuildServiceProvider();
 		}
 
-		private static DkpBotConfiguration GetBotConfiguration (IConfigurationRoot configuration)
+		private static DkpBotConfiguration GetBotConfiguration (IConfigurationSection configuration)
 		{
 			DkpBotConfiguration botConfig = new DkpBotConfiguration();
-			configuration.GetSection("DkpBot").Bind(botConfig);
+			configuration.Bind(botConfig);
 			return botConfig;
 		}
 

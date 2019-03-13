@@ -9,7 +9,7 @@ namespace DiscordDkpBot.Commands
 		{
 		}
 
-		public CommandCollection (params IChatCommand[] chatCommands) : this()
+		public CommandCollection (IEnumerable<IChatCommand> chatCommands) : this()
 		{
 			foreach (IChatCommand chatCommand in chatCommands)
 			{

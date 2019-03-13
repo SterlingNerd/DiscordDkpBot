@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using Discord.WebSocket;
@@ -20,10 +21,10 @@ namespace DiscordDkpBot.Commands
 		private readonly CommandCollection commands;
 		private readonly ILogger<CommandProcessor> log;
 
-		public CommandProcessor (DkpBotConfiguration configuration, CommandCollection commands, ILogger<CommandProcessor> log)
+		public CommandProcessor (DkpBotConfiguration configuration, IEnumerable<IChatCommand> commands, ILogger<CommandProcessor> log)
 		{
 			commandPrefix = configuration.CommandPrefix;
-			this.commands = commands;
+			this.commands = new CommandCollection(commands);
 			this.log = log;
 		}
 
