@@ -1,42 +1,37 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 using Discord.WebSocket;
 
 namespace DiscordDkpBot.Commands
 {
-	public abstract class ChatCommand : IChatCommand
+	public abstract class BasicChatCommand : IChatCommand
 	{
-		protected ChatCommand (string commandTrigger)
-		{
-			if (string.IsNullOrWhiteSpace(commandTrigger))
-			{
-				throw new ArgumentNullException(nameof(commandTrigger));
-			}
+		public string CommandPrefix { get; }
 
-			CommandTrigger = commandTrigger;
+		public string[] CommandTriggers { get; }
+
+		protected BasicChatCommand (string commandPrefix, string commandTrigger) : this(commandPrefix, new[] { commandTrigger })
+		{
 		}
 
-		public string CommandTrigger { get; }
+		protected BasicChatCommand (string commandPrefix, IEnumerable<string> commandTriggers)
+		{
+			if (commandTriggers == null)
+			{
+				throw new ArgumentNullException(nameof(commandTriggers));
+			}
+			CommandPrefix = commandPrefix;
+			CommandTriggers = commandTriggers.ToArray();
+		}
+
+		public bool DoesCommandApply (SocketMessage message)
+		{
+			return CommandTriggers.Any(trigger => message?.Content?.StartsWith(CommandPrefix + trigger) == true);
+		}
 
 		public abstract Task InvokeAsync (SocketMessage message);
-
-		protected string GetArgsString (SocketMessage message)
-		{
-			return GetArgsString(message.ToString());
-		}
-
-		protected string GetArgsString (string chatMessage)
-		{
-			if (chatMessage == null)
-			{
-				return null;
-			}
-
-			string firstWord = chatMessage.IndexOf(CommandTrigger, StringComparison.OrdinalIgnoreCase) > -1
-				? chatMessage.Substring(chatMessage.IndexOf(CommandTrigger, StringComparison.OrdinalIgnoreCase) + CommandTrigger.Length)
-				: chatMessage;
-			return firstWord;
-		}
 	}
 }

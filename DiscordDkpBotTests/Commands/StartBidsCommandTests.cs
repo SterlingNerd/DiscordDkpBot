@@ -6,6 +6,7 @@ using AutoFixture.NUnit3;
 
 using DiscordDkpBot.Auctions;
 using DiscordDkpBot.Commands;
+using DiscordDkpBot.Configuration;
 
 using Microsoft.Extensions.Logging;
 
@@ -51,7 +52,7 @@ namespace DiscordDkpBotTests.Commands
 		{
 			processor = new Mock<IAuctionProcessor>();
 			log = new Mock<ILogger<StartBidsCommand>>();
-			target = new StartBidsCommand(processor.Object, log.Object);
+			target = new StartBidsCommand(new DkpBotConfiguration(), processor.Object, log.Object);
 		}
 
 		#endregion

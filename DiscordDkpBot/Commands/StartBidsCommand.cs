@@ -5,20 +5,22 @@ using System.Threading.Tasks;
 using Discord.WebSocket;
 
 using DiscordDkpBot.Auctions;
+using DiscordDkpBot.Configuration;
 using DiscordDkpBot.Extensions;
 
 using Microsoft.Extensions.Logging;
 
 namespace DiscordDkpBot.Commands
 {
-	public class StartBidsCommand : ChatCommand
+	public class StartBidsCommand : BasicChatCommand
 	{
 		public const string Syntax = "One item:\t\t\t`\"Item_Name\"`\nTwo of an item:\t\t`2x\"Item_Name\"`\nCustom duration:\t\t`\"Item_Name\" 4`";
 		private static readonly Regex pattern = new Regex(@"(?<number>\d+)?x?\s*""(?<name>\w+)""\s*(?<time>\d+)?");
 		private readonly IAuctionProcessor auctionProcessor;
 		private readonly ILogger<StartBidsCommand> log;
 
-		public StartBidsCommand (IAuctionProcessor auctionProcessor, ILogger<StartBidsCommand> log) : base("startbids")
+		public StartBidsCommand (DkpBotConfiguration configuration, IAuctionProcessor auctionProcessor, ILogger<StartBidsCommand> log)
+			: base(configuration.CommandPrefix, new[] { "startbid", "startbids" })
 		{
 			this.auctionProcessor = auctionProcessor;
 			this.log = log;
@@ -26,7 +28,7 @@ namespace DiscordDkpBot.Commands
 
 		public override Task InvokeAsync (SocketMessage message)
 		{
-			string args = GetArgsString(message);
+			string args = message?.Content?.RemoveFirstWord();
 
 			try
 			{
@@ -57,7 +59,7 @@ namespace DiscordDkpBot.Commands
 				throw new ArgumentException($"Could not parse auction from: '{args}'");
 			}
 
-			int? number = match.Groups["number"].Success ? int.Parse(match.Groups["number"].Value) : (int?) null;
+			int? number = match.Groups["number"].Success ? int.Parse(match.Groups["number"].Value) : (int?)null;
 			string name = match.Groups["name"].Value;
 			int? minutes = match.Groups["time"].Success ? int.Parse(match.Groups["time"].Value) : (int?)null;
 

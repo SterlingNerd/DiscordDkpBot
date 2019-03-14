@@ -3,17 +3,20 @@ using System.Threading.Tasks;
 
 using Discord.WebSocket;
 
+using DiscordDkpBot.Configuration;
+using DiscordDkpBot.Extensions;
+
 namespace DiscordDkpBot.Commands
 {
-	public class PingCommand : ChatCommand
+	public class PingCommand : BasicChatCommand
 	{
-		public PingCommand () : base("ping")
+		public PingCommand (DkpBotConfiguration config) : base(config.CommandPrefix, "ping")
 		{
 		}
 
 		public override async Task InvokeAsync (SocketMessage message)
 		{
-			await message.Channel.SendMessageAsync($"pong {GetArgsString(message)}");
+			await message.Channel.SendMessageAsync($"pong {message.Content.RemoveFirstWord()}");
 		}
 	}
 }

@@ -7,7 +7,7 @@ namespace DiscordDkpBot.Commands
 {
 	public interface IChatCommand
 	{
-		string CommandTrigger { get; }
+		bool DoesCommandApply (SocketMessage message);
 		Task InvokeAsync (SocketMessage message);
 	}
 }

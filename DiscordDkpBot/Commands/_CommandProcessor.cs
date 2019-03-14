@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 using Discord.WebSocket;
@@ -18,44 +19,27 @@ namespace DiscordDkpBot.Commands
 	public class CommandProcessor : ICommandProcessor
 	{
 		private readonly string commandPrefix;
-		private readonly CommandCollection commands;
+		private readonly List<IChatCommand> commands;
 		private readonly ILogger<CommandProcessor> log;
 
 		public CommandProcessor (DkpBotConfiguration configuration, IEnumerable<IChatCommand> commands, ILogger<CommandProcessor> log)
 		{
 			commandPrefix = configuration.CommandPrefix;
-			this.commands = new CommandCollection(commands);
+			this.commands = commands.ToList();
 			this.log = log;
 		}
 
 		public Task ProcessCommand (SocketMessage message)
 		{
 			log.LogTrace($"{message.Author} ({message.Channel}): {message}");
-			string commandWord = GetCommandWord(message);
 
-			if (!string.IsNullOrWhiteSpace(commandWord)
-				&& commands.TryGetValue(commandWord, out IChatCommand command))
+			foreach (IChatCommand command in commands.Where(x => x.DoesCommandApply(message)))
 			{
-				log.LogInformation($"Executing command {command.CommandTrigger}, message: {message}");
-
-				return command.InvokeAsync(message);
+				log.LogInformation($"Executing command {command}, message: {message}");
+				command.InvokeAsync(message);
 			}
 
 			return Task.CompletedTask;
-		}
-
-		private string GetCommandWord (SocketMessage message)
-		{
-			if (message?.Content?.StartsWith(commandPrefix) == false)
-			{
-				return null;
-			}
-
-			string firstWord = message.Content.IndexOf(" ", StringComparison.OrdinalIgnoreCase) > -1
-				? message.Content.Substring(0, message.Content.IndexOf(" ", StringComparison.OrdinalIgnoreCase))
-				: message.Content;
-
-			return firstWord.Replace(commandPrefix, string.Empty);
 		}
 	}
 }
