@@ -32,6 +32,7 @@ namespace DiscordDkpBot.Auctions
 		{
 			Timer timer = new Timer(TimeSpan.FromMinutes(Minutes).TotalMilliseconds);
 			timer.Elapsed += (o, s) => { Completed(); };
+			timer.Start();
 		}
 
 		public override string ToString ()

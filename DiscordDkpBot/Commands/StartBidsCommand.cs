@@ -31,7 +31,8 @@ namespace DiscordDkpBot.Commands
 			try
 			{
 				(int? quantity, string name, int? minutes) = ParseArgs(args);
-				auctionProcessor.CreateAuction(quantity, name, minutes, message.Channel, message.Author);
+				Auction auction = auctionProcessor.CreateAuction(quantity, name, minutes, message.Channel, message.Author);
+				message.Channel.SendMessageAsync($"**{auction}**\nBids are open for **{auction}** for **{auction.Minutes}**.");
 			}
 			catch (Exception ex)
 			{
