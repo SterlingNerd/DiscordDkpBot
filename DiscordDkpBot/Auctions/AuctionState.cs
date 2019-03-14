@@ -10,8 +10,14 @@ namespace DiscordDkpBot.Auctions
 	{
 		private readonly AuctionIdHider hider = new AuctionIdHider();
 		public ConcurrentDictionary<string, Auction> Auctions { get; } = new ConcurrentDictionary<string, Auction>();
+		public ConcurrentDictionary<int, CompletedAuction> CompletedAuctions { get; } = new ConcurrentDictionary<int, CompletedAuction>();
 
 		public int NextAuctionId => hider.NextAuctionId;
+
+		public void Add (CompletedAuction completedAuction)
+		{
+			CompletedAuctions.TryAdd(completedAuction.ID, completedAuction);
+		}
 
 		public Auction CreateAuction (int quantity, string name, int minutes, SocketUser author)
 		{

@@ -23,6 +23,11 @@ namespace DiscordDkpBot.Auctions
 			Author = author;
 		}
 
+		public override string ToString ()
+		{
+			return $"{Character} {BidAmount} {CharacterRank}";
+		}
+
 		public int CompareTo (AuctionBid other)
 		{
 			if (ReferenceEquals(this, other))

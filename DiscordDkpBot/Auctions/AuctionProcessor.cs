@@ -31,6 +31,8 @@ namespace DiscordDkpBot.Auctions
 
 		public CompletedAuction CalculateWinners (Auction auction)
 		{
+			log.LogTrace("Finding winners for {0}", auction.DetailString);
+
 			List<AuctionBid> bids = auction.Bids.Values.ToList();
 			List<WinningBid> winners = new List<WinningBid>();
 
@@ -43,6 +45,8 @@ namespace DiscordDkpBot.Auctions
 				// Remove that winner and go again.
 				bids.Remove(winner);
 			}
+
+			log.LogInformation("{0} found {1} winners: {2}", auction.DetailString, winners.Count, string.Join(", ", winners));
 
 			return new CompletedAuction(auction, winners);
 		}
@@ -84,18 +88,18 @@ namespace DiscordDkpBot.Auctions
 				}
 			}
 
+			log.LogTrace("Found {0} winners.", winningBids.Count);
+
 			if (winningBids.None())
 			{
 				return null;
 			}
 
 			Random random = new Random();
-
 			AuctionBid winner = winningBids.OrderBy(x => random.Next()).First();
 
 			int price = loser?.BidAmount ?? 0 + 1;
 			int finalPrice = price * winner.PriceMultiplier;
-
 			return new WinningBid(winner, finalPrice);
 		}
 
@@ -103,7 +107,7 @@ namespace DiscordDkpBot.Auctions
 		private void FinishAuction (Auction auction, ISocketMessageChannel channel)
 		{
 			CompletedAuction completedAuction = CalculateWinners(auction);
-
+			auctionState.Add(completedAuction);
 			channel.SendMessageAsync(completedAuction.ToString());
 		}
 	}

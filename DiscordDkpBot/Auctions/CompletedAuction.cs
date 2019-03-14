@@ -9,6 +9,7 @@ namespace DiscordDkpBot.Auctions
 	public class CompletedAuction
 	{
 		public Auction Auction { get; }
+		public int ID => Auction.ID;
 		public List<WinningBid> WinningBids { get; }
 
 		public CompletedAuction (Auction auction, List<WinningBid> winningBids)
@@ -35,6 +36,11 @@ namespace DiscordDkpBot.Auctions
 			}
 			builder.AppendLine($"(AuctionID: {Auction.ID} {Auction.Author.Mention}");
 			return builder.ToString();
+		}
+
+		public string GetBids ()
+		{
+			return string.Join("\n", Auction.Bids.Values);
 		}
 	}
 }
