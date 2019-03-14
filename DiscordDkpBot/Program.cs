@@ -64,6 +64,7 @@ namespace DiscordDkpBot
 										{
 											c.AddConfiguration(loggingConfiguration);
 											c.AddConsole();
+											c.AddFile();
 										});
 		}
 
