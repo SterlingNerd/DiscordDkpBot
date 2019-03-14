@@ -20,7 +20,7 @@ namespace DiscordDkpBot.Commands
 		private readonly ILogger<StartBidsCommand> log;
 
 		public StartBidsCommand (DkpBotConfiguration configuration, IAuctionProcessor auctionProcessor, ILogger<StartBidsCommand> log)
-			: base(configuration.CommandPrefix, new[] { "startbid", "startbids" })
+			: base(configuration.CommandPrefix, new[] { "startbid", "startbids", "dkp startbid", "dkp startbids" })
 		{
 			this.auctionProcessor = auctionProcessor;
 			this.log = log;
