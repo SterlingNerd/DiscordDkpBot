@@ -7,7 +7,7 @@ namespace DiscordDkpBot.Commands
 {
 	public abstract class ChatCommand : IChatCommand
 	{
-		public ChatCommand (string commandTrigger)
+		protected ChatCommand (string commandTrigger)
 		{
 			if (string.IsNullOrWhiteSpace(commandTrigger))
 			{

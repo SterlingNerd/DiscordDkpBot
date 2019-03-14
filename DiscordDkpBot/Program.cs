@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 using Discord.WebSocket;
 
+using DiscordDkpBot.Auctions;
 using DiscordDkpBot.Commands;
 using DiscordDkpBot.Configuration;
 
@@ -49,6 +50,8 @@ namespace DiscordDkpBot
 					.AddSingleton(GetBotConfiguration(dkpBotConfiguration))
 					.AddChatCommands()
 					.AddSingleton<ICommandProcessor, CommandProcessor>()
+					.AddSingleton<IAuctionProcessor, AuctionProcessor>()
+					.AddSingleton<AuctionState>()
 					.AddSingleton<DkpBot>()
 					.AddDiscordNet()
 				;

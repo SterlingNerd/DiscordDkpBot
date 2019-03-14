@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.28307.489
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscordDkpBot", "DiscordDkpBot\DiscordDkpBot.csproj", "{3FA08BF1-DC87-4FE8-A6A4-0FCABBDBEEFA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscordDkpBotTests", "DiscordDkpBotTests\DiscordDkpBotTests.csproj", "{F38DB5E4-F464-4338-82DE-659B56AA0A66}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{3FA08BF1-DC87-4FE8-A6A4-0FCABBDBEEFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3FA08BF1-DC87-4FE8-A6A4-0FCABBDBEEFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3FA08BF1-DC87-4FE8-A6A4-0FCABBDBEEFA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F38DB5E4-F464-4338-82DE-659B56AA0A66}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F38DB5E4-F464-4338-82DE-659B56AA0A66}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F38DB5E4-F464-4338-82DE-659B56AA0A66}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F38DB5E4-F464-4338-82DE-659B56AA0A66}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
