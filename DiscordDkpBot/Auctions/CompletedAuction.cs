@@ -25,7 +25,7 @@ namespace DiscordDkpBot.Auctions
 
 			if (WinningBids.None())
 			{
-				builder.Append("```No bids received. :(``");
+				builder.Append("```No bids received.```");
 			}
 			else
 			{
@@ -33,7 +33,13 @@ namespace DiscordDkpBot.Auctions
 				{
 					builder.AppendLine($"```{winner}```");
 				}
+
+				if (Auction.Quantity > WinningBids.Count)
+				{
+					builder.AppendLine($"```{Auction.Quantity - WinningBids.Count}x Rot```");
+				}
 			}
+
 			builder.AppendLine($"(AuctionID: {Auction.ID} {Auction.Author.Mention}");
 			return builder.ToString();
 		}

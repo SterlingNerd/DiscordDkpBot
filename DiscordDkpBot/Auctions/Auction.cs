@@ -30,7 +30,8 @@ namespace DiscordDkpBot.Auctions
 
 		public void Start ()
 		{
-			Timer timer = new Timer(TimeSpan.FromMinutes(Minutes).TotalMilliseconds);
+			Timer timer = new Timer(TimeSpan.FromMinutes(Math.Max(1, Minutes)).TotalMilliseconds);
+			timer.AutoReset = false;
 			timer.Elapsed += (o, s) => { Completed(); };
 			timer.Start();
 		}

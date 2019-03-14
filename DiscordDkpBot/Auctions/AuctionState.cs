@@ -24,7 +24,7 @@ namespace DiscordDkpBot.Auctions
 			Auction auction = new Auction(NextAuctionId, quantity, name, minutes, author);
 			if (!Auctions.TryAdd(auction.Name, auction))
 			{
-				throw new ApplicationException($"Auction for {auction.Name} already exists.");
+				throw new AuctionAlreadyExistsException($"Auction for {auction.Name} already exists.");
 			}
 			auction.Completed += () => Auctions.TryRemove(auction.Name, out Auction _);
 			return auction;

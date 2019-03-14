@@ -40,10 +40,19 @@ namespace DiscordDkpBot.Auctions
 			{
 				// Grab the first winner.
 				WinningBid winner = CalculateWinner(bids);
-				winners.Add(winner);
 
-				// Remove that winner and go again.
-				bids.Remove(winner);
+				if (winner == null)
+				{
+					// No more winners to be found. we're done.
+					break;
+				}
+				else
+				{
+					winners.Add(winner);
+
+					// Remove that winner and go again.
+					bids.Remove(winner.Bid);
+				}
 			}
 
 			log.LogInformation("{0} found {1} winners: {2}", auction.DetailString, winners.Count, string.Join(", ", winners));

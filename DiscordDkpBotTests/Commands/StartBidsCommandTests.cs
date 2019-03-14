@@ -28,8 +28,10 @@ namespace DiscordDkpBotTests.Commands
 		[TestCase ("\"YoMomma\"16", null, "YoMomma", 16)]
 		[TestCase ("12x\"YoSista\"\t69", 12, "YoSista", 69)]
 		[TestCase ("42\"YoSista\"", 42, "YoSista", null)]
-		[TestCase ("42 \"YoSista\"", 42, "YoSista", null)]
-		public void Parse (string args, int? expectedQuantity, string expectedName, int? expectedMinutes)
+		[TestCase("42 \"YoSista\"", 42, "YoSista", null)]
+		[TestCase("42 \"YoSista\"1", 42, "YoSista", 1)]
+		[TestCase("42 \"YoSista\" 1", 42, "YoSista", 1)]
+		public void ParseArgs (string args, int? expectedQuantity, string expectedName, int? expectedMinutes)
 		{
 			//Arrange
 
