@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 
+using Discord;
 using Discord.WebSocket;
 
 using DiscordDkpBot.Configuration;
@@ -14,9 +15,10 @@ namespace DiscordDkpBot.Commands
 		{
 		}
 
-		public override async Task InvokeAsync (SocketMessage message)
+		public override async Task<bool> InvokeAsync (SocketMessage message)
 		{
 			await message.Channel.SendMessageAsync($"pong {message.Content.RemoveFirstWord()}");
+			return true;
 		}
 	}
 }

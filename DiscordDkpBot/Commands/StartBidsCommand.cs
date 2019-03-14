@@ -26,28 +26,28 @@ namespace DiscordDkpBot.Commands
 			this.log = log;
 		}
 
-		public override Task InvokeAsync (SocketMessage message)
+		public override Task<bool> InvokeAsync (SocketMessage message)
 		{
-			string args = message?.Content?.RemoveFirstWord();
-
 			try
 			{
+				string args = message?.Content?.RemoveFirstWord();
 				(int? quantity, string name, int? minutes) = ParseArgs(args);
 				Auction auction = auctionProcessor.CreateAuction(quantity, name, minutes, message.Channel, message.Author);
 				message.Channel.SendMessageAsync($"**{auction}**\nBids are open for **{auction}** for **{auction.Minutes}** minutes.");
+				return Task.FromResult(true);
 			}
 			catch (AuctionAlreadyExistsException ex)
 			{
 				log.LogWarning(ex);
 				message.Channel.SendMessageAsync(ex.Message);
+				return Task.FromResult(false);
 			}
 			catch (Exception ex)
 			{
 				log.LogWarning(ex);
 				message.Channel.SendMessageAsync($"Yer doin it wrong!\n\nSyntax:\n{Syntax}");
+				return Task.FromResult(false);
 			}
-
-			return Task.CompletedTask;
 		}
 
 		public (int? number, string name, int? minutes) ParseArgs (string args)

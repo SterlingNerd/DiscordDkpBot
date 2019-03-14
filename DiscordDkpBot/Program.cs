@@ -32,9 +32,9 @@ namespace DiscordDkpBot
 		{
 			// Add all implemntations of IChatCommand to DI.
 			foreach (TypeInfo type in Assembly.GetCallingAssembly().DefinedTypes
-				.Where(x => x.ImplementedInterfaces.Contains(typeof(IChatCommand)) && x.IsAbstract == false))
+				.Where(x => x.ImplementedInterfaces.Contains(typeof(ICommand)) && x.IsAbstract == false))
 			{
-				services.AddSingleton(typeof(IChatCommand), type);
+				services.AddSingleton(typeof(ICommand), type);
 			}
 			return services;
 		}

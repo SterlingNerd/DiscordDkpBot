@@ -14,6 +14,8 @@ namespace DiscordDkpBot.Auctions
 	public interface IAuctionProcessor
 	{
 		Auction CreateAuction (int? quantity, string name, int? minutes, ISocketMessageChannel messageChannel, SocketUser author);
+		AuctionBid CreateBid (string item, string character, string rank, int bid, SocketUser messageAuthor);
+
 	}
 
 	public class AuctionProcessor : IAuctionProcessor
@@ -21,19 +23,42 @@ namespace DiscordDkpBot.Auctions
 		private readonly AuctionState auctionState;
 		private readonly DkpBotConfiguration configuration;
 		private readonly ILogger<AuctionProcessor> log;
+		private readonly Dictionary<string, RankConfiguration> ranks;
+
 
 		public AuctionProcessor (DkpBotConfiguration configuration, AuctionState auctionState, ILogger<AuctionProcessor> log)
 		{
+			ranks = configuration.Ranks.ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
 			this.configuration = configuration;
 			this.auctionState = auctionState;
 			this.log = log;
+		}
+
+		public AuctionBid CreateBid (string item, string character, string rank, int bid, SocketUser messageAuthor)
+		{
+			// First make sure we can make a valid bid out of it.
+			if (!ranks.TryGetValue(rank, out RankConfiguration rankConfig))
+			{
+				throw new ArgumentException($"Rank {rank} does not exist.");
+			}
+
+			if (!auctionState.Auctions.TryGetValue(item, out Auction auction))
+			{
+				throw new AuctionNotFoundException($"Could not find auction '{item}'.");
+			}
+
+			AuctionBid newBid = auction.Bids.AddOrUpdate(new AuctionBid(auction, character, bid, rankConfig, messageAuthor));
+
+			log.LogInformation($"Created bid: {newBid}");
+
+			return newBid;
 		}
 
 		public CompletedAuction CalculateWinners (Auction auction)
 		{
 			log.LogTrace("Finding winners for {0}", auction.DetailString);
 
-			List<AuctionBid> bids = auction.Bids.Values.ToList();
+			List<AuctionBid> bids = auction.Bids.ToList();
 			List<WinningBid> winners = new List<WinningBid>();
 
 			for (int i = 0; i < auction.Quantity; i++)
@@ -108,7 +133,7 @@ namespace DiscordDkpBot.Auctions
 			AuctionBid winner = winningBids.OrderBy(x => random.Next()).First();
 
 			int price = loser?.BidAmount ?? 0 + 1;
-			int finalPrice = price * winner.PriceMultiplier;
+			int finalPrice = price * winner.Rank.PriceMultiplier;
 			return new WinningBid(winner, finalPrice);
 		}
 

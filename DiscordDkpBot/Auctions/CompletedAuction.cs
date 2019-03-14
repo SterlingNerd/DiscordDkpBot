@@ -46,7 +46,7 @@ namespace DiscordDkpBot.Auctions
 
 		public string GetBids ()
 		{
-			return string.Join("\n", Auction.Bids.Values);
+			return string.Join("\n", Auction.Bids);
 		}
 	}
 }

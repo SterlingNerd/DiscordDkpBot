@@ -15,7 +15,7 @@ namespace DiscordDkpBot.Auctions
 
 		public override string ToString ()
 		{
-			return $"**{Bid.Character}** ({Bid.CharacterRank}) for **{Price}**";
+			return $"**{Bid.Character}** ({Bid.Rank.Name}) for **{Price}**";
 		}
 	}
 }

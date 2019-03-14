@@ -2,30 +2,25 @@ using System;
 
 using Discord.WebSocket;
 
+using DiscordDkpBot.Configuration;
+
 namespace DiscordDkpBot.Auctions
 {
 	public class AuctionBid : IComparable<AuctionBid>
 	{
+		public Auction Auction { get; }
 		public SocketUser Author { get; }
 		public int BidAmount { get; }
-		public int BidCap { get; }
 		public string Character { get; }
-		public string CharacterRank { get; }
-		public int PriceMultiplier { get; }
+		public RankConfiguration Rank { get; }
 
-		public AuctionBid (string character, int bidAmount, int bidCap, int priceMultiplier, string characterRank, SocketUser author)
+		public AuctionBid (Auction auction, string character, int bidAmount, RankConfiguration rank, SocketUser author)
 		{
 			Character = character;
 			BidAmount = bidAmount;
-			BidCap = bidCap;
-			PriceMultiplier = priceMultiplier;
-			CharacterRank = characterRank;
+			Rank = rank;
 			Author = author;
-		}
-
-		public override string ToString ()
-		{
-			return $"{Character} {BidAmount} {CharacterRank}";
+			Auction = auction;
 		}
 
 		public int CompareTo (AuctionBid other)
@@ -40,20 +35,25 @@ namespace DiscordDkpBot.Auctions
 				return 1;
 			}
 
-			if (BidCap > other.BidCap)
+			if (Rank.MaxBid > other.Rank.MaxBid)
 			{
-				// Our cap is bigger, so cap their bid.
-				return BidAmount - Math.Min(other.BidAmount, other.BidCap);
+				// Our cap is bigger, so reduce their bid.
+				return BidAmount - Math.Min(other.BidAmount, other.Rank.MaxBid);
 			}
 
-			if (BidCap > other.BidCap)
+			if (Rank.MaxBid < other.Rank.MaxBid)
 			{
-				// their cap is bigger, so cap our bid.
-				return Math.Min(BidAmount, BidCap) - other.BidAmount;
+				// their cap is bigger, so reduce our bid.
+				return Math.Min(BidAmount, Rank.MaxBid) - other.BidAmount;
 			}
 
 			// Caps are the same, compare bids.
 			return BidAmount - other.BidAmount;
+		}
+
+		public override string ToString ()
+		{
+			return $"{Character} {BidAmount} {Rank.Name}";
 		}
 	}
 }

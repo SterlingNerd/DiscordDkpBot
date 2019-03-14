@@ -1,15 +1,16 @@
 using System;
-using System.Collections.Concurrent;
 using System.Timers;
 
 using Discord.WebSocket;
+
+using DiscordDkpBot.Commands;
 
 namespace DiscordDkpBot.Auctions
 {
 	public class Auction
 	{
 		public SocketUser Author { get; }
-		public ConcurrentDictionary<string, AuctionBid> Bids { get; } = new ConcurrentDictionary<string, AuctionBid>();
+		public BidCollection Bids { get; } = new BidCollection();
 
 		public string DetailString => $"({ID}) {Quantity}x {Name} for {Minutes} min.";
 		public int ID { get; }

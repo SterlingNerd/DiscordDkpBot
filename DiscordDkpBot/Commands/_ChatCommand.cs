@@ -7,7 +7,7 @@ using Discord.WebSocket;
 
 namespace DiscordDkpBot.Commands
 {
-	public abstract class BasicChatCommand : IChatCommand
+	public abstract class BasicChatCommand : ICommand
 	{
 		public string CommandPrefix { get; }
 
@@ -32,6 +32,6 @@ namespace DiscordDkpBot.Commands
 			return CommandTriggers.Any(trigger => message?.Content?.StartsWith(CommandPrefix + trigger) == true);
 		}
 
-		public abstract Task InvokeAsync (SocketMessage message);
+		public abstract Task<bool> InvokeAsync (SocketMessage message);
 	}
 }

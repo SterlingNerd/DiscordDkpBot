@@ -27,8 +27,11 @@ namespace DiscordDkpBotTests.Auctions
 		public void Compare (int? bid1, int? cap1, int? bid2, int? cap2, int expected)
 		{
 			//Arrange
-			AuctionBid a1 = bid1 != null ? new AuctionBid("1", bid1.Value, cap1 ?? int.MaxValue, 1, null, null) : null;
-			AuctionBid a2 = bid2 != null ? new AuctionBid("2", bid2.Value, cap2 ?? int.MaxValue, 1, null, null) : null;
+			Auction auction = new Auction(23423, 1, "Nuke", 2, null);
+			RankConfiguration rank1 = new RankConfiguration("rank1", cap1 ?? int.MaxValue, 1);
+			RankConfiguration rank2 = new RankConfiguration("rank2", cap2 ?? int.MaxValue, 1);
+			AuctionBid a1 = bid1 != null ? new AuctionBid(auction, "1", bid1.Value, rank1, null) : null;
+			AuctionBid a2 = bid2 != null ? new AuctionBid(auction, "2", bid2.Value, rank2, null) : null;
 
 			//Act
 			int comparison = a1?.CompareTo(a2) ?? 0;

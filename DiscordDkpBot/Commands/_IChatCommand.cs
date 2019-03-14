@@ -5,9 +5,9 @@ using Discord.WebSocket;
 
 namespace DiscordDkpBot.Commands
 {
-	public interface IChatCommand
+	public interface ICommand
 	{
 		bool DoesCommandApply (SocketMessage message);
-		Task InvokeAsync (SocketMessage message);
+		Task<bool> InvokeAsync (SocketMessage message);
 	}
 }
