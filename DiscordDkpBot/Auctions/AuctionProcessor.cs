@@ -47,7 +47,7 @@ namespace DiscordDkpBot.Auctions
 			message.Channel.SendMessageAsync($"Bid accepted for **{newBid.Auction}**\n"
 				+ $"```\"{auction.Name}\" {newBid}```"
 				+ $"If you win, you could pay up to **{newBid.BidAmount * newBid.Rank.PriceMultiplier}**.\n"
-				+ $"If you wish to modify your bid before the auction completes, simply enter a new bid in the next {auction.MinutesRemaining:##.#} minutes.\n"
+				+ $"If you wish to modify your bid before the auction completes, simply enter a new bid in the next **{auction.MinutesRemaining:##.#}** minutes.\n"
 				+ "If you wish to cancel your bid use the following syntax:\n"
 				+ $"```\"{newBid.Auction.Name}\" cancel```");
 
@@ -117,7 +117,7 @@ namespace DiscordDkpBot.Auctions
 				throw new BidNotFoundException(item);
 			}
 
-			message.Channel.SendMessageAsync($"Bid cancelled for **{auction}**.\nYou have {auction.MinutesRemaining:##.#} minutes to re bid.");
+			message.Channel.SendMessageAsync($"Bid cancelled for **{auction}**.\nYou have **{auction.MinutesRemaining:##.#}** minutes to re bid.");
 
 			return Task.FromResult(bid);
 		}
