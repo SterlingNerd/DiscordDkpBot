@@ -1,9 +1,6 @@
 using System;
-using System.Timers;
 
 using Discord.WebSocket;
-
-using DiscordDkpBot.Commands;
 
 namespace DiscordDkpBot.Auctions
 {
@@ -25,16 +22,6 @@ namespace DiscordDkpBot.Auctions
 			Quantity = quantity;
 			Minutes = minutes;
 			Author = author;
-		}
-
-		public event Action Completed;
-
-		public void Start ()
-		{
-			Timer timer = new Timer(TimeSpan.FromMinutes(Math.Max(1, Minutes)).TotalMilliseconds);
-			timer.AutoReset = false;
-			timer.Elapsed += (o, s) => { Completed(); };
-			timer.Start();
 		}
 
 		public override string ToString ()

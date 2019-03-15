@@ -2,8 +2,6 @@
 using System.Collections.Concurrent;
 using System.Threading;
 
-using Discord.WebSocket;
-
 namespace DiscordDkpBot.Auctions
 {
 	public class AuctionState
@@ -13,22 +11,6 @@ namespace DiscordDkpBot.Auctions
 		public ConcurrentDictionary<int, CompletedAuction> CompletedAuctions { get; } = new ConcurrentDictionary<int, CompletedAuction>();
 
 		public int NextAuctionId => hider.NextAuctionId;
-
-		public void Add (CompletedAuction completedAuction)
-		{
-			CompletedAuctions.TryAdd(completedAuction.ID, completedAuction);
-		}
-
-		public Auction CreateAuction (int quantity, string name, int minutes, SocketUser author)
-		{
-			Auction auction = new Auction(NextAuctionId, quantity, name, minutes, author);
-			if (!Auctions.TryAdd(auction.Name, auction))
-			{
-				throw new AuctionAlreadyExistsException($"Auction for {auction.Name} already exists.");
-			}
-			auction.Completed += () => Auctions.TryRemove(auction.Name, out Auction _);
-			return auction;
-		}
 
 		private class AuctionIdHider
 		{

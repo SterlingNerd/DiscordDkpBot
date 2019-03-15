@@ -32,7 +32,7 @@ namespace DiscordDkpBot.Commands
 			{
 				string args = message?.Content?.RemoveFirstWord();
 				(int? quantity, string name, int? minutes) = ParseArgs(args);
-				Auction auction = auctionProcessor.CreateAuction(quantity, name, minutes, message.Channel, message.Author);
+				Auction auction = auctionProcessor.StartAuction(quantity, name, minutes, message.Channel, message.Author);
 				message.Channel.SendMessageAsync($"**{auction}**\nBids are open for **{auction}** for **{auction.Minutes}** minutes.");
 				return Task.FromResult(true);
 			}

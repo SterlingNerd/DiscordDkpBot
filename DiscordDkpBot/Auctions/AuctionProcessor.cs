@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Timers;
 
 using Discord.WebSocket;
 
@@ -13,7 +14,7 @@ namespace DiscordDkpBot.Auctions
 {
 	public interface IAuctionProcessor
 	{
-		Auction CreateAuction (int? quantity, string name, int? minutes, ISocketMessageChannel messageChannel, SocketUser author);
+		Auction StartAuction (int? quantity, string name, int? minutes, ISocketMessageChannel messageChannel, SocketUser author);
 		AuctionBid CreateBid (string item, string character, string rank, int bid, SocketUser messageAuthor);
 	}
 
@@ -63,13 +64,33 @@ namespace DiscordDkpBot.Auctions
 			return new CompletedAuction(auction, winners);
 		}
 
-		public Auction CreateAuction (int? quantity, string name, int? minutes, ISocketMessageChannel channel, SocketUser author)
+		public Auction StartAuction (int? quantity, string name, int? minutes, ISocketMessageChannel channel, SocketUser author)
 		{
-			Auction auction = auctionState.CreateAuction(quantity ?? 1, name, minutes ?? configuration.DefaultAuctionDurationMinutes, author);
-			auction.Completed += () => FinishAuction(auction, channel);
-			auction.Start();
+			Auction auction = CreateAuction(quantity, name, minutes, author);
+
+			StartAuctionTimers(auction, channel);
+
 			log.LogTrace("Started Auction: {0}", auction.DetailString);
 
+			return auction;
+		}
+
+		private void StartAuctionTimers (Auction auction,ISocketMessageChannel channel)
+		{
+			// Completion Timer
+			Timer timer = new Timer(TimeSpan.FromMinutes(Math.Max(1, auction.Minutes)).TotalMilliseconds);
+			timer.AutoReset = false;
+			timer.Elapsed += (o, s) => FinishAuction(auction, channel);
+			timer.Start();
+		}
+
+		private Auction CreateAuction (int? quantity, string name, int? minutes, SocketUser author)
+		{
+			Auction auction = new Auction(auctionState.NextAuctionId, quantity ?? 1, name, minutes ?? configuration.DefaultAuctionDurationMinutes, author);
+			if (!auctionState.Auctions.TryAdd(auction.Name, auction))
+			{
+				throw new AuctionAlreadyExistsException($"Auction for {auction.Name} already exists.");
+			}
 			return auction;
 		}
 
@@ -149,8 +170,12 @@ namespace DiscordDkpBot.Auctions
 
 		private void FinishAuction (Auction auction, ISocketMessageChannel channel)
 		{
+			auctionState.Auctions.TryRemove(auction.Name, out Auction _);
+
 			CompletedAuction completedAuction = CalculateWinners(auction);
-			auctionState.Add(completedAuction);
+
+			auctionState.CompletedAuctions.TryAdd(completedAuction.ID, completedAuction);
+
 			channel.SendMessageAsync(completedAuction.ToString());
 		}
 	}
