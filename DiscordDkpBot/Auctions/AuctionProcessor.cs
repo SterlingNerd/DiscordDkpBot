@@ -16,7 +16,7 @@ namespace DiscordDkpBot.Auctions
 	public interface IAuctionProcessor
 	{
 		Task<AuctionBid> CancelBid (string item, IMessage message);
-		Task<AuctionBid> CreateBid (string item, string character, string rank, int bid, IMessage message);
+		Task<AuctionBid> AddOrUpdateBid (string item, string character, string rank, int bid, IMessage message);
 		Task<Auction> StartAuction (int? quantity, string name, int? minutes, IMessageChannel messageChannel, IUser author);
 	}
 
@@ -82,7 +82,7 @@ namespace DiscordDkpBot.Auctions
 			return Task.FromResult(bid);
 		}
 
-		public Task<AuctionBid> CreateBid (string item, string character, string rank, int bid, IMessage message)
+		public Task<AuctionBid> AddOrUpdateBid (string item, string character, string rank, int bid, IMessage message)
 		{
 			// First make sure we can make a valid bid out of it.
 			if (!ranks.TryGetValue(rank, out RankConfiguration rankConfig))
@@ -100,6 +100,7 @@ namespace DiscordDkpBot.Auctions
 			log.LogInformation($"Created bid: {newBid}");
 
 			message.Channel.SendMessageAsync($"Bid accepted for **{newBid.Auction}**\n"
+				+ $"```{newBid}```"
 				+ $"If you win, you could pay up to **{newBid.BidAmount * newBid.Rank.PriceMultiplier}**.\n"
 				+ "If you wish to modify your bid before the auction completes, simply enter a new bid.\n"
 				+ "If you wish to cancel your bid use the following syntax:\n"

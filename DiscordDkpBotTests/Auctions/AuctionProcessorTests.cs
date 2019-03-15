@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
 
+using Discord;
+
 using DiscordDkpBot.Auctions;
 using DiscordDkpBot.Configuration;
 
@@ -24,10 +26,10 @@ namespace DiscordDkpBotTests.Auctions
 			RankConfiguration box = new RankConfiguration("box", 100, 3);
 			RankConfiguration alt = new RankConfiguration("alt", 25, null);
 
-			AuctionBid mainBid = new AuctionBid(auction, "main", 104, main, null);
-			AuctionBid boxBid1 = new AuctionBid(auction, "box1", 300, box, null);
-			AuctionBid boxBid2 = new AuctionBid(auction, "box2", 250, box, null);
-			AuctionBid altBid = new AuctionBid(auction, "alt", 54, alt, null);
+			AuctionBid mainBid = new AuctionBid(auction, "main", 104, main, GetAuthor(43));
+			AuctionBid boxBid1 = new AuctionBid(auction, "box1", 300, box, GetAuthor(44));
+			AuctionBid boxBid2 = new AuctionBid(auction, "box2", 250, box, GetAuthor(45));
+			AuctionBid altBid = new AuctionBid(auction, "alt", 54, alt, GetAuthor(46));
 
 			auction.Bids.AddOrUpdate(altBid);
 			auction.Bids.AddOrUpdate(boxBid1);
@@ -40,8 +42,8 @@ namespace DiscordDkpBotTests.Auctions
 			//Assert
 			Assert.AreEqual(2, completedAuction.WinningBids.Count);
 
-			var winner1 = completedAuction.WinningBids[0];
-			var winner2 = completedAuction.WinningBids[1];
+			WinningBid winner1 = completedAuction.WinningBids[0];
+			WinningBid winner2 = completedAuction.WinningBids[1];
 
 			Assert.AreEqual(mainBid, winner1.Bid);
 			Assert.AreEqual(101, winner1.Price);
@@ -54,10 +56,10 @@ namespace DiscordDkpBotTests.Auctions
 		public void CalculateWinners_TwoItems_SingleBid ()
 		{
 			//Arrange
-			Auction auction = new Auction(23423, 2, "Nuke", 2, null);
+			Auction auction = new Auction(23423, 2, "Nuke", 2, GetAuthor(42));
 			RankConfiguration main = new RankConfiguration("main", null, null);
 
-			AuctionBid mainBid = new AuctionBid(auction, "main", 104, main, null);
+			AuctionBid mainBid = new AuctionBid(auction, "main", 104, main, GetAuthor(42));
 
 			auction.Bids.AddOrUpdate(mainBid);
 
@@ -84,6 +86,13 @@ namespace DiscordDkpBotTests.Auctions
 		#region Test Helpers
 
 		private AuctionProcessor target;
+
+		private IUser GetAuthor (ulong id)
+		{
+			Mock<IUser> mock = new Mock<IUser>();
+			mock.SetupGet(x => x.Id).Returns(id);
+			return mock.Object;
+		}
 
 		#endregion
 	}

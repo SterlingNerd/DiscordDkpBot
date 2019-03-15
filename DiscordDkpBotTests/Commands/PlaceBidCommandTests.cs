@@ -48,7 +48,7 @@ namespace DiscordDkpBotTests.Commands
 		{
 			processor = new Mock<IAuctionProcessor>();
 			log = new Mock<ILogger<PlaceBidCommand>>();
-			target = new PlaceBidCommand(new DkpBotConfiguration(), processor.Object, log.Object);
+			target = new PlaceBidCommand(processor.Object, log.Object);
 		}
 
 		#endregion

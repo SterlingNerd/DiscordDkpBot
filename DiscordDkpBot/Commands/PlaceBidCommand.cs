@@ -38,7 +38,7 @@ namespace DiscordDkpBot.Commands
 			{
 				(string item, string character, string rank, int bid) = ParseArgs(message.Content);
 
-				await auctionProcessor.CreateBid(item, character, rank, bid, message);
+				await auctionProcessor.AddOrUpdateBid(item, character, rank, bid, message);
 
 				return true;
 			}
