@@ -58,25 +58,54 @@ namespace DiscordDkpBot.Auctions
 		{
 			List<AuctionBid> bids = auction.Bids.ToList();
 			log.LogTrace("Finding winners for {0} from bids submitted: ({1})", auction.DetailDescription, string.Join("', ", auction.Bids));
-			List<WinningBid> winners = new List<WinningBid>();
-
+			List<AuctionBid> winningBids = new List<AuctionBid>();
+			
 			for (int i = 0; i < auction.Quantity; i++)
 			{
 				// Grab the first winner.
-				WinningBid winner = CalculateWinner(bids);
+				AuctionBid winner = CalculateWinner(bids);
 
 				if (winner == null)
 				{
-					// No more winners to be found. we're done.
+					// No more bids to be found. we're done.
 					break;
 				}
 				else
 				{
-					winners.Add(winner);
+					winningBids.Add(winner);
 
 					// Remove that winner and go again.
-					bids.Remove(winner.Bid);
+					bids.Remove(winner);
 				}
+			}
+
+			//Now, how much do they pay?
+			bids.Sort();
+			
+			// You lose! Good DAY sir!
+			AuctionBid loser = bids.FirstOrDefault();
+			List<WinningBid> winners = new List<WinningBid>();
+			foreach (AuctionBid winner in winningBids)
+			{
+				int applicableLooserBid;
+				if (loser == null)
+				{
+					applicableLooserBid = 0;
+				}
+				else if (winner.Rank.MaxBid > loser.Rank.MaxBid && winner.BidAmount > loser.Rank.MaxBid)
+				{
+					// If our bid cap and is higher than their bid cap, and we bid over their cap. reduce their bid.
+					applicableLooserBid = Math.Min(loser.BidAmount, loser.Rank.MaxBid);
+				}
+				else
+				{
+					// Otherwise, 
+					applicableLooserBid = loser.BidAmount;
+				}
+
+				int price = applicableLooserBid + 1;
+				int finalPrice = price * winner.Rank.PriceMultiplier;
+				winners.Add(new WinningBid(winner, finalPrice));
 			}
 
 			log.LogInformation("{0} found {1} winners: {2}", auction.DetailDescription, winners.Count, string.Join(", ", winners));
@@ -146,12 +175,11 @@ namespace DiscordDkpBot.Auctions
 			return auction;
 		}
 
-		private WinningBid CalculateWinner (List<AuctionBid> bids)
+		private AuctionBid CalculateWinner (List<AuctionBid> bids)
 		{
 			bids.Sort();
 			log.LogTrace("Finding best winner from: ({0})", string.Join(", ", bids));
 			List<AuctionBid> winningBids = new List<AuctionBid>();
-			AuctionBid loser = null;
 
 			foreach (AuctionBid bid in bids)
 			{
@@ -167,8 +195,7 @@ namespace DiscordDkpBot.Auctions
 				}
 				else
 				{
-					// You lose! Good DAY sir!
-					loser = bid;
+					// Done
 					break;
 				}
 			}
@@ -183,25 +210,7 @@ namespace DiscordDkpBot.Auctions
 			Random random = new Random();
 			AuctionBid winner = winningBids.OrderBy(x => random.Next()).First();
 
-			int applicableLooserBid;
-			if (loser == null)
-			{
-				applicableLooserBid = 0;
-			}
-			else if (winner.Rank.MaxBid > loser.Rank.MaxBid && winner.BidAmount > loser.Rank.MaxBid)
-			{
-				// If our bid cap and is higher than their bid cap, and we bid over their cap. reduce their bid.
-				applicableLooserBid = Math.Min(loser.BidAmount, loser.Rank.MaxBid);
-			}
-			else
-			{
-				// Otherwise, 
-				applicableLooserBid = loser.BidAmount;
-			}
-
-			int price = applicableLooserBid + 1;
-			int finalPrice = price * winner.Rank.PriceMultiplier;
-			return new WinningBid(winner, finalPrice);
+			return winner;
 		}
 
 		private Task FinishAuction (Auction auction, IUserMessage announcement)
