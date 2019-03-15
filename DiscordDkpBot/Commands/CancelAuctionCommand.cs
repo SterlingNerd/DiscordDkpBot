@@ -36,7 +36,7 @@ namespace DiscordDkpBot.Commands
 				auctionProcessor.CancelAuction(name, message);
 				return Task.FromResult(true);
 			}
-			catch (AuctionAlreadyExistsException ex)
+			catch (AuctionNotFoundException ex)
 			{
 				log.LogWarning(ex);
 				message.Channel.SendMessageAsync(ex.Message);

@@ -66,7 +66,7 @@ namespace DiscordDkpBot.Auctions
 		public CompletedAuction CalculateWinners (Auction auction)
 		{
 			List<AuctionBid> bids = auction.Bids.ToList();
-			log.LogTrace("Finding winners for {0} from bids submitted: ({1})", auction.DetailString, string.Join("', ", auction.Bids));
+			log.LogTrace("Finding winners for {0} from bids submitted: ({1})", auction.DetailDescription, string.Join("', ", auction.Bids));
 			List<WinningBid> winners = new List<WinningBid>();
 
 			for (int i = 0; i < auction.Quantity; i++)
@@ -88,7 +88,7 @@ namespace DiscordDkpBot.Auctions
 				}
 			}
 
-			log.LogInformation("{0} found {1} winners: {2}", auction.DetailString, winners.Count, string.Join(", ", winners));
+			log.LogInformation("{0} found {1} winners: {2}", auction.DetailDescription, winners.Count, string.Join(", ", winners));
 
 			return new CompletedAuction(auction, winners);
 		}
@@ -100,7 +100,7 @@ namespace DiscordDkpBot.Auctions
 				throw new AuctionAlreadyExistsException($"Auction for {name} does not exists.");
 			}
 			auction.Stop();
-			string cancelMessage = $"Cancelled auction: {auction.DetailString}.";
+			string cancelMessage = $"Cancelled auction: {auction.ShortDescription}.";
 
 			await message.Channel.SendMessageAsync(cancelMessage);
 			log.LogTrace(cancelMessage);
@@ -144,7 +144,7 @@ namespace DiscordDkpBot.Auctions
 
 			auction.Start();
 
-			log.LogTrace("Started auction: {0}", auction.DetailString);
+			log.LogTrace("Started auction: {0}", auction.DetailDescription);
 
 			return auction;
 		}
