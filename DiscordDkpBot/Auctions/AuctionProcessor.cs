@@ -45,7 +45,7 @@ namespace DiscordDkpBot.Auctions
 			log.LogInformation($"Created bid: {newBid}");
 
 			message.Channel.SendMessageAsync($"Bid accepted for **{newBid.Auction}**\n"
-				+ $"```{newBid}```"
+				+ $"```\"{auction.Name}\" {newBid}```"
 				+ $"If you win, you could pay up to **{newBid.BidAmount * newBid.Rank.PriceMultiplier}**.\n"
 				+ $"If you wish to modify your bid before the auction completes, simply enter a new bid in the next {auction.MinutesRemaining:##.#} minutes.\n"
 				+ "If you wish to cancel your bid use the following syntax:\n"
