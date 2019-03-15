@@ -30,7 +30,8 @@ namespace DiscordDkpBot.Commands
 
 		public bool DoesCommandApply (IMessage message)
 		{
-			return CommandTriggers.Any(trigger => message?.Content?.StartsWith(CommandPrefix + trigger) == true);
+			return CommandTriggers.Any(trigger => message?.Content?.StartsWith(CommandPrefix + trigger) == true)
+				&& !(message.Channel is IPrivateChannel);
 		}
 
 		public abstract Task<bool> InvokeAsync (IMessage message);
