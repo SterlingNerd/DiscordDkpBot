@@ -104,17 +104,17 @@ namespace DiscordDkpBotTests.Commands
 		{
 			config = new DkpBotConfiguration();
 			processor = new Mock<IAuctionProcessor>();
-			log = new Mock<ILogger<StartBidsCommand>>();
-			target = new StartBidsCommand(config, processor.Object, log.Object);
+			log = new Mock<ILogger<StartAuctionCommand>>();
+			target = new StartAuctionCommand(config, processor.Object, log.Object);
 		}
 
 		#endregion
 
 		#region Test Helpers
 
-		private Mock<ILogger<StartBidsCommand>> log;
+		private Mock<ILogger<StartAuctionCommand>> log;
 		private Mock<IAuctionProcessor> processor;
-		private StartBidsCommand target;
+		private StartAuctionCommand target;
 		private DkpBotConfiguration config;
 
 		#endregion

@@ -15,9 +15,10 @@ namespace DiscordDkpBot.Auctions
 {
 	public interface IAuctionProcessor
 	{
-		Task<AuctionBid> CancelBid (string item, IMessage message);
 		Task<AuctionBid> AddOrUpdateBid (string item, string character, string rank, int bid, IMessage message);
-		Task<Auction> StartAuction (int? quantity, string name, int? minutes, IMessageChannel messageChannel, IUser author);
+		Task<Auction> CancelAuction (string name, IMessage message);
+		Task<AuctionBid> CancelBid (string item, IMessage message);
+		Task<Auction> StartAuction (int? quantity, string name, int? minutes, IMessage messageChannel);
 	}
 
 	public class AuctionProcessor : IAuctionProcessor
@@ -33,6 +34,33 @@ namespace DiscordDkpBot.Auctions
 			this.configuration = configuration;
 			this.auctionState = auctionState;
 			this.log = log;
+		}
+
+		public Task<AuctionBid> AddOrUpdateBid (string item, string character, string rank, int bid, IMessage message)
+		{
+			// First make sure we can make a valid bid out of it.
+			if (!ranks.TryGetValue(rank, out RankConfiguration rankConfig))
+			{
+				throw new ArgumentException($"Rank {rank} does not exist.");
+			}
+
+			if (!auctionState.Auctions.TryGetValue(item, out Auction auction))
+			{
+				throw new AuctionNotFoundException(item);
+			}
+
+			AuctionBid newBid = auction.Bids.AddOrUpdate(new AuctionBid(auction, character, bid, rankConfig, message.Author));
+
+			log.LogInformation($"Created bid: {newBid}");
+
+			message.Channel.SendMessageAsync($"Bid accepted for **{newBid.Auction}**\n"
+				+ $"```{newBid}```"
+				+ $"If you win, you could pay up to **{newBid.BidAmount * newBid.Rank.PriceMultiplier}**.\n"
+				+ $"If you wish to modify your bid before the auction completes, simply enter a new bid in the next {auction.MinutesRemaining:##.#} minutes.\n"
+				+ "If you wish to cancel your bid use the following syntax:\n"
+				+ $"```\"{newBid.Auction.Name}\" cancel```");
+
+			return Task.FromResult(newBid);
 		}
 
 		public CompletedAuction CalculateWinners (Auction auction)
@@ -65,6 +93,21 @@ namespace DiscordDkpBot.Auctions
 			return new CompletedAuction(auction, winners);
 		}
 
+		public async Task<Auction> CancelAuction (string name, IMessage message)
+		{
+			if (!auctionState.Auctions.TryRemove(name, out Auction auction))
+			{
+				throw new AuctionAlreadyExistsException($"Auction for {name} does not exists.");
+			}
+
+			string cancelMessage = $"Cancelled auction: {auction.DetailString}.";
+
+			await message.Channel.SendMessageAsync(cancelMessage);
+			log.LogTrace(cancelMessage);
+
+			return auction;
+		}
+
 		public Task<AuctionBid> CancelBid (string item, IMessage message)
 		{
 			if (!auctionState.Auctions.TryGetValue(item, out Auction auction))
@@ -82,42 +125,19 @@ namespace DiscordDkpBot.Auctions
 			return Task.FromResult(bid);
 		}
 
-		public Task<AuctionBid> AddOrUpdateBid (string item, string character, string rank, int bid, IMessage message)
+		public async Task<Auction> StartAuction (int? quantity, string name, int? minutes, IMessage message)
 		{
-			// First make sure we can make a valid bid out of it.
-			if (!ranks.TryGetValue(rank, out RankConfiguration rankConfig))
+			Auction auction = new Auction(auctionState.NextAuctionId, quantity ?? 1, name, minutes ?? configuration.DefaultAuctionDurationMinutes, message.Author);
+			if (!auctionState.Auctions.TryAdd(auction.Name, auction))
 			{
-				throw new ArgumentException($"Rank {rank} does not exist.");
+				throw new AuctionAlreadyExistsException($"Auction for {auction.Name} already exists.");
 			}
 
-			if (!auctionState.Auctions.TryGetValue(item, out Auction auction))
-			{
-				throw new AuctionNotFoundException(item);
-			}
-
-			AuctionBid newBid = auction.Bids.AddOrUpdate(new AuctionBid(auction, character, bid, rankConfig, message.Author));
-
-			log.LogInformation($"Created bid: {newBid}");
-
-			message.Channel.SendMessageAsync($"Bid accepted for **{newBid.Auction}**\n"
-				+ $"```{newBid}```"
-				+ $"If you win, you could pay up to **{newBid.BidAmount * newBid.Rank.PriceMultiplier}**.\n"
-				+ $"If you wish to modify your bid before the auction completes, simply enter a new bid in the next {auction.MinutesRemaining:##.#} minutes.\n"
-				+ "If you wish to cancel your bid use the following syntax:\n"
-				+ $"```\"{newBid.Auction.Name}\" cancel```");
-
-			return Task.FromResult(newBid);
-		}
-
-		public async Task<Auction> StartAuction (int? quantity, string name, int? minutes, IMessageChannel channel, IUser author)
-		{
-			Auction auction = CreateAuction(quantity, name, minutes, author);
-
-			IUserMessage announcement = await channel.SendMessageAsync(auction.Announcement);
+			IUserMessage announcement = await message.Channel.SendMessageAsync(auction.Announcement);
 
 			StartAuctionTimers(auction, announcement);
 
-			log.LogTrace("Started Auction: {0}", auction.DetailString);
+			log.LogTrace("Started auction: {0}", auction.DetailString);
 
 			return auction;
 		}
@@ -178,16 +198,6 @@ namespace DiscordDkpBot.Auctions
 			int price = applicableLooserBid + 1;
 			int finalPrice = price * winner.Rank.PriceMultiplier;
 			return new WinningBid(winner, finalPrice);
-		}
-
-		private Auction CreateAuction (int? quantity, string name, int? minutes, IUser author)
-		{
-			Auction auction = new Auction(auctionState.NextAuctionId, quantity ?? 1, name, minutes ?? configuration.DefaultAuctionDurationMinutes, author);
-			if (!auctionState.Auctions.TryAdd(auction.Name, auction))
-			{
-				throw new AuctionAlreadyExistsException($"Auction for {auction.Name} already exists.");
-			}
-			return auction;
 		}
 
 		private Task FinishAuction (Auction auction, IUserMessage announcement)

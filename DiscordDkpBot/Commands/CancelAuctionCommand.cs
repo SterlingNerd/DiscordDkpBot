@@ -12,15 +12,15 @@ using Microsoft.Extensions.Logging;
 
 namespace DiscordDkpBot.Commands
 {
-	public class StartBidsCommand : BasicChatCommand
+	public class CancelAuctionCommand : BasicChatCommand
 	{
 		public const string Syntax = "One item:\t\t\t`\"Item_Name\"`\nTwo of an item:\t\t`2x\"Item_Name\"`\nCustom duration:\t\t`\"Item_Name\" 4`";
 		private readonly Regex pattern;
 		private readonly IAuctionProcessor auctionProcessor;
-		private readonly ILogger<StartBidsCommand> log;
+		private readonly ILogger<CancelAuctionCommand> log;
 
-		public StartBidsCommand (DkpBotConfiguration configuration, IAuctionProcessor auctionProcessor, ILogger<StartBidsCommand> log)
-			: base(configuration.CommandPrefix, new[] { "startbid", "startbids", "dkp startbids", "dkp startbid" })
+		public CancelAuctionCommand (DkpBotConfiguration configuration, IAuctionProcessor auctionProcessor, ILogger<CancelAuctionCommand> log)
+			: base(configuration.CommandPrefix, new[] { "cancel", "cancelbid", "cancelbids", "dkp cancel", "dkp cancelbid", "dkp cancelbids" })
 		{
 			string regex = configuration.CommandPrefix + "?(?<trigger>" + string.Join('|', CommandTriggers) + @")?\s*(?<number>\d+)?x?\s*""(?<name>.+)""\s*(?<time>\d+)?";
 			pattern = new Regex(regex, RegexOptions.IgnoreCase);
@@ -32,8 +32,8 @@ namespace DiscordDkpBot.Commands
 		{
 			try
 			{
-				(int? quantity, string name, int? minutes) = ParseArgs(message.Content);
-				auctionProcessor.StartAuction(quantity, name, minutes, message.Channel, message.Author);
+				string name = ParseArgs(message.Content);
+				auctionProcessor.CancelAuction(name, message);
 				return Task.FromResult(true);
 			}
 			catch (AuctionAlreadyExistsException ex)
@@ -50,7 +50,7 @@ namespace DiscordDkpBot.Commands
 			}
 		}
 
-		public (int? number, string name, int? minutes) ParseArgs (string args)
+		public string ParseArgs (string args)
 		{
 			Match match = pattern.Match(args);
 
@@ -59,13 +59,11 @@ namespace DiscordDkpBot.Commands
 				throw new ArgumentException($"Could not parse auction from: '{args}'");
 			}
 
-			int? number = match.Groups["number"].Success ? int.Parse(match.Groups["number"].Value) : (int?)null;
 			string name = match.Groups["name"].Value;
-			int? minutes = match.Groups["time"].Success ? int.Parse(match.Groups["time"].Value) : (int?)null;
 
-			log.LogTrace("Parsed auction arguments: {0}x {1} for {2} mins.", number, name, minutes);
+			log.LogTrace("Parsed cancel arguments: {0}", name);
 
-			return (number, name, minutes);
+			return name;
 		}
 	}
 }
