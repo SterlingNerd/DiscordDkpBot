@@ -27,6 +27,8 @@ namespace DiscordDkpBotTests.Commands
 		[TestCase("\"Item\" Billy 1 Main", "Item", "Billy", "Main", 1,TestName="1 Digit Bid")]
 		[TestCase("\"Item\" Billy 351 Main", "Item", "Billy", "Main", 351, TestName = "3 Digit Bid")]
 		[TestCase("\"Item\" Billy 1337 Main", "Item", "Billy", "Main", 1337, TestName = "4 Digit Bid")]
+		[TestCase("\"Item with spaces\" Billy 1337 Main", "Item with spaces", "Billy", "Main", 1337, TestName = "Item With Spaces")]
+		[TestCase("\"ItemWith&*%*&^%'Symbols\" Billy 1337 Main", "ItemWith&*%*&^%'Symbols", "Billy", "Main", 1337, TestName = "Item With Symbols")]
 		public void ParseArgs (string input, string expectedItem, string expectedCharacter, string expectedRank, int expectedBid)
 		{
 			//Act

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using Discord;
 using Discord.WebSocket;
 
 namespace DiscordDkpBot.Commands
@@ -27,11 +28,11 @@ namespace DiscordDkpBot.Commands
 			CommandTriggers = commandTriggers.ToArray();
 		}
 
-		public bool DoesCommandApply (SocketMessage message)
+		public bool DoesCommandApply (IMessage message)
 		{
 			return CommandTriggers.Any(trigger => message?.Content?.StartsWith(CommandPrefix + trigger) == true);
 		}
 
-		public abstract Task<bool> InvokeAsync (SocketMessage message);
+		public abstract Task<bool> InvokeAsync (IMessage message);
 	}
 }

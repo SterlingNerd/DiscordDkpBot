@@ -1,13 +1,13 @@
 using System;
 using System.Threading.Tasks;
 
-using Discord.WebSocket;
+using Discord;
 
 namespace DiscordDkpBot.Commands
 {
 	public interface ICommand
 	{
-		bool DoesCommandApply (SocketMessage message);
-		Task<bool> InvokeAsync (SocketMessage message);
+		bool DoesCommandApply (IMessage message);
+		Task<bool> InvokeAsync (IMessage message);
 	}
 }

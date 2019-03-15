@@ -1,6 +1,6 @@
 using System;
 
-using Discord.WebSocket;
+using Discord;
 
 using DiscordDkpBot.Configuration;
 
@@ -9,12 +9,12 @@ namespace DiscordDkpBot.Auctions
 	public class AuctionBid : IEquatable<AuctionBid>, IComparable<AuctionBid>
 	{
 		public Auction Auction { get; }
-		public SocketUser Author { get; }
+		public IUser Author { get; }
 		public int BidAmount { get; }
 		public string Character { get; }
 		public RankConfiguration Rank { get; }
 
-		public AuctionBid (Auction auction, string character, int bidAmount, RankConfiguration rank, SocketUser author)
+		public AuctionBid (Auction auction, string character, int bidAmount, RankConfiguration rank, IUser author)
 		{
 			Character = character;
 			BidAmount = bidAmount;
@@ -48,12 +48,7 @@ namespace DiscordDkpBot.Auctions
 			}
 
 			// Caps are the same, compare bids.
-			return  other.BidAmount - BidAmount;
-		}
-
-		public override string ToString ()
-		{
-			return $"{Character} {BidAmount} {Rank.Name}";
+			return other.BidAmount - BidAmount;
 		}
 
 		public bool Equals (AuctionBid other)
@@ -71,7 +66,7 @@ namespace DiscordDkpBot.Auctions
 			{
 				return true;
 			}
-			if (obj.GetType() != this.GetType())
+			if (obj.GetType() != GetType())
 			{
 				return false;
 			}
@@ -84,6 +79,11 @@ namespace DiscordDkpBot.Auctions
 			{
 				return (BidAmount * 397) ^ (Rank?.MaxBid.GetHashCode() ?? 0);
 			}
+		}
+
+		public override string ToString ()
+		{
+			return $"{Character} {BidAmount} {Rank.Name}";
 		}
 
 		public static bool operator == (AuctionBid left, AuctionBid right)

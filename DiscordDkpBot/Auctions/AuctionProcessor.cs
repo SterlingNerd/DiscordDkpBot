@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Timers;
 
+using Discord;
+using Discord.Rest;
 using Discord.WebSocket;
 
 using DiscordDkpBot.Configuration;
@@ -14,8 +17,8 @@ namespace DiscordDkpBot.Auctions
 {
 	public interface IAuctionProcessor
 	{
-		Auction StartAuction (int? quantity, string name, int? minutes, ISocketMessageChannel messageChannel, SocketUser author);
-		AuctionBid CreateBid (string item, string character, string rank, int bid, SocketUser messageAuthor);
+		Task<Auction> StartAuction (int? quantity, string name, int? minutes, IMessageChannel messageChannel, IUser author);
+		Task<AuctionBid> CreateBid (string item, string character, string rank, int bid, IMessage message);
 	}
 
 	public class AuctionProcessor : IAuctionProcessor
@@ -64,27 +67,42 @@ namespace DiscordDkpBot.Auctions
 			return new CompletedAuction(auction, winners);
 		}
 
-		public Auction StartAuction (int? quantity, string name, int? minutes, ISocketMessageChannel channel, SocketUser author)
+		public async Task<Auction> StartAuction (int? quantity, string name, int? minutes, IMessageChannel channel, IUser author)
 		{
 			Auction auction = CreateAuction(quantity, name, minutes, author);
 
-			StartAuctionTimers(auction, channel);
+			IUserMessage announcement = await channel.SendMessageAsync(auction.Announcement);
+
+			StartAuctionTimers(auction, announcement);
 
 			log.LogTrace("Started Auction: {0}", auction.DetailString);
+
 
 			return auction;
 		}
 
-		private void StartAuctionTimers (Auction auction,ISocketMessageChannel channel)
+		private void StartAuctionTimers (Auction auction, IUserMessage announcement)
 		{
 			// Completion Timer
-			Timer timer = new Timer(TimeSpan.FromMinutes(Math.Max(1, auction.Minutes)).TotalMilliseconds);
-			timer.AutoReset = false;
-			timer.Elapsed += (o, s) => FinishAuction(auction, channel);
+			Timer timer = new Timer(TimeSpan.FromMinutes(0.5).TotalMilliseconds);
+			timer.AutoReset = true;
+			timer.Elapsed += async (o, s) =>
+							{
+								if (auction.MinutesRemaining > 0)
+								{
+									auction.MinutesRemaining -= 0.5;
+									await announcement.ModifyAsync(m => m.Content = auction.Announcement);
+								}
+								else
+								{
+									await announcement.ModifyAsync(m => m.Content = auction.ClosedText);
+									await FinishAuction(auction, announcement);
+								}
+							};
 			timer.Start();
 		}
 
-		private Auction CreateAuction (int? quantity, string name, int? minutes, SocketUser author)
+		private Auction CreateAuction (int? quantity, string name, int? minutes, IUser author)
 		{
 			Auction auction = new Auction(auctionState.NextAuctionId, quantity ?? 1, name, minutes ?? configuration.DefaultAuctionDurationMinutes, author);
 			if (!auctionState.Auctions.TryAdd(auction.Name, auction))
@@ -94,7 +112,7 @@ namespace DiscordDkpBot.Auctions
 			return auction;
 		}
 
-		public AuctionBid CreateBid (string item, string character, string rank, int bid, SocketUser messageAuthor)
+		public Task<AuctionBid> CreateBid (string item, string character, string rank, int bid, IMessage message)
 		{
 			// First make sure we can make a valid bid out of it.
 			if (!ranks.TryGetValue(rank, out RankConfiguration rankConfig))
@@ -107,11 +125,18 @@ namespace DiscordDkpBot.Auctions
 				throw new AuctionNotFoundException($"Could not find auction '{item}'.");
 			}
 
-			AuctionBid newBid = auction.Bids.AddOrUpdate(new AuctionBid(auction, character, bid, rankConfig, messageAuthor));
+			AuctionBid newBid = auction.Bids.AddOrUpdate(new AuctionBid(auction, character, bid, rankConfig, message.Author));
 
 			log.LogInformation($"Created bid: {newBid}");
 
-			return newBid;
+
+			message.Channel.SendMessageAsync($"Bid accepted for **{newBid.Auction}**\n"
+				+ $"If you win, you could pay up to **{newBid.BidAmount * newBid.Rank.PriceMultiplier}**.\n"
+				+ "If you wish to modify your bid before the auction completes, simply enter a new bid.\n"
+				+ "If you wish to cancel your bid use the following syntax:\n"
+				+ $"```\"{newBid.Auction.Name}\" cancel```");
+
+			return Task.FromResult(newBid);
 		}
 
 		private WinningBid CalculateWinner (List<AuctionBid> bids)
@@ -168,7 +193,7 @@ namespace DiscordDkpBot.Auctions
 			return new WinningBid(winner, finalPrice);
 		}
 
-		private void FinishAuction (Auction auction, ISocketMessageChannel channel)
+		private Task FinishAuction (Auction auction, IUserMessage announcement)
 		{
 			auctionState.Auctions.TryRemove(auction.Name, out Auction _);
 
@@ -176,7 +201,7 @@ namespace DiscordDkpBot.Auctions
 
 			auctionState.CompletedAuctions.TryAdd(completedAuction.ID, completedAuction);
 
-			channel.SendMessageAsync(completedAuction.ToString());
+			return announcement.Channel.SendMessageAsync(completedAuction.ToString());
 		}
 	}
 }

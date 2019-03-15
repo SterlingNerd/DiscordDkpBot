@@ -15,9 +15,9 @@ namespace DiscordDkpBot.Commands
 		{
 		}
 
-		public override async Task<bool> InvokeAsync (SocketMessage message)
+		public override async Task<bool> InvokeAsync (IMessage message)
 		{
-			await message.Channel.SendMessageAsync($"pong {message.Content.RemoveFirstWord()}");
+			await message.Channel.SendMessageAsync($"pong {message.Content.Replace(CommandPrefix + CommandTriggers, string.Empty)}");
 			return true;
 		}
 	}

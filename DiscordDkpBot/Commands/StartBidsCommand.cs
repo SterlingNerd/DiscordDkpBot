@@ -2,7 +2,7 @@
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-using Discord.WebSocket;
+using Discord;
 
 using DiscordDkpBot.Auctions;
 using DiscordDkpBot.Configuration;
@@ -15,25 +15,25 @@ namespace DiscordDkpBot.Commands
 	public class StartBidsCommand : BasicChatCommand
 	{
 		public const string Syntax = "One item:\t\t\t`\"Item_Name\"`\nTwo of an item:\t\t`2x\"Item_Name\"`\nCustom duration:\t\t`\"Item_Name\" 4`";
-		private static readonly Regex pattern = new Regex(@"\s*(?<number>\d+)?x?\s*""(?<name>[\w ]+)""\s*(?<time>\d+)?");
+		private readonly Regex pattern;
 		private readonly IAuctionProcessor auctionProcessor;
 		private readonly ILogger<StartBidsCommand> log;
 
 		public StartBidsCommand (DkpBotConfiguration configuration, IAuctionProcessor auctionProcessor, ILogger<StartBidsCommand> log)
-			: base(configuration.CommandPrefix, new[] { "startbid", "startbids" })
+			: base(configuration.CommandPrefix, new[] { "startbid", "startbids", "dkp startbids", "dkp startbid" })
 		{
+			string regex = configuration.CommandPrefix + "?(?<trigger>" + string.Join('|', CommandTriggers) + @")?\s*(?<number>\d+)?x?\s*""(?<name>.+)""\s*(?<time>\d+)?";
+			pattern = new Regex(regex);
 			this.auctionProcessor = auctionProcessor;
 			this.log = log;
 		}
 
-		public override Task<bool> InvokeAsync (SocketMessage message)
+		public override Task<bool> InvokeAsync (IMessage message)
 		{
 			try
 			{
-				string args = message?.Content?.RemoveFirstWord();
-				(int? quantity, string name, int? minutes) = ParseArgs(args);
-				Auction auction = auctionProcessor.StartAuction(quantity, name, minutes, message.Channel, message.Author);
-				message.Channel.SendMessageAsync($"**{auction}**\nBids are open for **{auction}** for **{auction.Minutes}** minutes.");
+				(int? quantity, string name, int? minutes) = ParseArgs(message.Content);
+				auctionProcessor.StartAuction(quantity, name, minutes, message.Channel, message.Author);
 				return Task.FromResult(true);
 			}
 			catch (AuctionAlreadyExistsException ex)

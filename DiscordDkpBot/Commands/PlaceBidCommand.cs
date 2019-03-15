@@ -2,6 +2,7 @@
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
+using Discord;
 using Discord.WebSocket;
 
 using DiscordDkpBot.Auctions;
@@ -16,7 +17,7 @@ namespace DiscordDkpBot.Commands
 	{
 		public const string Syntax = "\"{Item_Name_With_Typos}\" {Character} {Amount} {Rank}";
 
-		private static readonly Regex pattern = new Regex(@"""(?<Item>[\w ]+)""\s+(?<Character>\w+)(\s+(?<Bid>\d+)\s+(?<Rank>\w+)|\s+(?<Rank>\w+)\s+(?<Bid>\d+))");
+		private static readonly Regex pattern = new Regex(@"""(?<Item>.+)""\s+(?<Character>\w+)(\s+(?<Bid>\d+)\s+(?<Rank>\w+)|\s+(?<Rank>\w+)\s+(?<Bid>\d+))");
 
 		private readonly IAuctionProcessor auctionProcessor;
 		private readonly ILogger<PlaceBidCommand> log;
@@ -29,36 +30,32 @@ namespace DiscordDkpBot.Commands
 			ranks = config.Ranks;
 		}
 
-		public bool DoesCommandApply (SocketMessage message)
+		public bool DoesCommandApply (IMessage message)
 		{
 			return message.Channel is SocketDMChannel && message.Content.Trim().StartsWith('"');
 		}
 
-		public Task<bool> InvokeAsync (SocketMessage message)
+		public async Task<bool> InvokeAsync (IMessage message)
 		{
 			try
 			{
 				(string item, string character, string rank, int bid) = ParseArgs(message.Content);
 
-				AuctionBid auctionBid = auctionProcessor.CreateBid(item, character, rank, bid, message.Author);
-				message.Channel.SendMessageAsync($"Bid accepted for **{auctionBid.Auction}**\n"
-					+ $"If you win, you could pay up to **{auctionBid.BidAmount * auctionBid.Rank.PriceMultiplier}**.\n"
-					+ "If you wish to modify your bid before the auction completes, simply enter a new bid.\n"
-					+ "If you wish to cancel your bid use the following syntax:\n"
-					+ $"```\"{auctionBid.Auction.Name}\" cancel```");
-				return Task.FromResult(true);
+				await auctionProcessor.CreateBid(item, character, rank, bid, message);
+
+				return true;
 			}
 			catch (AuctionNotFoundException ex)
 			{
 				log.LogWarning(ex);
-				message.Channel.SendMessageAsync(ex.Message);
-				return Task.FromResult(false);
+				await message.Channel.SendMessageAsync(ex.Message);
+				return false;
 			}
 			catch (Exception ex)
 			{
 				log.LogWarning(ex);
-				message.Channel.SendMessageAsync($"Yer doin it wrong!\n\nSyntax:\n{Syntax}");
-				return Task.FromResult(false);
+				await message.Channel.SendMessageAsync($"Yer doin it wrong!\n\nSyntax:\n{Syntax}");
+				return false;
 			}
 		}
 

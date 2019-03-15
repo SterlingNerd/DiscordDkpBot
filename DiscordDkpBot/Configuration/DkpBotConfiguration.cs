@@ -4,7 +4,7 @@ namespace DiscordDkpBot.Configuration
 {
 	public class DkpBotConfiguration
 	{
-		public string CommandPrefix { get; set; } = "!";
+		public string CommandPrefix { get; set; } = ".";
 		public int DefaultAuctionDurationMinutes { get; set; } = 5;
 		public DiscordConfiguration Discord { get; set; }
 
