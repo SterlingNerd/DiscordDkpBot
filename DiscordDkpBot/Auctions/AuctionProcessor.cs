@@ -15,7 +15,6 @@ namespace DiscordDkpBot.Auctions
 	{
 		Auction CreateAuction (int? quantity, string name, int? minutes, ISocketMessageChannel messageChannel, SocketUser author);
 		AuctionBid CreateBid (string item, string character, string rank, int bid, SocketUser messageAuthor);
-
 	}
 
 	public class AuctionProcessor : IAuctionProcessor
@@ -25,33 +24,12 @@ namespace DiscordDkpBot.Auctions
 		private readonly ILogger<AuctionProcessor> log;
 		private readonly Dictionary<string, RankConfiguration> ranks;
 
-
 		public AuctionProcessor (DkpBotConfiguration configuration, AuctionState auctionState, ILogger<AuctionProcessor> log)
 		{
 			ranks = configuration.Ranks.ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
 			this.configuration = configuration;
 			this.auctionState = auctionState;
 			this.log = log;
-		}
-
-		public AuctionBid CreateBid (string item, string character, string rank, int bid, SocketUser messageAuthor)
-		{
-			// First make sure we can make a valid bid out of it.
-			if (!ranks.TryGetValue(rank, out RankConfiguration rankConfig))
-			{
-				throw new ArgumentException($"Rank {rank} does not exist.");
-			}
-
-			if (!auctionState.Auctions.TryGetValue(item, out Auction auction))
-			{
-				throw new AuctionNotFoundException($"Could not find auction '{item}'.");
-			}
-
-			AuctionBid newBid = auction.Bids.AddOrUpdate(new AuctionBid(auction, character, bid, rankConfig, messageAuthor));
-
-			log.LogInformation($"Created bid: {newBid}");
-
-			return newBid;
 		}
 
 		public CompletedAuction CalculateWinners (Auction auction)
@@ -95,9 +73,29 @@ namespace DiscordDkpBot.Auctions
 			return auction;
 		}
 
+		public AuctionBid CreateBid (string item, string character, string rank, int bid, SocketUser messageAuthor)
+		{
+			// First make sure we can make a valid bid out of it.
+			if (!ranks.TryGetValue(rank, out RankConfiguration rankConfig))
+			{
+				throw new ArgumentException($"Rank {rank} does not exist.");
+			}
+
+			if (!auctionState.Auctions.TryGetValue(item, out Auction auction))
+			{
+				throw new AuctionNotFoundException($"Could not find auction '{item}'.");
+			}
+
+			AuctionBid newBid = auction.Bids.AddOrUpdate(new AuctionBid(auction, character, bid, rankConfig, messageAuthor));
+
+			log.LogInformation($"Created bid: {newBid}");
+
+			return newBid;
+		}
+
 		private WinningBid CalculateWinner (List<AuctionBid> bids)
 		{
-			bids.Sort((c1, c2) => c1.CompareTo(c2));
+			bids.Sort();
 
 			List<AuctionBid> winningBids = new List<AuctionBid>();
 			AuctionBid loser = null;
@@ -132,11 +130,22 @@ namespace DiscordDkpBot.Auctions
 			Random random = new Random();
 			AuctionBid winner = winningBids.OrderBy(x => random.Next()).First();
 
-			int price = loser?.BidAmount ?? 0 + 1;
+			int applicableLooserBid;
+			if (winner.Rank.MaxBid > loser.Rank.MaxBid && winner.BidAmount > loser.Rank.MaxBid)
+			{
+				// If our bid cap and is higher than their bid cap, and we bid over their cap. reduce their bid.
+				applicableLooserBid = Math.Min(loser.BidAmount, loser.Rank.MaxBid);
+			}
+			else
+			{
+				// Otherwise, 
+				applicableLooserBid = loser.BidAmount;
+			}
+
+			int price = applicableLooserBid + 1;
 			int finalPrice = price * winner.Rank.PriceMultiplier;
 			return new WinningBid(winner, finalPrice);
 		}
-
 
 		private void FinishAuction (Auction auction, ISocketMessageChannel channel)
 		{
