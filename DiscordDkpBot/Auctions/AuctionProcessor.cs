@@ -88,13 +88,15 @@ namespace DiscordDkpBot.Auctions
 			timer.AutoReset = true;
 			timer.Elapsed += async (o, s) =>
 							{
+								auction.MinutesRemaining -= 0.5;
+
 								if (auction.MinutesRemaining > 0)
 								{
-									auction.MinutesRemaining -= 0.5;
 									await announcement.ModifyAsync(m => m.Content = auction.Announcement);
 								}
 								else
 								{
+									timer.Stop();
 									await announcement.ModifyAsync(m => m.Content = auction.ClosedText);
 									await FinishAuction(auction, announcement);
 								}

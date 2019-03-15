@@ -8,7 +8,7 @@ namespace DiscordDkpBot.Auctions
 	public class Auction
 	{
 		public string Announcement => $"**[{ShortDescription}]**\nBids are open for **{ShortDescription}** for **{MinutesRemaining}** minutes.\n```\"{Name}\" character 69 main/box/alt/recruit```";
-		public string ClosedText => $"***[{ShortDescription}]**\nBids are now closed.";
+		public string ClosedText => $"***[{ShortDescription}]** Bids are now closed.";
 		public IUser Author { get; }
 		public BidCollection Bids { get; } = new BidCollection();
 		public string DetailString => $"({ID}) {Quantity}x {Name} for {MinutesRemaining} min.";
