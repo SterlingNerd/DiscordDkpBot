@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 using DiscordDkpBot.Extensions;
@@ -21,26 +22,31 @@ namespace DiscordDkpBot.Auctions
 		public override string ToString ()
 		{
 			StringBuilder builder = new StringBuilder();
-			builder.AppendLine($"**[{Auction}]** Results:");
+			builder.AppendLine($"**\n[{Auction}] Results:**\n");
 
 			if (WinningBids.None())
 			{
-				builder.Append("```No bids received.```");
+				builder.Append("```css\nNo bids received.\n```");
 			}
 			else
 			{
+				builder.Append("Gratz Winners:");
+				builder.AppendLine(string.Join(", ", WinningBids.Select(x => x.Bid.Author.Mention.ToString())));
+
+				builder.AppendLine("```css");
 				foreach (WinningBid winner in WinningBids)
 				{
-					builder.AppendLine($"```{winner}```");
+					builder.AppendLine(winner.ToString());
 				}
 
 				if (Auction.Quantity > WinningBids.Count)
 				{
-					builder.AppendLine($"```{Auction.Quantity - WinningBids.Count}x Rot```");
+					builder.AppendLine($"{{{Auction.Quantity - WinningBids.Count}x Rot}}");
 				}
+				builder.AppendLine("```");
 			}
 
-			builder.AppendLine($"(AuctionID: {Auction.ID} {Auction.Author.Mention}");
+			builder.AppendLine($"(AuctionID: {Auction.ID}) {Auction.Author.Mention}");
 			return builder.ToString();
 		}
 
