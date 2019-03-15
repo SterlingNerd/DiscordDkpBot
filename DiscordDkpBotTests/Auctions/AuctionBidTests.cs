@@ -24,6 +24,8 @@ namespace DiscordDkpBotTests.Auctions
 		[TestCase(300, 25, 250, 25, 1)]
 		[TestCase(300, null, null, null, 1)]
 		[TestCase(300, 25, null, null, 1)]
+		[TestCase(104, null, 54, 25, 1)]
+		[TestCase(54, 25, 300, 100, 2)]
 		public void Compare (int? bid1, int? cap1, int? bid2, int? cap2, int expected)
 		{
 			//Arrange
@@ -35,12 +37,38 @@ namespace DiscordDkpBotTests.Auctions
 
 			//Act
 			int comparison = a1?.CompareTo(a2) ?? 0;
-			int actual = comparison > 0 ? 1 : comparison < 0 ? 2 : 0;
+			int actual = comparison < 0 ? 1 : comparison > 0 ? 2 : 0;
 
 			//Assert
 			Assert.AreEqual(expected, actual);
 		}
 
+		[Test]
+		public void CompareToMultiples ()
+		{
+			//Arrange
+			Auction auction = new Auction(23423, 2, "Nuke", 2, null);
+			RankConfiguration main = new RankConfiguration("main", null, 1);
+			RankConfiguration box = new RankConfiguration("box", 100, 1);
+			RankConfiguration alt = new RankConfiguration("alt", 25, 1);
+
+			AuctionBid mainBid = new AuctionBid(auction, "main", 104, main, null);
+			AuctionBid boxBid1 = new AuctionBid(auction, "box1", 300, box, null);
+			AuctionBid BoxBid2 = new AuctionBid(auction, "box2", 250, box, null);
+			AuctionBid altBid = new AuctionBid(auction, "alt", 54, alt, null);
+
+			List<AuctionBid> list = new List<AuctionBid> { altBid, boxBid1, mainBid, BoxBid2 };
+
+			//Act
+			list.Sort();
+
+			//Assert
+			Assert.AreEqual(mainBid, list[0]);
+			Assert.AreEqual(boxBid1, list[1]);
+			Assert.AreEqual(BoxBid2, list[2]);
+			Assert.AreEqual(altBid, list[3]);
+
+		}
 		#region Setup/Teardown
 
 		[SetUp]

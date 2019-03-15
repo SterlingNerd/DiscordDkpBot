@@ -15,7 +15,7 @@ namespace DiscordDkpBot.Commands
 	public class StartBidsCommand : BasicChatCommand
 	{
 		public const string Syntax = "One item:\t\t\t`\"Item_Name\"`\nTwo of an item:\t\t`2x\"Item_Name\"`\nCustom duration:\t\t`\"Item_Name\" 4`";
-		private static readonly Regex pattern = new Regex(@"(?<number>\d+)?x?\s*""(?<name>\w+)""\s*(?<time>\d+)?");
+		private static readonly Regex pattern = new Regex(@"\s*(?<number>\d+)?x?\s*""(?<name>[\w ]+)""\s*(?<time>\d+)?");
 		private readonly IAuctionProcessor auctionProcessor;
 		private readonly ILogger<StartBidsCommand> log;
 

@@ -22,11 +22,11 @@ namespace DiscordDkpBot.Configuration
 		{
 			
 		}
-		public RankConfiguration (string name, int maxBid, int priceMultiplier)
+		public RankConfiguration (string name, int? maxBid, int? priceMultiplier)
 		{
 			Name = name;
-			MaxBid = maxBid;
-			PriceMultiplier = priceMultiplier;
+			MaxBid = maxBid ?? int.MaxValue;
+			PriceMultiplier = priceMultiplier ?? 1;
 		}
 	}
 }
