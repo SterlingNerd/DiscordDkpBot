@@ -34,7 +34,7 @@ namespace DiscordDkpBot.Auctions
 
 		public CompletedAuction CalculateWinners (Auction auction)
 		{
-			log.LogTrace("Finding winners for {0}", auction.DetailString);
+			log.LogTrace("Finding winners for {0} from bids submitted: ({1})", auction.DetailString, string.Join(', ', auction.Bids));
 
 			List<AuctionBid> bids = auction.Bids.ToList();
 			List<WinningBid> winners = new List<WinningBid>();
@@ -96,7 +96,7 @@ namespace DiscordDkpBot.Auctions
 		private WinningBid CalculateWinner (List<AuctionBid> bids)
 		{
 			bids.Sort();
-
+			log.LogTrace("Finding best winner from: ({0})", string.Join(", ", bids));
 			List<AuctionBid> winningBids = new List<AuctionBid>();
 			AuctionBid loser = null;
 
