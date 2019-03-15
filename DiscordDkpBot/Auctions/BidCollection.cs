@@ -5,18 +5,23 @@ using System.Collections.Generic;
 
 namespace DiscordDkpBot.Auctions
 {
-	public class BidCollection :IEnumerable<AuctionBid>
+	public class BidCollection : IEnumerable<AuctionBid>
 	{
-		private readonly ConcurrentDictionary<string, AuctionBid> bids = new ConcurrentDictionary<string, AuctionBid>();
+		private readonly ConcurrentDictionary<ulong, AuctionBid> bids = new ConcurrentDictionary<ulong, AuctionBid>();
 
 		public AuctionBid AddOrUpdate (AuctionBid bid)
 		{
-			return bids.AddOrUpdate(bid.Character, bid, (k, e) => bid);
+			return bids.AddOrUpdate(bid.Author.Id, bid, (k, e) => bid);
 		}
 
 		public IEnumerator<AuctionBid> GetEnumerator ()
 		{
 			return bids.Values.GetEnumerator();
+		}
+
+		public bool TryRemove (ulong authorId, out AuctionBid bid)
+		{
+			return bids.TryRemove(authorId, out bid);
 		}
 
 		IEnumerator IEnumerable.GetEnumerator ()

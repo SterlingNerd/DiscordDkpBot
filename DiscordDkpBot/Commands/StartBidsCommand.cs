@@ -23,7 +23,7 @@ namespace DiscordDkpBot.Commands
 			: base(configuration.CommandPrefix, new[] { "startbid", "startbids", "dkp startbids", "dkp startbid" })
 		{
 			string regex = configuration.CommandPrefix + "?(?<trigger>" + string.Join('|', CommandTriggers) + @")?\s*(?<number>\d+)?x?\s*""(?<name>.+)""\s*(?<time>\d+)?";
-			pattern = new Regex(regex);
+			pattern = new Regex(regex, RegexOptions.IgnoreCase);
 			this.auctionProcessor = auctionProcessor;
 			this.log = log;
 		}

@@ -5,8 +5,6 @@ using System.Threading.Tasks;
 using System.Timers;
 
 using Discord;
-using Discord.Rest;
-using Discord.WebSocket;
 
 using DiscordDkpBot.Configuration;
 using DiscordDkpBot.Extensions;
@@ -17,8 +15,9 @@ namespace DiscordDkpBot.Auctions
 {
 	public interface IAuctionProcessor
 	{
-		Task<Auction> StartAuction (int? quantity, string name, int? minutes, IMessageChannel messageChannel, IUser author);
+		Task<AuctionBid> CancelBid (string item, IMessage message);
 		Task<AuctionBid> CreateBid (string item, string character, string rank, int bid, IMessage message);
+		Task<Auction> StartAuction (int? quantity, string name, int? minutes, IMessageChannel messageChannel, IUser author);
 	}
 
 	public class AuctionProcessor : IAuctionProcessor
@@ -38,7 +37,6 @@ namespace DiscordDkpBot.Auctions
 
 		public CompletedAuction CalculateWinners (Auction auction)
 		{
-
 			List<AuctionBid> bids = auction.Bids.ToList();
 			log.LogTrace("Finding winners for {0} from bids submitted: ({1})", auction.DetailString, string.Join("', ", auction.Bids));
 			List<WinningBid> winners = new List<WinningBid>();
@@ -67,51 +65,21 @@ namespace DiscordDkpBot.Auctions
 			return new CompletedAuction(auction, winners);
 		}
 
-		public async Task<Auction> StartAuction (int? quantity, string name, int? minutes, IMessageChannel channel, IUser author)
+		public Task<AuctionBid> CancelBid (string item, IMessage message)
 		{
-			Auction auction = CreateAuction(quantity, name, minutes, author);
-
-			IUserMessage announcement = await channel.SendMessageAsync(auction.Announcement);
-
-			StartAuctionTimers(auction, announcement);
-
-			log.LogTrace("Started Auction: {0}", auction.DetailString);
-
-
-			return auction;
-		}
-
-		private void StartAuctionTimers (Auction auction, IUserMessage announcement)
-		{
-			// Completion Timer
-			Timer timer = new Timer(TimeSpan.FromMinutes(0.5).TotalMilliseconds);
-			timer.AutoReset = true;
-			timer.Elapsed += async (o, s) =>
-							{
-								auction.MinutesRemaining -= 0.5;
-
-								if (auction.MinutesRemaining > 0)
-								{
-									await announcement.ModifyAsync(m => m.Content = auction.Announcement);
-								}
-								else
-								{
-									timer.Stop();
-									await announcement.ModifyAsync(m => m.Content = auction.ClosedText);
-									await FinishAuction(auction, announcement);
-								}
-							};
-			timer.Start();
-		}
-
-		private Auction CreateAuction (int? quantity, string name, int? minutes, IUser author)
-		{
-			Auction auction = new Auction(auctionState.NextAuctionId, quantity ?? 1, name, minutes ?? configuration.DefaultAuctionDurationMinutes, author);
-			if (!auctionState.Auctions.TryAdd(auction.Name, auction))
+			if (!auctionState.Auctions.TryGetValue(item, out Auction auction))
 			{
-				throw new AuctionAlreadyExistsException($"Auction for {auction.Name} already exists.");
+				throw new AuctionNotFoundException(item);
 			}
-			return auction;
+
+			if (!auction.Bids.TryRemove(message.Author.Id, out AuctionBid bid))
+			{
+				throw new BidNotFoundException(item);
+			}
+
+			message.Channel.SendMessageAsync($"Bid cancelled for **{auction}**\n. You have {auction.MinutesRemaining:##.#} minutes to re bid.");
+
+			return Task.FromResult(bid);
 		}
 
 		public Task<AuctionBid> CreateBid (string item, string character, string rank, int bid, IMessage message)
@@ -124,13 +92,12 @@ namespace DiscordDkpBot.Auctions
 
 			if (!auctionState.Auctions.TryGetValue(item, out Auction auction))
 			{
-				throw new AuctionNotFoundException($"Could not find auction '{item}'.");
+				throw new AuctionNotFoundException(item);
 			}
 
 			AuctionBid newBid = auction.Bids.AddOrUpdate(new AuctionBid(auction, character, bid, rankConfig, message.Author));
 
 			log.LogInformation($"Created bid: {newBid}");
-
 
 			message.Channel.SendMessageAsync($"Bid accepted for **{newBid.Auction}**\n"
 				+ $"If you win, you could pay up to **{newBid.BidAmount * newBid.Rank.PriceMultiplier}**.\n"
@@ -139,6 +106,19 @@ namespace DiscordDkpBot.Auctions
 				+ $"```\"{newBid.Auction.Name}\" cancel```");
 
 			return Task.FromResult(newBid);
+		}
+
+		public async Task<Auction> StartAuction (int? quantity, string name, int? minutes, IMessageChannel channel, IUser author)
+		{
+			Auction auction = CreateAuction(quantity, name, minutes, author);
+
+			IUserMessage announcement = await channel.SendMessageAsync(auction.Announcement);
+
+			StartAuctionTimers(auction, announcement);
+
+			log.LogTrace("Started Auction: {0}", auction.DetailString);
+
+			return auction;
 		}
 
 		private WinningBid CalculateWinner (List<AuctionBid> bids)
@@ -199,6 +179,16 @@ namespace DiscordDkpBot.Auctions
 			return new WinningBid(winner, finalPrice);
 		}
 
+		private Auction CreateAuction (int? quantity, string name, int? minutes, IUser author)
+		{
+			Auction auction = new Auction(auctionState.NextAuctionId, quantity ?? 1, name, minutes ?? configuration.DefaultAuctionDurationMinutes, author);
+			if (!auctionState.Auctions.TryAdd(auction.Name, auction))
+			{
+				throw new AuctionAlreadyExistsException($"Auction for {auction.Name} already exists.");
+			}
+			return auction;
+		}
+
 		private Task FinishAuction (Auction auction, IUserMessage announcement)
 		{
 			auctionState.Auctions.TryRemove(auction.Name, out Auction _);
@@ -208,6 +198,29 @@ namespace DiscordDkpBot.Auctions
 			auctionState.CompletedAuctions.TryAdd(completedAuction.ID, completedAuction);
 
 			return announcement.Channel.SendMessageAsync(completedAuction.ToString());
+		}
+
+		private void StartAuctionTimers (Auction auction, IUserMessage announcement)
+		{
+			// Completion Timer
+			Timer timer = new Timer(TimeSpan.FromMinutes(0.5).TotalMilliseconds);
+			timer.AutoReset = true;
+			timer.Elapsed += async (o, s) =>
+									{
+										auction.MinutesRemaining -= 0.5;
+
+										if (auction.MinutesRemaining > 0)
+										{
+											await announcement.ModifyAsync(m => m.Content = auction.Announcement);
+										}
+										else
+										{
+											timer.Stop();
+											await announcement.ModifyAsync(m => m.Content = auction.ClosedText);
+											await FinishAuction(auction, announcement);
+										}
+									};
+			timer.Start();
 		}
 	}
 }
