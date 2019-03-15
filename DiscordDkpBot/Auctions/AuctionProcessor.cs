@@ -99,7 +99,7 @@ namespace DiscordDkpBot.Auctions
 			{
 				throw new AuctionAlreadyExistsException($"Auction for {name} does not exists.");
 			}
-
+			auction.Stop();
 			string cancelMessage = $"Cancelled auction: {auction.DetailString}.";
 
 			await message.Channel.SendMessageAsync(cancelMessage);
@@ -120,7 +120,7 @@ namespace DiscordDkpBot.Auctions
 				throw new BidNotFoundException(item);
 			}
 
-			message.Channel.SendMessageAsync($"Bid cancelled for **{auction}**\n. You have {auction.MinutesRemaining:##.#} minutes to re bid.");
+			message.Channel.SendMessageAsync($"Bid cancelled for **{auction}**.\nYou have {auction.MinutesRemaining:##.#} minutes to re bid.");
 
 			return Task.FromResult(bid);
 		}
@@ -135,7 +135,14 @@ namespace DiscordDkpBot.Auctions
 
 			IUserMessage announcement = await message.Channel.SendMessageAsync(auction.Announcement);
 
-			StartAuctionTimers(auction, announcement);
+			auction.Tick += async (o, s) => await announcement.ModifyAsync(m => m.Content = auction.Announcement);
+			auction.Completed += async (o, s) =>
+										{
+											await announcement.ModifyAsync(m => m.Content = auction.ClosedText);
+											await FinishAuction(auction, announcement);
+										};
+
+			auction.Start();
 
 			log.LogTrace("Started auction: {0}", auction.DetailString);
 
@@ -209,29 +216,6 @@ namespace DiscordDkpBot.Auctions
 			auctionState.CompletedAuctions.TryAdd(completedAuction.ID, completedAuction);
 
 			return announcement.Channel.SendMessageAsync(completedAuction.ToString());
-		}
-
-		private void StartAuctionTimers (Auction auction, IUserMessage announcement)
-		{
-			// Completion Timer
-			Timer timer = new Timer(TimeSpan.FromMinutes(0.5).TotalMilliseconds);
-			timer.AutoReset = true;
-			timer.Elapsed += async (o, s) =>
-									{
-										auction.MinutesRemaining -= 0.5;
-
-										if (auction.MinutesRemaining > 0)
-										{
-											await announcement.ModifyAsync(m => m.Content = auction.Announcement);
-										}
-										else
-										{
-											timer.Stop();
-											await announcement.ModifyAsync(m => m.Content = auction.ClosedText);
-											await FinishAuction(auction, announcement);
-										}
-									};
-			timer.Start();
 		}
 	}
 }

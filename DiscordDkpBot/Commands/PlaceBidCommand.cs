@@ -29,7 +29,9 @@ namespace DiscordDkpBot.Commands
 
 		public bool DoesCommandApply (IMessage message)
 		{
-			return message.Channel is SocketDMChannel && message.Content.Trim().StartsWith('"');
+			return message.Channel is SocketDMChannel 
+				&& message.Content.Trim().StartsWith('"') 
+				&& message.Content.Contains("\" cancel") == false;
 		}
 
 		public async Task<bool> InvokeAsync (IMessage message)

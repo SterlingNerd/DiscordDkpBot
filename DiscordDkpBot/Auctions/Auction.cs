@@ -1,22 +1,26 @@
 using System;
+using System.Timers;
 
 using Discord;
-using Discord.WebSocket;
 
 namespace DiscordDkpBot.Auctions
 {
 	public class Auction
 	{
+		private readonly Timer timer;
 		public string Announcement => $"**[{ShortDescription}]**\nBids are open for **{ShortDescription}** for **{MinutesRemaining}** minutes.\n```\"{Name}\" character 69 main/box/alt/recruit```";
-		public string ClosedText => $"***[{ShortDescription}]** Bids are now closed.";
 		public IUser Author { get; }
 		public BidCollection Bids { get; } = new BidCollection();
+		public string ClosedText => $"***[{ShortDescription}]** Bids are now closed.";
 		public string DetailString => $"({ID}) {Quantity}x {Name} for {MinutesRemaining} min.";
 		public int ID { get; }
-		public double MinutesRemaining { get; set; }
+		public double MinutesRemaining { get; private set; }
 		public string Name { get; }
 		public int Quantity { get; }
 		public string ShortDescription => $"{Quantity}x {Name}";
+
+		public event Action<object, Auction> Completed;
+		public event Action<object, Auction> Tick;
 
 		public Auction (int id, int quantity, string name, double minutesRemaining, IUser author)
 		{
@@ -25,11 +29,40 @@ namespace DiscordDkpBot.Auctions
 			Quantity = quantity;
 			MinutesRemaining = minutesRemaining;
 			Author = author;
+
+			timer = new Timer(TimeSpan.FromMinutes(0.5).TotalMilliseconds);
+			timer.AutoReset = true;
+			timer.Elapsed += OnTick;
+		}
+
+		public void Start ()
+		{
+			timer.Start();
+		}
+
+		public void Stop ()
+		{
+			timer.Stop();
 		}
 
 		public override string ToString ()
 		{
 			return ShortDescription;
+		}
+
+		private void OnTick (object sender, ElapsedEventArgs e)
+		{
+			MinutesRemaining -= 0.5;
+
+			if (MinutesRemaining > 0)
+			{
+				Tick?.Invoke(timer, this);
+			}
+			else
+			{
+				timer.Stop();
+				Completed?.Invoke(timer, this);
+			}
 		}
 	}
 }
