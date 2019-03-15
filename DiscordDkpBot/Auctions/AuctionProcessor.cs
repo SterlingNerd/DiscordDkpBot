@@ -177,7 +177,11 @@ namespace DiscordDkpBot.Auctions
 			AuctionBid winner = winningBids.OrderBy(x => random.Next()).First();
 
 			int applicableLooserBid;
-			if (winner.Rank.MaxBid > loser.Rank.MaxBid && winner.BidAmount > loser.Rank.MaxBid)
+			if (loser == null)
+			{
+				applicableLooserBid = 0;
+			}
+			else if (winner.Rank.MaxBid > loser.Rank.MaxBid && winner.BidAmount > loser.Rank.MaxBid)
 			{
 				// If our bid cap and is higher than their bid cap, and we bid over their cap. reduce their bid.
 				applicableLooserBid = Math.Min(loser.BidAmount, loser.Rank.MaxBid);

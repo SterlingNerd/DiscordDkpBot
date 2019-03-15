@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 using DiscordDkpBot.Auctions;
 using DiscordDkpBot.Configuration;
@@ -15,7 +16,7 @@ namespace DiscordDkpBotTests.Auctions
 	public class AuctionProcessorTests
 	{
 		[Test]
-		public void CalculateWinners_TwoItems_Main ()
+		public void CalculateWinners_TwoItems_BidCapSpread ()
 		{
 			//Arrange
 			Auction auction = new Auction(23423, 2, "Nuke", 2, null);
@@ -47,6 +48,27 @@ namespace DiscordDkpBotTests.Auctions
 
 			Assert.AreEqual(boxBid1, winner2.Bid);
 			Assert.AreEqual(753, winner2.Price);
+		}
+
+		[Test]
+		public void CalculateWinners_TwoItems_SingleBid ()
+		{
+			//Arrange
+			Auction auction = new Auction(23423, 2, "Nuke", 2, null);
+			RankConfiguration main = new RankConfiguration("main", null, null);
+
+			AuctionBid mainBid = new AuctionBid(auction, "main", 104, main, null);
+
+			auction.Bids.AddOrUpdate(mainBid);
+
+			//Act
+			CompletedAuction completedAuction = target.CalculateWinners(auction);
+
+			//Assert
+			Assert.AreEqual(1, completedAuction.WinningBids.Count);
+			WinningBid winner = completedAuction.WinningBids.Single();
+			Assert.AreEqual(mainBid, winner.Bid);
+			Assert.AreEqual(1, winner.Price);
 		}
 
 		#region Setup/Teardown
