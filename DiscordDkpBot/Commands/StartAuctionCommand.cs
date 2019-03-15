@@ -32,6 +32,11 @@ namespace DiscordDkpBot.Commands
 		{
 			try
 			{
+				if ((message.Channel is IPrivateChannel))
+				{
+					message.Channel.SendMessageAsync("Yer doin it wrong!\n\nYou can only start auctions from a public channel, not DMs.");
+				}
+
 				(int? quantity, string name, int? minutes) = ParseArgs(message.Content);
 				auctionProcessor.StartAuction(quantity, name, minutes, message);
 				return Task.FromResult(true);
