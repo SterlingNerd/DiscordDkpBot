@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Timers;
 
 using Discord;
 
@@ -13,14 +12,6 @@ using Microsoft.Extensions.Logging;
 
 namespace DiscordDkpBot.Auctions
 {
-	public interface IAuctionProcessor
-	{
-		Task<AuctionBid> AddOrUpdateBid (string item, string character, string rank, int bid, IMessage message);
-		Task<Auction> CancelAuction (string name, IMessage message);
-		Task<AuctionBid> CancelBid (string item, IMessage message);
-		Task<Auction> StartAuction (int? quantity, string name, int? minutes, IMessage messageChannel);
-	}
-
 	public class AuctionProcessor : IAuctionProcessor
 	{
 		private readonly AuctionState auctionState;
@@ -100,9 +91,15 @@ namespace DiscordDkpBot.Auctions
 				throw new AuctionAlreadyExistsException($"Auction for {name} does not exists.");
 			}
 			auction.Stop();
-			string cancelMessage = $"Cancelled auction: {auction.ShortDescription}.";
+			string cancelMessage = auction.CancelledText;
 
-			await message.Channel.SendMessageAsync(cancelMessage);
+			await auction.Channel.SendMessageAsync(cancelMessage);
+
+			if (message.Channel.Id != auction.Channel.Id)
+			{
+				await message.Channel.SendMessageAsync(cancelMessage);
+			}
+
 			log.LogTrace(cancelMessage);
 
 			return auction;
@@ -127,15 +124,15 @@ namespace DiscordDkpBot.Auctions
 
 		public async Task<Auction> StartAuction (int? quantity, string name, int? minutes, IMessage message)
 		{
-			Auction auction = new Auction(auctionState.NextAuctionId, quantity ?? 1, name, minutes ?? configuration.DefaultAuctionDurationMinutes, message.Author);
+			Auction auction = new Auction(auctionState.NextAuctionId, quantity ?? 1, name, minutes ?? configuration.DefaultAuctionDurationMinutes, message);
 			if (!auctionState.Auctions.TryAdd(auction.Name, auction))
 			{
 				throw new AuctionAlreadyExistsException($"Auction for {auction.Name} already exists.");
 			}
 
-			IUserMessage announcement = await message.Channel.SendMessageAsync(auction.Announcement);
+			IUserMessage announcement = await auction.Channel.SendMessageAsync(auction.AnnouncementText);
 
-			auction.Tick += async (o, s) => await announcement.ModifyAsync(m => m.Content = auction.Announcement);
+			auction.Tick += async (o, s) => await announcement.ModifyAsync(m => m.Content = auction.AnnouncementText);
 			auction.Completed += async (o, s) =>
 										{
 											await announcement.ModifyAsync(m => m.Content = auction.ClosedText);

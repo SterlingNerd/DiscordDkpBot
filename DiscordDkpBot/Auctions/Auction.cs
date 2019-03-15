@@ -8,9 +8,10 @@ namespace DiscordDkpBot.Auctions
 	public class Auction
 	{
 		private readonly Timer timer;
-		public string Announcement => $"**[{ShortDescription}]**\nBids are open for **{ShortDescription}** for **{MinutesRemaining}** minutes.\n```\"{Name}\" character 69 main/box/alt/recruit```";
+		public string AnnouncementText => $"**[{ShortDescription}]**\nBids are open for **{ShortDescription}** for **{MinutesRemaining}** minutes.\n```\"{Name}\" character 69 main/box/alt/recruit```";
 		public IUser Author { get; }
 		public BidCollection Bids { get; } = new BidCollection();
+		public IMessageChannel Channel { get; }
 		public string ClosedText => $"***[{ShortDescription}]** Bids are now closed.";
 		public string DetailDescription => $"({ID}) {Quantity}x {Name} for {MinutesRemaining} min.";
 		public int ID { get; }
@@ -18,17 +19,19 @@ namespace DiscordDkpBot.Auctions
 		public string Name { get; }
 		public int Quantity { get; }
 		public string ShortDescription => $"{Quantity}x {Name}";
+		public string CancelledText => $"Cancelled auction: {ShortDescription}.";
 
 		public event Action<object, Auction> Completed;
 		public event Action<object, Auction> Tick;
 
-		public Auction (int id, int quantity, string name, double minutesRemaining, IUser author)
+		public Auction (int id, int quantity, string name, double minutesRemaining, IMessage message)
 		{
 			ID = id;
 			Name = name;
 			Quantity = quantity;
 			MinutesRemaining = minutesRemaining;
-			Author = author;
+			Author = message.Author;
+			Channel = message.Channel;
 
 			timer = new Timer(TimeSpan.FromMinutes(0.5).TotalMilliseconds);
 			timer.AutoReset = true;

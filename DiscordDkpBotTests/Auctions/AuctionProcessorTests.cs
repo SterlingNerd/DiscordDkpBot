@@ -21,7 +21,7 @@ namespace DiscordDkpBotTests.Auctions
 		public void CalculateWinners_TwoItems_BidCapSpread ()
 		{
 			//Arrange
-			Auction auction = new Auction(23423, 2, "Nuke", 2, null);
+			Auction auction = new Auction(23423, 2, "Nuke", 2, GetMessage(42));
 			RankConfiguration main = new RankConfiguration("main", null, null);
 			RankConfiguration box = new RankConfiguration("box", 100, 3);
 			RankConfiguration alt = new RankConfiguration("alt", 25, null);
@@ -56,7 +56,7 @@ namespace DiscordDkpBotTests.Auctions
 		public void CalculateWinners_TwoItems_SingleBid ()
 		{
 			//Arrange
-			Auction auction = new Auction(23423, 2, "Nuke", 2, GetAuthor(42));
+			Auction auction = new Auction(23423, 2, "Nuke", 2, GetMessage(42));
 			RankConfiguration main = new RankConfiguration("main", null, null);
 
 			AuctionBid mainBid = new AuctionBid(auction, "main", 104, main, GetAuthor(42));
@@ -92,6 +92,13 @@ namespace DiscordDkpBotTests.Auctions
 			Mock<IUser> mock = new Mock<IUser>();
 			mock.SetupGet(x => x.Id).Returns(id);
 			return mock.Object;
+		}
+
+		private IMessage GetMessage (ulong id)
+		{
+			Mock<IMessage> message = new Mock<IMessage>();
+			message.Setup(x => x.Author).Returns(GetAuthor(id));
+			return message.Object;
 		}
 
 		#endregion
