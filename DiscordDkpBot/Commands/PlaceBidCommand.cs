@@ -16,7 +16,7 @@ namespace DiscordDkpBot.Commands
 	{
 		public const string Syntax = "\"{Item_Name_With_Typos}\" {Character} {Amount} {Rank}";
 
-		private static readonly Regex pattern = new Regex(@"""(?<Item>\w+)""\s+(?<Character>\w+)(\s+(?<Bid>\d+)\s+(?<Rank>\w+)|\s+(?<Rank>\w+)\s+(?<Bid>\d+))");
+		private static readonly Regex pattern = new Regex(@"""(?<Item>[\w ]+)""\s+(?<Character>\w+)(\s+(?<Bid>\d+)\s+(?<Rank>\w+)|\s+(?<Rank>\w+)\s+(?<Bid>\d+))");
 
 		private readonly IAuctionProcessor auctionProcessor;
 		private readonly ILogger<PlaceBidCommand> log;
