@@ -1,0 +1,387 @@
+<?xml version="1.0" encoding="utf-8"?>
+<response>
+  <eqdkp>
+    <name>Flames of Reverence</name>
+    <guild>Flames of Reverence</guild>
+    <dkp_name>DKP</dkp_name>
+    <version>2.2.24.0</version>
+    <layout>dicks</layout>
+    <base_layout>normal</base_layout>
+  </eqdkp>
+  <game>
+    <name>eq</name>
+    <version>2.3.2</version>
+    <language>english</language>
+    <server_name/>
+    <server_loc/>
+  </game>
+  <info>
+    <with_twink>1</with_twink>
+    <date>16.03.19 21:17:42</date>
+    <timestamp>1552771062</timestamp>
+    <total_players>1018</total_players>
+    <total_items>10757</total_items>
+  </info>
+  <players>
+    <player>
+      <id>88</id>
+      <name>Magg</name>
+      <active>0</active>
+      <hidden>1</hidden>
+      <main_id>935</main_id>
+      <main_name>Maggez</main_name>
+      <class_id>12</class_id>
+      <class_name>Shaman</class_name>
+      <points>
+        <multidkp_points>
+          <multidkp_id>1</multidkp_id>
+          <points_current>959.00</points_current>
+          <points_current_with_twink>547.00</points_current_with_twink>
+          <points_earned>4602.00</points_earned>
+          <points_earned_with_twink>8554.00</points_earned_with_twink>
+          <points_spent>3793.00</points_spent>
+          <points_spent_with_twink>7957.00</points_spent_with_twink>
+          <points_adjustment>150.00</points_adjustment>
+          <points_adjustment_with_twink>-50.00</points_adjustment_with_twink>
+        </multidkp_points>
+      </points>
+      <items/>
+      <adjustments/>
+    </player>
+  </players>
+  <multidkp_pools>
+    <multidkp_pool>
+      <id>1</id>
+      <name>FoR</name>
+      <desc>base account</desc>
+      <events>
+        <event>
+          <id>1</id>
+          <name>CLASSIC: Nagafen's Lair</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>2</id>
+          <name>CLASSIC: Permafrost Keep</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>3</id>
+          <name>CLASSIC: The Hole</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>4</id>
+          <name>CLASSIC: Plane of Hate</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>5</id>
+          <name>CLASSIC: Plane of Fear</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>6</id>
+          <name>CLASSIC: Plane of Sky</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>7</id>
+          <name>CLASSIC: Kedge Keep</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>13</id>
+          <name>MISC: Forum Bid</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>14</id>
+          <name>KUNARK: Dreadlands</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>15</id>
+          <name>KUNARK: Skyfire Mountains</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>16</id>
+          <name>KUNARK: Emerald Jungle</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>18</id>
+          <name>KUNARK: Old Sebilis</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>19</id>
+          <name>KUNARK: Veeshan's Peak</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>20</id>
+          <name>KUNARK: City of Mist</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>21</id>
+          <name>MISC: Epic Night</name>
+          <value>1.00</value>
+        </event>
+        <event>
+          <id>22</id>
+          <name>KUNARK: Timorous Deep</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>23</id>
+          <name>KUNARK: Karnor's Castle</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>96</id>
+          <name>VELIOUS: Dragon Necropolis</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>97</id>
+          <name>VELIOUS: Velk's Lab</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>98</id>
+          <name>VELIOUS: Wakening Lands</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>99</id>
+          <name>VELIOUS: Western Wastes</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>100</id>
+          <name>VELIOUS: Skyshrine</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>101</id>
+          <name>VELIOUS: Cobalt Scar</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>102</id>
+          <name>VELIOUS: Thurgadin</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>103</id>
+          <name>VELIOUS: Kael</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>104</id>
+          <name>VELIOUS: Plane of Growth</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>105</id>
+          <name>VELIOUS: The Great Divide</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>106</id>
+          <name>VELIOUS: Sleeper's Tomb</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>107</id>
+          <name>VELIOUS: Temple of Veeshan</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>108</id>
+          <name>VELIOUS: General</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>109</id>
+          <name>KUNARK: General</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>110</id>
+          <name>CLASSIC: General</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>111</id>
+          <name>ITEMS: Daily</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>112</id>
+          <name>LUCLIN: Acrylia Caverns</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>113</id>
+          <name>LUCLIN: Akheva Ruins</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>114</id>
+          <name>LUCLIN: Grieg's End</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>115</id>
+          <name>LUCLIN: Katta Castellum</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>116</id>
+          <name>LUCLIN: Sanctus Seru</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>117</id>
+          <name>LUCLIN: Ssraeshza Temple</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>118</id>
+          <name>LUCLIN: The Deep</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>119</id>
+          <name>LUCLIN: Vex Thal</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>120</id>
+          <name>LUCLIN: Umbral Plains</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>122</id>
+          <name>POP: Hourly Rate</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>123</id>
+          <name>POP: Plane of Water</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>124</id>
+          <name>POP: Plane of Fire</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>125</id>
+          <name>POP: Plane of Air</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>126</id>
+          <name>POP: Plane of Earth</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>127</id>
+          <name>POP: Plane of Time</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>128</id>
+          <name>POP: Misc</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>203</id>
+          <name>LDON: Miragul's Menagerie: Folly of Miragul's Ambition</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>204</id>
+          <name>LDON: Miragul's Menagerie: Frozen Nightmare</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>205</id>
+          <name>LDON: Miragul's Menagerie: Spider Den</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>206</id>
+          <name>LDON: Mistmoore Catacombs: Scion Lair of Fury</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>207</id>
+          <name>LDON: Mistmoore Catacombs: Struggles within the Progeny</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>208</id>
+          <name>LDON: Rujarkian Hills: Hidden Vale of Deceit</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>209</id>
+          <name>LDON: Rujarkian Hills: Prison Break</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>210</id>
+          <name>LDON: Rujarkian Hills: War March of Imal Ojun</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>211</id>
+          <name>LDON: Takish-Hiz: Sunken Library</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>212</id>
+          <name>LDON: Takish-Hiz: The Palace Grounds</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>213</id>
+          <name>LDON: Takish-Hiz: Within the Compact</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>214</id>
+          <name>LDON: Deepest Guk: Ritualist of Hate</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>215</id>
+          <name>LDON: Deepest Guk: The Curse Reborn</name>
+          <value>0.00</value>
+        </event>
+        <event>
+          <id>216</id>
+          <name>LDON: Deepest Guk: The Rescue</name>
+          <value>0.00</value>
+        </event>
+      </events>
+      <mdkp_itempools>
+        <itempool_id>1</itempool_id>
+      </mdkp_itempools>
+    </multidkp_pool>
+  </multidkp_pools>
+  <itempools>
+    <itempool>
+      <id>1</id>
+      <name>default</name>
+      <desc>Default itempool</desc>
+    </itempool>
+  </itempools>
+  <status>1</status>
+</response>

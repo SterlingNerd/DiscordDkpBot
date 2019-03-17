@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -10,6 +9,8 @@ using Discord.WebSocket;
 using DiscordDkpBot.Auctions;
 using DiscordDkpBot.Commands;
 using DiscordDkpBot.Configuration;
+using DiscordDkpBot.Dkp;
+using DiscordDkpBot.Dkp.EqDkp;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -46,15 +47,19 @@ namespace DiscordDkpBot
 
 		private static IServiceCollection AddDkpBot (this IServiceCollection services, IConfigurationSection dkpBotConfiguration)
 		{
-			return
-				services
-					.AddSingleton(GetBotConfiguration(dkpBotConfiguration))
-					.AddChatCommands()
-					.AddSingleton<ICommandProcessor, CommandProcessor>()
-					.AddSingleton<IAuctionProcessor, AuctionProcessor>()
-					.AddSingleton<AuctionState>()
-					.AddSingleton<DkpBot>()
-					.AddDiscordNet()
+			DkpBotConfiguration config = GetBotConfiguration(dkpBotConfiguration);
+
+			return services
+				.AddSingleton(config)
+				.AddHttpClient()
+				.AddChatCommands()
+				.AddSingleton<EqDkpClient>()
+				.AddSingleton<IDkpProcessor, EqDkpProcessor>()
+				.AddSingleton<ICommandProcessor, CommandProcessor>()
+				.AddSingleton<IAuctionProcessor, AuctionProcessor>()
+				.AddSingleton<AuctionState>()
+				.AddSingleton<DkpBot>()
+				.AddDiscordNet()
 				;
 		}
 

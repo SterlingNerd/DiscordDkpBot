@@ -12,5 +12,10 @@ namespace DiscordDkpBot.Extensions
 		{
 			logger.LogWarning(ex, ex.Message);
 		}
+
+		public static void LogError<T> (this ILogger<T> logger, Exception ex)
+		{
+			logger.LogError(ex, ex.Message);
+		}
 	}
 }

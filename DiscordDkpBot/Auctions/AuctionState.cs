@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Threading;
 
 namespace DiscordDkpBot.Auctions
@@ -11,6 +13,7 @@ namespace DiscordDkpBot.Auctions
 		public ConcurrentDictionary<int, CompletedAuction> CompletedAuctions { get; } = new ConcurrentDictionary<int, CompletedAuction>();
 
 		public int NextAuctionId => hider.NextAuctionId;
+		public ReadOnlyDictionary<string, int> PlayerIds { get; set; } = new ReadOnlyDictionary<string, int>(new Dictionary<string, int>());
 
 		private class AuctionIdHider
 		{

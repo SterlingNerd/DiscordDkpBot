@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace DiscordDkpBot.Extensions
 {
@@ -16,6 +17,15 @@ namespace DiscordDkpBot.Extensions
 					? str.Substring(str.IndexOf(' ', StringComparison.OrdinalIgnoreCase))
 					: string.Empty;
 			}
+		}
+
+		public static string UppercaseFirst (this string str)
+		{
+			if (string.IsNullOrWhiteSpace(str))
+			{
+				return str;
+			}
+			return str[0].ToString().ToUpper(CultureInfo.CurrentCulture) + (str.Length > 1 ? str.Substring(1) : string.Empty);
 		}
 	}
 }
