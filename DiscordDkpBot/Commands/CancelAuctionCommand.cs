@@ -36,7 +36,7 @@ namespace DiscordDkpBot.Commands
 
 				if (!match.Success)
 				{
-					log.LogTrace("Did not apply.");
+					log.LogTrace("Did not match pattern.");
 					return Task.FromResult(false);
 				}
 
@@ -54,7 +54,7 @@ namespace DiscordDkpBot.Commands
 			}
 			catch (Exception ex)
 			{
-				log.LogWarning(ex);
+				log.LogError(ex);
 				message.Channel.SendMessageAsync($"Yer doin it wrong!\n\nSyntax:\n{Syntax}");
 				return Task.FromResult(false);
 			}
