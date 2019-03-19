@@ -19,9 +19,9 @@ namespace DiscordDkpBot.Commands
 		private static readonly Regex pattern = new Regex(@"^""(?<Item>.+)""\s+cancel\s*$", RegexOptions.IgnoreCase);
 
 		private readonly IAuctionProcessor auctionProcessor;
-		private readonly ILogger<ICommand> log;
+		private readonly ILogger<CancelAuctionCommand> log;
 
-		public CancelBidCommand (IAuctionProcessor auctionProcessor, ILogger<ICommand> log)
+		public CancelBidCommand (IAuctionProcessor auctionProcessor, ILogger<CancelAuctionCommand> log)
 		{
 			this.auctionProcessor = auctionProcessor;
 			this.log = log;
