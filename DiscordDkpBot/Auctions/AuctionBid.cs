@@ -12,7 +12,7 @@ namespace DiscordDkpBot.Auctions
 		public IUser Author { get; }
 		public int BidAmount { get; }
 		public string Character { get; }
-		public string RevealString => $"{{{Character}: {BidAmount}}} ({Rank.Name}) // by: {Author.Username}";
+		public string RevealString => $"{{{Character}: {BidAmount}}} ({Rank.Name}) #{Author.Username}";
 		public RankConfiguration Rank { get; }
 
 		public AuctionBid (Auction auction, string character, int bidAmount, RankConfiguration rank, IUser author)

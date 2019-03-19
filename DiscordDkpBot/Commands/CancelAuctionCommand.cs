@@ -15,14 +15,14 @@ namespace DiscordDkpBot.Commands
 	public class CancelAuctionCommand : ICommand
 	{
 		public const string Syntax = "`\"ItemName\" cancel`";
-		private static readonly string[] CommandTriggers = { "cancel", "cancelbid", "cancelbids", "dkp cancel", "dkp cancelbid", "dkp cancelbids" };
+		private static readonly string[] CommandTriggers = { "cancel", "cancelbid", "cancelbids" };
 		private readonly IAuctionProcessor auctionProcessor;
 		private readonly ILogger<CancelAuctionCommand> log;
 		private readonly Regex pattern;
 
 		public CancelAuctionCommand (DkpBotConfiguration configuration, IAuctionProcessor auctionProcessor, ILogger<CancelAuctionCommand> log)
 		{
-			string regex = "^" + configuration?.CommandPrefix + "?(?<trigger>" + string.Join('|', CommandTriggers) + @")?\s*(?<number>\d+)?x?\s*""(?<name>.+)""\s*(?<time>\d+)?\s*$";
+			string regex = "^" + Regex.Escape(configuration?.CommandPrefix) + "?(?<trigger>" + string.Join('|', CommandTriggers) + @")?\s*(?<number>\d+)?x?\s*""(?<name>.+)""\s*(?<time>\d+)?\s*$";
 			pattern = new Regex(regex, RegexOptions.IgnoreCase);
 			this.auctionProcessor = auctionProcessor;
 			this.log = log;
@@ -36,7 +36,7 @@ namespace DiscordDkpBot.Commands
 
 				if (!match.Success)
 				{
-					log.LogTrace("Did not match pattern.");
+					log.LogDebug("Did not match pattern.");
 					return Task.FromResult(false);
 				}
 

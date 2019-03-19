@@ -14,7 +14,7 @@ namespace DiscordDkpBot.Commands
 
 		public PingCommand (DkpBotConfiguration config)
 		{
-			pattern = new Regex("^" + config.CommandPrefix + "ping (?<content>.*)", RegexOptions.IgnoreCase);
+			pattern = new Regex("^ping (?<content>.*)", RegexOptions.IgnoreCase);
 		}
 
 		public async Task<bool> TryInvokeAsync (IMessage message)

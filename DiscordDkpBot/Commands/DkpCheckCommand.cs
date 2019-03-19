@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 
 using Discord;
 
+using DiscordDkpBot.Configuration;
 using DiscordDkpBot.Dkp;
 using DiscordDkpBot.Dkp.EqDkp;
 using DiscordDkpBot.Dkp.EqDkp.Xml;
@@ -15,12 +16,13 @@ namespace DiscordDkpBot.Commands
 {
 	public class DkpCheckCommand : ICommand
 	{
-		private static readonly Regex pattern = new Regex(@"^\s*((?<character>\w+) dkp|.dkp (?<character>\w+))\s*$", RegexOptions.IgnoreCase);
+		private readonly Regex pattern;
 		private readonly IDkpProcessor dkpProcessor;
 		private readonly ILogger<DkpCheckCommand> log;
 
-		public DkpCheckCommand (IDkpProcessor dkpProcessor, ILogger<DkpCheckCommand> log)
+		public DkpCheckCommand (DkpBotConfiguration config, IDkpProcessor dkpProcessor, ILogger<DkpCheckCommand> log)
 		{
+			pattern = new Regex($@"^\s*((?<character>\w+) dkp|{Regex.Escape(config.CommandPrefix)} (?<character>\w+))\s*$", RegexOptions.IgnoreCase);
 			this.dkpProcessor = dkpProcessor;
 			this.log = log;
 		}

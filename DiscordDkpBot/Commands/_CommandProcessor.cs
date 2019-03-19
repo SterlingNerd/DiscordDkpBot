@@ -18,25 +18,24 @@ namespace DiscordDkpBot.Commands
 
 	public class CommandProcessor : ICommandProcessor
 	{
-		private readonly string commandPrefix;
 		private readonly List<ICommand> commands;
 		private readonly ILogger<CommandProcessor> log;
 
-		public CommandProcessor (DkpBotConfiguration configuration, IEnumerable<ICommand> commands, ILogger<CommandProcessor> log)
+		public CommandProcessor (IEnumerable<ICommand> commands, ILogger<CommandProcessor> log)
 		{
-			commandPrefix = configuration.CommandPrefix;
 			this.commands = commands.ToList();
 			this.log = log;
 		}
 
 		public async Task ProcessCommand (SocketMessage message)
 		{
-			log.LogTrace($"{message.Author} ({message.Channel}): {message}");
+			log.LogInformation($"{message.Author} ({message.Channel}): {message}");
 			bool success = false;
 			List<Task<bool>> commandTasks = new List<Task<bool>>(commands.Count);
+
 			foreach (ICommand command in commands)
 			{
-				log.LogInformation($"Executing command {command}, message: {message}");
+				log.LogTrace($"Executing command {command}, message: {message}");
 				commandTasks.Add(command.TryInvokeAsync(message));
 			}
 

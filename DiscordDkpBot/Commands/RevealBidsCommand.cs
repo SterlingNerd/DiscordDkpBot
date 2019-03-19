@@ -21,32 +21,42 @@ namespace DiscordDkpBot.Commands
 		private readonly Regex pattern;
 		private readonly AuctionState state;
 
-		public RevealBidsCommand (DkpBotConfiguration configuration, AuctionState state, ILogger<RevealBidsCommand> log)
+		public RevealBidsCommand(DkpBotConfiguration configuration, AuctionState state, ILogger<RevealBidsCommand> log)
 		{
-			pattern = new Regex($@"^\s*{configuration.CommandPrefix}\s+reveal\s+(?<auction>\d+)\s*$");
+			pattern = new Regex($@"^{Regex.Escape(configuration.CommandPrefix)}\s*reveal\s+(?<auction>\d+)\s*$");
 			this.state = state;
 			this.log = log;
 		}
 
-		public async Task<bool> TryInvokeAsync (IMessage message)
+		public (bool success, int auctionId) ParseArgs(string messageContent)
+		{
+			Match match = pattern.Match(messageContent);
+			if (!match.Success)
+			{
+				return (false, 0);
+			}
+
+			int auctionId = int.Parse(match.Groups["auction"].Value);
+			return (true, auctionId);
+		}
+
+		public async Task<bool> TryInvokeAsync(IMessage message)
 		{
 			try
 			{
 				if (message.Channel is IDMChannel)
 				{
-					log.LogTrace("Not applicable to DMs.");
+					log.LogDebug("Not applicable to DMs.");
 					return false;
 				}
 
-				Match match = pattern.Match(message.Content);
+				(bool success, int auctionId) = ParseArgs(message.Content);
 
-				if (!match.Success)
+				if (!success)
 				{
-					log.LogTrace("Did not match pattern.");
+					log.LogDebug("Did not match pattern.");
 					return false;
 				}
-
-				int auctionId = int.Parse(match.Groups["auction"].Name);
 
 				if (!state.CompletedAuctions.TryGetValue(auctionId, out CompletedAuction auction))
 				{
