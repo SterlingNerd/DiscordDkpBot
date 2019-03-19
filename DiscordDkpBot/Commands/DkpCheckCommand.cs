@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -40,7 +41,15 @@ namespace DiscordDkpBot.Commands
 				string character = match.Groups["character"].Value;
 				PlayerPoints dkp = await dkpProcessor.GetDkp(character);
 
-				await message.Channel.SendMessageAsync($"{character.UppercaseFirst()} has **{dkp.PointsCurrentWithTwink}** available to spend.\n```brainfuck\nLifetime DKP for {character}: Earned {dkp.PointsEarnedWithTwink} - Spent {dkp.PointsSpentWithTwink} - Adjustments {dkp.PointsAdjustmentWithTwink}.```");
+				string dkpMessage = $"{character.UppercaseFirst()} has **{dkp.PointsCurrentWithTwink}** available to spend.\n```brainfuck\nLifetime DKP for {character}: Earned {dkp.PointsEarnedWithTwink} - Spent {dkp.PointsSpentWithTwink} - Adjustments {dkp.PointsAdjustmentWithTwink}.```";
+				if (character.Equals("magg", StringComparison.OrdinalIgnoreCase))
+				{
+					await message.Channel.SendFileAsync("./resources/dkpmagg.jpg",dkpMessage);
+				}
+				else
+				{
+					await message.Channel.SendMessageAsync(dkpMessage);
+				}
 				return true;
 			}
 			catch (PlayerNotFoundException ex)
