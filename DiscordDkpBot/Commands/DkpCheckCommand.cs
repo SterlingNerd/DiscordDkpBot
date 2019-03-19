@@ -15,7 +15,7 @@ namespace DiscordDkpBot.Commands
 {
 	public class DkpCheckCommand : ICommand
 	{
-		private static readonly Regex pattern = new Regex(@"^\s*((?<character>\w+) dkp|.dkp (?<character>\w+))\s*$");
+		private static readonly Regex pattern = new Regex(@"^\s*((?<character>\w+) dkp|.dkp (?<character>\w+))\s*$", RegexOptions.IgnoreCase);
 		private readonly IDkpProcessor dkpProcessor;
 		private readonly ILogger<DkpCheckCommand> log;
 
