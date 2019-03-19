@@ -6,7 +6,6 @@ using Discord;
 using Discord.WebSocket;
 
 using DiscordDkpBot.Auctions;
-using DiscordDkpBot.Configuration;
 using DiscordDkpBot.Extensions;
 
 using Microsoft.Extensions.Logging;
@@ -17,12 +16,12 @@ namespace DiscordDkpBot.Commands
 	{
 		public const string Syntax = "\"{Item_Name_With_Typos}\" {Character} {Amount} {Rank}";
 
-		private static readonly Regex pattern = new Regex(@"""(?<Item>.+)""\s+cancel", RegexOptions.IgnoreCase);
+		private static readonly Regex pattern = new Regex(@"^""(?<Item>.+)""\s+cancel\s*$", RegexOptions.IgnoreCase);
 
 		private readonly IAuctionProcessor auctionProcessor;
-		private readonly ILogger<CancelBidCommand> log;
+		private readonly ILogger<ICommand> log;
 
-		public CancelBidCommand (IAuctionProcessor auctionProcessor, ILogger<CancelBidCommand> log)
+		public CancelBidCommand (IAuctionProcessor auctionProcessor, ILogger<ICommand> log)
 		{
 			this.auctionProcessor = auctionProcessor;
 			this.log = log;
@@ -35,11 +34,25 @@ namespace DiscordDkpBot.Commands
 				&& message.Content.Contains("cancel", StringComparison.OrdinalIgnoreCase);
 		}
 
-		public async Task<bool> InvokeAsync (IMessage message)
+		public async Task<bool> TryInvokeAsync (IMessage message)
 		{
 			try
 			{
-				string item = ParseArgs(message.Content);
+				if (!(message?.Channel is SocketDMChannel))
+				{
+					return false;
+				}
+
+				Match match = pattern.Match(message.Content);
+
+				if (!match.Success)
+				{
+					return false;
+				}
+
+				string item = match.Groups["Item"].Value;
+
+				log.LogTrace("Parsed bid arguments: \"{0}\" cancel.", item);
 
 				await auctionProcessor.CancelBid(item, message);
 
@@ -57,22 +70,6 @@ namespace DiscordDkpBot.Commands
 				await message.Channel.SendMessageAsync($"Yer doin it wrong!\n\nSyntax:\n{Syntax}");
 				return false;
 			}
-		}
-
-		public string ParseArgs (string messageContent)
-		{
-			Match match = pattern.Match(messageContent);
-
-			if (!match.Success)
-			{
-				throw new ArgumentException($"Could not parse bid from: '{messageContent}'");
-			}
-
-			string item = match.Groups["Item"].Value;
-
-			log.LogTrace("Parsed bid arguments: \"{0}\" cancel.", item);
-
-			return item;
 		}
 	}
 }

@@ -16,7 +16,7 @@ namespace DiscordDkpBot.Commands
 	{
 		public const string Syntax = "\"{Item_Name_With_Typos}\" {Character} {Amount} {Rank}";
 
-		private static readonly Regex pattern = new Regex(@"""(?<Item>.+)""\s+(?<Character>\w+)(\s+(?<Bid>\d+)\s+(?<Rank>\w+)|\s+(?<Rank>\w+)\s+(?<Bid>\d+))", RegexOptions.IgnoreCase);
+		private static readonly Regex pattern = new Regex(@"^\s*""(?<Item>.+)""\s+(?<Character>\w+)(\s+(?<Bid>\d+)\s+(?<Rank>\w+)|\s+(?<Rank>\w+)\s+(?<Bid>\d+))\s*$", RegexOptions.IgnoreCase);
 
 		private readonly IAuctionProcessor auctionProcessor;
 		private readonly ILogger<PlaceBidCommand> log;
@@ -27,18 +27,39 @@ namespace DiscordDkpBot.Commands
 			this.log = log;
 		}
 
-		public bool DoesCommandApply (IMessage message)
+		public (bool success, string item, string character, string rank, int bid) ParseArgs (string messageContent)
 		{
-			return message.Channel is SocketDMChannel 
-				&& message.Content.Trim().StartsWith('"') 
-				&& message.Content.Contains("\" cancel") == false;
+			Match match = pattern.Match(messageContent);
+			if (!match.Success)
+			{
+				return (false, null, null, null, 0);
+			}
+
+			string item = match.Groups["Item"].Value;
+			string character = match.Groups["Character"].Value;
+			string rank = match.Groups["Rank"].Value;
+			int bid = int.Parse(match.Groups["Bid"].Value);
+
+			log.LogTrace("Parsed bid arguments: \"{0}\" {1} ({2}) for {3} dkp.", item, character, rank, bid);
+
+			return (true, item, character, rank, bid);
 		}
 
-		public async Task<bool> InvokeAsync (IMessage message)
+		public async Task<bool> TryInvokeAsync (IMessage message)
 		{
 			try
 			{
-				(string item, string character, string rank, int bid) = ParseArgs(message.Content);
+				if (!(message.Channel is SocketDMChannel))
+				{
+					return false;
+				}
+
+				(bool success, string item, string character, string rank, int bid) = ParseArgs(message.Content);
+
+				if (!success)
+				{
+					return false;
+				}
 
 				await auctionProcessor.AddOrUpdateBid(item, character, rank, bid, message);
 
@@ -56,25 +77,6 @@ namespace DiscordDkpBot.Commands
 				await message.Channel.SendMessageAsync($"Yer doin it wrong!\n\nSyntax:\n{Syntax}");
 				return false;
 			}
-		}
-
-		public (string item, string character, string rank, int bid) ParseArgs (string messageContent)
-		{
-			Match match = pattern.Match(messageContent);
-
-			if (!match.Success)
-			{
-				throw new ArgumentException($"Could not parse bid from: '{messageContent}'");
-			}
-
-			string item = match.Groups["Item"].Value;
-			string character = match.Groups["Character"].Value;
-			string rank = match.Groups["Rank"].Value;
-			int bid = int.Parse(match.Groups["Bid"].Value);
-
-			log.LogTrace("Parsed bid arguments: \"{0}\" {1} ({2}) for {3} dkp.", item, character, rank, bid);
-
-			return (item, character, rank, bid);
 		}
 	}
 }

@@ -32,7 +32,7 @@ namespace DiscordDkpBotTests.Commands
 		public void ParseArgs (string input, string expectedItem, string expectedCharacter, string expectedRank, int expectedBid)
 		{
 			//Act
-			(string item, string character, string rank, int bid) = target.ParseArgs(input);
+			(bool success, string item, string character, string rank, int bid) = target.ParseArgs(input);
 
 			//Assert
 			Assert.AreEqual(expectedItem, item);

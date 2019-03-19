@@ -25,16 +25,16 @@ namespace DiscordDkpBot.Commands
 			this.log = log;
 		}
 
-		public bool DoesCommandApply (IMessage message)
-		{
-			return pattern.Match(message.Content).Success;
-		}
-
-		public async Task<bool> InvokeAsync (IMessage message)
+		public async Task<bool> TryInvokeAsync (IMessage message)
 		{
 			try
 			{
 				Match match = pattern.Match(message.Content);
+				if (!match.Success)
+				{
+					return false;
+				}
+
 				string character = match.Groups["character"].Value;
 				PlayerPoints dkp = await dkpProcessor.GetDkp(character);
 

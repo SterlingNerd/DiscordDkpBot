@@ -1,24 +1,35 @@
 using System;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 using Discord;
-using Discord.WebSocket;
 
 using DiscordDkpBot.Configuration;
-using DiscordDkpBot.Extensions;
 
 namespace DiscordDkpBot.Commands
 {
-	public class PingCommand : BasicChatCommand
+	public class PingCommand : ICommand
 	{
-		public PingCommand (DkpBotConfiguration config) : base(config.CommandPrefix, "ping")
+		private readonly Regex pattern;
+
+		public PingCommand (DkpBotConfiguration config)
 		{
+			pattern = new Regex("^" + config.CommandPrefix + "ping (?<content>.*)", RegexOptions.IgnoreCase);
 		}
 
-		public override async Task<bool> InvokeAsync (IMessage message)
+		public async Task<bool> TryInvokeAsync (IMessage message)
 		{
-			await message.Channel.SendMessageAsync($"pong {message.Content.Replace(CommandPrefix + CommandTriggers, string.Empty)}");
-			return true;
+			Match match = pattern.Match(message.Content);
+
+			if (match.Success)
+			{
+				await message.Channel.SendMessageAsync($"pong {match.Groups["content"]}");
+				return true;
+			}
+			else
+			{
+				return false;
+			}
 		}
 	}
 }

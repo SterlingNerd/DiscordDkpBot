@@ -34,10 +34,10 @@ namespace DiscordDkpBot.Commands
 			log.LogTrace($"{message.Author} ({message.Channel}): {message}");
 			bool success = false;
 			List<Task<bool>> commandTasks = new List<Task<bool>>(commands.Count);
-			foreach (ICommand command in commands.Where(x => x.DoesCommandApply(message)))
+			foreach (ICommand command in commands)
 			{
 				log.LogInformation($"Executing command {command}, message: {message}");
-				commandTasks.Add(command.InvokeAsync(message));
+				commandTasks.Add(command.TryInvokeAsync(message));
 			}
 
 			await Task.WhenAll(commandTasks);
