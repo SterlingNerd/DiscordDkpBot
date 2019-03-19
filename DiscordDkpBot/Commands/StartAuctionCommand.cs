@@ -17,10 +17,10 @@ namespace DiscordDkpBot.Commands
 		public const string Syntax = "One item:\t\t\t`\"Item_Name\"`\nTwo of an item:\t\t`2x\"Item_Name\"`\nCustom duration:\t\t`\"Item_Name\" 4`";
 		private static readonly string[] CommandTriggers = { "startbid", "startbids", "dkp startbids", "dkp startbid" };
 		private readonly IAuctionProcessor auctionProcessor;
-		private readonly ILogger<CancelAuctionCommand> log;
+		private readonly ILogger<StartAuctionCommand> log;
 		private readonly Regex pattern;
 
-		public StartAuctionCommand (DkpBotConfiguration configuration, IAuctionProcessor auctionProcessor, ILogger<CancelAuctionCommand> log)
+		public StartAuctionCommand (DkpBotConfiguration configuration, IAuctionProcessor auctionProcessor, ILogger<StartAuctionCommand> log)
 		{
 			string regex = "^" + configuration.CommandPrefix + "?(?<trigger>" + string.Join('|', CommandTriggers) + @")?\s*(?<number>\d+)?x?\s*""(?<name>.+)""\s*(?<time>\d+)?\s*$";
 			pattern = new Regex(regex, RegexOptions.IgnoreCase);
