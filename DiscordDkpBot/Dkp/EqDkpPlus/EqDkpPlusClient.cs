@@ -17,7 +17,6 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 		private readonly IHttpClientFactory clientFactory;
 		private readonly DkpBotConfiguration config;
 		private readonly ILogger<EqDkpPlusClient> log;
-		private readonly XmlSerializer pointsSerializer = new XmlSerializer(typeof(PointsResponse));
 
 		public EqDkpPlusClient(DkpBotConfiguration config, IHttpClientFactory clientFactory, ILogger<EqDkpPlusClient> log)
 		{
@@ -26,31 +25,17 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 			this.log = log;
 		}
 
-		public async Task<EventsResponse> GetEvents()
+		public Task<EventsResponse> GetEvents()
 		{
 			log.LogInformation("Getting events list.");
 
 			StringBuilder uri = new StringBuilder(config.EqDkpPlus.EventsUri);
 
 			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, uri.ToString());
-
-			HttpClient client = GetClient();
-			HttpResponseMessage response = await client.SendAsync(request);
-
-			if (response.IsSuccessStatusCode)
-			{
-				//Stream xml = await response.Content.ReadAsStreamAsync();
-				//return pointsSerializer.Deserialize(xml) as PointsResponse;
-				string xml = await response.Content.ReadAsStringAsync();
-				return pointsSerializer.Deserialize(new StringReader(xml)) as EventsResponse;
-			}
-			else
-			{
-				throw new ApplicationException($"GetEvents Failed: {response.StatusCode} {await response.Content.ReadAsStringAsync()}");
-			}
+			return SendAsync<EventsResponse>(request);
 		}
 
-		public async Task<PointsResponse> GetPoints(int? playerId = null)
+		public Task<PointsResponse> GetPoints(int? playerId = null)
 		{
 			log.LogInformation($"Getting dkp for playerId:{playerId}.");
 
@@ -61,20 +46,49 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 			}
 
 			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, uri.ToString());
+			return SendAsync<PointsResponse>(request);
+		}
 
+		public async Task<T> SendAsync<T>(HttpRequestMessage request) where T : class
+		{
 			HttpClient client = GetClient();
-			HttpResponseMessage response = await client.SendAsync(request);
 
+			HttpResponseMessage response = await client.SendAsync(request);
 			if (response.IsSuccessStatusCode)
 			{
 				//Stream xml = await response.Content.ReadAsStreamAsync();
 				//return pointsSerializer.Deserialize(xml) as PointsResponse;
 				string xml = await response.Content.ReadAsStringAsync();
-				return pointsSerializer.Deserialize(new StringReader(xml)) as PointsResponse;
+				XmlSerializer serializer;
+
+				// But did we actually succeed?
+				if (xml?.Contains("</error>\r\n<response>") == true)
+				{
+					log.LogWarning($"{request.RequestUri} Failed.\t{xml}");
+
+					serializer = new XmlSerializer(typeof(ErrorResponse));
+
+					using (StringReader reader = new StringReader(xml))
+					{
+						ErrorResponse error = serializer.Deserialize(reader) as ErrorResponse;
+						throw new EqDkpPlusException(error);
+					}
+				}
+				else
+				{
+					log.LogDebug($"{request.RequestUri} success.");
+
+					serializer = new XmlSerializer(typeof(T));
+
+					using (StringReader reader = new StringReader(xml))
+					{
+						return serializer.Deserialize(reader) as T;
+					}
+				}
 			}
 			else
 			{
-				throw new ApplicationException($"GetPoints Failed: {response.StatusCode} {await response.Content.ReadAsStringAsync()}");
+				throw new ApplicationException($"EqDkpPlus Api call failed: {response.StatusCode} {await response.Content.ReadAsStringAsync()}");
 			}
 		}
 
