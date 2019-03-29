@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Xml.Serialization;
 
-namespace DiscordDkpBot.Dkp.EqDkp.Xml
+namespace DiscordDkpBot.Dkp.EqDkpPlus.Xml
 {
 	[XmlType("response")]
 	public class PointsResponse
@@ -19,8 +19,8 @@ namespace DiscordDkpBot.Dkp.EqDkp.Xml
 		[XmlArray("multidkp_pools")]
 		public MultiDkpPool[] DkpPools { get; set; }
 
-		[XmlElement("eqdkp")]
-		public EqDkpInfo EqDkpInfo { get; set; }
+		[XmlElement("EqDkpPlus")]
+		public EqDkpPlusInfo EqDkpPlusInfo { get; set; }
 
 		[XmlArray("itempools")]
 		public ItemPool[] ItemPools { get; set; }

@@ -83,9 +83,35 @@ namespace DiscordDkpBotTests {
         ///    &lt;date&gt;16.03.19 16:06:15&lt;/date&gt;
         ///    &lt;t [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string EqDkp_Points {
+        internal static string EqDkpPlus_Points {
             get {
-                return ResourceManager.GetString("EqDkp_Points", resourceCulture);
+                return ResourceManager.GetString("EqDkpPlus_Points", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+        ///&lt;response&gt;
+        ///  &lt;event&gt;
+        ///    &lt;id&gt;1&lt;/id&gt;
+        ///    &lt;name&gt;CLASSIC: Nagafen&apos;s Lair&lt;/name&gt;
+        ///    &lt;value&gt;0.00&lt;/value&gt;
+        ///    &lt;icon&gt;http://forguild.com/dkp//dkp/data/78337a0e75253a273091c0652415aa7b/files/event_icons/EQiconOld.ico&lt;/icon&gt;
+        ///    &lt;multidkp_pools&gt;
+        ///      &lt;multidkp_pool&gt;
+        ///        &lt;id&gt;1&lt;/id&gt;
+        ///        &lt;name&gt;FoR&lt;/name&gt;
+        ///        &lt;desc&gt;base account&lt;/desc&gt;
+        ///      &lt;/multidkp_pool&gt;
+        ///    &lt;/multidkp_pools&gt;
+        ///    &lt;itempools&gt;
+        ///      &lt;itempool&gt;
+        ///        &lt;id&gt;1&lt;/id&gt;
+        ///        &lt;name&gt;default [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string EventsXml {
+            get {
+                return ResourceManager.GetString("EventsXml", resourceCulture);
             }
         }
         

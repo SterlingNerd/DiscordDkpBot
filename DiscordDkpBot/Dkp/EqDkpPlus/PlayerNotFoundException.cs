@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DiscordDkpBot.Dkp.EqDkp
+namespace DiscordDkpBot.Dkp.EqDkpPlus
 {
 	public class PlayerNotFoundException : Exception
 	{

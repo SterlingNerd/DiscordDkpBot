@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Xml.Serialization;
 
-namespace DiscordDkpBot.Dkp.EqDkp.Xml
+namespace DiscordDkpBot.Dkp.EqDkpPlus.Xml
 {
-	[XmlType ("eqdkp")]
-	public class EqDkpInfo
+	[XmlType ("EqDkpPlus")]
+	public class EqDkpPlusInfo
 	{
 		[XmlElement ("dkp_name")]
 		public string DkpName { get; set; }

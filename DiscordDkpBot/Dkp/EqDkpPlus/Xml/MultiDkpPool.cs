@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Xml.Serialization;
 
-namespace DiscordDkpBot.Dkp.EqDkp.Xml
+namespace DiscordDkpBot.Dkp.EqDkpPlus.Xml
 {
+	[XmlType("multidkp_pool")]
 	public class MultiDkpPool
 	{
 		[XmlElement ("id")]

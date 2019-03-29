@@ -4,11 +4,11 @@ using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
 
-using DiscordDkpBot.Dkp.EqDkp.Xml;
+using DiscordDkpBot.Dkp.EqDkpPlus.Xml;
 
 using NUnit.Framework;
 
-namespace DiscordDkpBotTests.Dkp.EqDkp.Xml
+namespace DiscordDkpBotTests.Dkp.EqDkpPlus.Xml
 {
 	[TestFixture]
 	public class PointsResponseTests
@@ -21,7 +21,7 @@ namespace DiscordDkpBotTests.Dkp.EqDkp.Xml
 
 			PointsResponse response;
 			//Act
-			using (StringReader reader = new StringReader(TestResources.EqDkp_Points))
+			using (StringReader reader = new StringReader(TestResources.EqDkpPlus_Points))
 			{
 				response = serializer.Deserialize(reader) as PointsResponse;
 			}
@@ -29,6 +29,15 @@ namespace DiscordDkpBotTests.Dkp.EqDkp.Xml
 			//Assert
 			Assert.IsNotNull(response);
 			Assert.True(((ICollection)response.Players).Count > 1, "Must be more than 1 player.");
+			Assert.IsNotNull(response.DkpPools);
+			Assert.IsTrue(response.DkpPools.Length > 0);
+			Assert.IsNotNull(response.DkpPools[0]);
+			Assert.IsNotNull(response.DkpPools[0].Events);
+			Assert.IsTrue(response.DkpPools[0].Events.Length > 0);
+			Assert.IsNotNull(response.DkpPools[0].Events[0]);
+			Assert.AreEqual(1, response.DkpPools[0].Events[0].Id);
+
+
 		}
 
 		[Test]

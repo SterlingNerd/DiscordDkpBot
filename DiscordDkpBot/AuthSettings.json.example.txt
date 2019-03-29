@@ -3,7 +3,7 @@
 		"Discord": {
 			"Token": "Jimmy!"
 		},
-		"EqDkp": {
+		"EqDkpPlus": {
 	
 		}
 	}

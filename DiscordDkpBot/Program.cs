@@ -10,7 +10,7 @@ using DiscordDkpBot.Auctions;
 using DiscordDkpBot.Commands;
 using DiscordDkpBot.Configuration;
 using DiscordDkpBot.Dkp;
-using DiscordDkpBot.Dkp.EqDkp;
+using DiscordDkpBot.Dkp.EqDkpPlus;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -53,8 +53,8 @@ namespace DiscordDkpBot
 				.AddSingleton(config)
 				.AddHttpClient()
 				.AddChatCommands()
-				.AddSingleton<EqDkpClient>()
-				.AddSingleton<IDkpProcessor, EqDkpProcessor>()
+				.AddSingleton<EqDkpPlusClient>()
+				.AddSingleton<IDkpProcessor, EqDkpPlusProcessor>()
 				.AddSingleton<ICommandProcessor, CommandProcessor>()
 				.AddSingleton<IAuctionProcessor, AuctionProcessor>()
 				.AddSingleton<AuctionState>()
