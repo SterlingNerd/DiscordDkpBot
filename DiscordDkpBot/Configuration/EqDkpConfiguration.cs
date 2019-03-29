@@ -6,6 +6,7 @@ namespace DiscordDkpBot.Configuration
 	{
 		public string BaseAddress { get; set; }
 		public string PointsUri { get; set; }
+		public string AddRaidUri { get; set; }
 		public string Token { get; set; }
 	}
 }

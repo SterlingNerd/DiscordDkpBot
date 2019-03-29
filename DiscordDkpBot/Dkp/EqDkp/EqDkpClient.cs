@@ -30,7 +30,6 @@ namespace DiscordDkpBot.Dkp.EqDkp
 		{
 			log.LogInformation($"Getting dkp for playerId:{playerId}.");
 
-			HttpClient client = GetClient();
 
 			StringBuilder uri = new StringBuilder(config.EqDkp.PointsUri);
 			if (playerId != null)
@@ -40,6 +39,7 @@ namespace DiscordDkpBot.Dkp.EqDkp
 
 			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, uri.ToString());
 
+			HttpClient client = GetClient();
 			HttpResponseMessage response = await client.SendAsync(request);
 
 			if (response.IsSuccessStatusCode)
@@ -56,6 +56,20 @@ namespace DiscordDkpBot.Dkp.EqDkp
 				throw new ApplicationException($"GetPoints Failed: {response.StatusCode} {await response.Content.ReadAsStringAsync()}");
 			}
 		}
+
+		//public async Task CreateRaid(DateTimeOffset date, )
+		//{
+		//	log.LogInformation($"Creating raid: ");
+
+		//	StringBuilder uri = new StringBuilder(config.EqDkp.AddRaidUri);
+
+		//	AddRaidRequest request = new AddRaidRequest()
+
+
+		//	var client = GetClient();
+
+			
+		//}
 
 		private HttpClient GetClient ()
 		{
