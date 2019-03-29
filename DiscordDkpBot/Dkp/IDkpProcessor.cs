@@ -8,6 +8,7 @@ namespace DiscordDkpBot.Dkp
 {
 	public interface IDkpProcessor
 	{
-		Task<PlayerPoints> GetDkp (string character);
+		Task<PlayerPoints> GetDkp(string character);
+		Task<IEnumerable<DkpEvent>> GetEvents(string name = null);
 	}
 }

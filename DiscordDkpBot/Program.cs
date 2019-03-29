@@ -51,6 +51,9 @@ namespace DiscordDkpBot
 
 			return services
 				.AddSingleton(config)
+				.AddSingleton(config.EqDkpPlus)
+				.AddSingleton(config.Discord)
+				.AddSingleton(config.Ranks)
 				.AddHttpClient()
 				.AddChatCommands()
 				.AddSingleton<EqDkpPlusClient>()

@@ -17,7 +17,7 @@ using NUnit.Framework;
 namespace DiscordDkpBotTests.Commands
 {
 	[TestFixture]
-	public class StartBidsCommandTests
+	public class StartAuctionCommandTests
 	{
 		[TestCase("@ startbids \"YoMomma\"", null, "YoMomma", null)]
 		[TestCase("@ startbids 2x\"YoMomma\"", 2, "YoMomma", null)]
