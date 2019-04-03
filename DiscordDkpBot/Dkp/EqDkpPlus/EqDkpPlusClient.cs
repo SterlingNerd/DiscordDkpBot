@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Text;
@@ -18,14 +19,26 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 		private readonly DkpBotConfiguration config;
 		private readonly ILogger<EqDkpPlusClient> log;
 
-		public EqDkpPlusClient(DkpBotConfiguration config, IHttpClientFactory clientFactory, ILogger<EqDkpPlusClient> log)
+		public EqDkpPlusClient (DkpBotConfiguration config, IHttpClientFactory clientFactory, ILogger<EqDkpPlusClient> log)
 		{
 			this.config = config;
 			this.clientFactory = clientFactory;
 			this.log = log;
 		}
 
-		public Task<EventsResponse> GetEvents()
+		public Task<AddRaidResponse> AddRaid (DateTimeOffset date, int eventId, string note)
+		{
+			AddRaidRequest addRequest = new AddRaidRequest(date.UtcDateTime, eventId, note);
+
+			log.LogInformation($"Creating raid: {eventId} @ {date.LocalDateTime} \"{note}\"");
+
+			StringBuilder uri = new StringBuilder(config.EqDkpPlus.AddRaidUri);
+			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, uri.ToString());
+
+			return SendAsync<AddRaidRequest, AddRaidResponse>(request, addRequest);
+		}
+
+		public Task<EventsResponse> GetEvents ()
 		{
 			log.LogInformation("Getting events list.");
 
@@ -35,7 +48,7 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 			return SendAsync<EventsResponse>(request);
 		}
 
-		public Task<PointsResponse> GetPoints(int? playerId = null)
+		public Task<PointsResponse> GetPoints (int? playerId = null)
 		{
 			log.LogInformation($"Getting dkp for playerId:{playerId}.");
 
@@ -49,9 +62,56 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 			return SendAsync<PointsResponse>(request);
 		}
 
-		public async Task<T> SendAsync<T>(HttpRequestMessage request) where T : class
+		public Task<GetRaidsResponse> GetRaids (int number, int start)
+		{
+			log.LogInformation($"Getting raids.");
+
+			StringBuilder uri = new StringBuilder(config.EqDkpPlus.GetRaidsUri);
+			uri.Append($"&number={number}&start={start}");
+
+			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, uri.ToString());
+			return SendAsync<GetRaidsResponse>(request);
+		}
+
+		private HttpClient GetClient ()
+		{
+			HttpClient client = clientFactory.CreateClient(nameof(EqDkpPlusClient));
+
+			client.BaseAddress = new Uri(config.EqDkpPlus.BaseAddress);
+			client.DefaultRequestHeaders.Add("Accept", "application/xml");
+			client.DefaultRequestHeaders.Add("X-Custom-Authorization", $"token={config.EqDkpPlus.Token}&type=user");
+			client.DefaultRequestHeaders.Add("User-Agent", $"DiscordDkpBot-{config.Version}");
+
+			return client;
+		}
+
+		private async Task<TResponse> SendAsync<TRequest, TResponse> (HttpRequestMessage request, TRequest content) where TResponse : class
+		{
+			if (content != null)
+			{
+				XmlSerializer ser = new XmlSerializer(typeof(TRequest));
+
+				using (MemoryStream stream = new MemoryStream())
+				{
+					ser.Serialize(stream, content);
+					stream.Position = 0;
+					return await SendAsync<TResponse>(request, stream);
+				}
+			}
+			else
+			{
+				return await SendAsync<TResponse>(request);
+			}
+		}
+
+		private async Task<TResponse> SendAsync<TResponse> (HttpRequestMessage request, Stream content = null) where TResponse : class
 		{
 			HttpClient client = GetClient();
+
+			if (content != null)
+			{
+				request.Content = new StreamContent(content);
+			}
 
 			HttpResponseMessage response = await client.SendAsync(request);
 			if (response.IsSuccessStatusCode)
@@ -78,11 +138,11 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 				{
 					log.LogDebug($"{request.RequestUri} success.");
 
-					serializer = new XmlSerializer(typeof(T));
+					serializer = new XmlSerializer(typeof(TResponse));
 
 					using (StringReader reader = new StringReader(xml))
 					{
-						return serializer.Deserialize(reader) as T;
+						return serializer.Deserialize(reader) as TResponse;
 					}
 				}
 			}
@@ -90,30 +150,6 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 			{
 				throw new ApplicationException($"EqDkpPlus Api call failed: {response.StatusCode} {await response.Content.ReadAsStringAsync()}");
 			}
-		}
-
-		//public async Task CreateRaid(DateTimeOffset date, )
-		//{
-		//	log.LogInformation($"Creating raid: ");
-
-		//	StringBuilder uri = new StringBuilder(config.EqDkpPlus.AddRaidUri);
-
-		//	AddRaidRequest request = new AddRaidRequest()
-
-		//	var client = GetClient();
-
-		//}
-
-		private HttpClient GetClient()
-		{
-			HttpClient client = clientFactory.CreateClient(nameof(EqDkpPlusClient));
-
-			client.BaseAddress = new Uri(config.EqDkpPlus.BaseAddress);
-			client.DefaultRequestHeaders.Add("Accept", "application/xml");
-			client.DefaultRequestHeaders.Add("X-Custom-Authorization", $"token={config.EqDkpPlus.Token}&type=user");
-			client.DefaultRequestHeaders.Add("User-Agent", $"DiscordDkpBot-{config.Version}");
-
-			return client;
 		}
 	}
 }

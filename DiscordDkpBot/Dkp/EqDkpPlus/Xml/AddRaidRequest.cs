@@ -18,20 +18,17 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus.Xml
 		public int EventId { get; set; }
 		[XmlElement("raid_note")]
 		public string Note { get; set; }
-	}
 
-	public class RaidAttendee
-	{
-		[XmlElement("member")]
-		public int Id { get; set; }
-	}
+		private AddRaidRequest()
+		{
+			// Required for xml serializer
+		}
 
-	[XmlType("response")]
-	public class AddRaidResponse
-	{
-		[XmlElement("raid_id")]
-		public int Id { get; set; }
-		[XmlElement("status")]
-		public int Status { get; set; }
+		public AddRaidRequest(DateTime date, int eventId, string note)
+		{
+			Date = date;
+			EventId = eventId;
+			Note = note;
+		}
 	}
 }

@@ -116,6 +116,31 @@ namespace DiscordDkpBotTests {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to This XML file does not appear to have any style information associated with it. The document tree is shown below.
+        ///&lt;response&gt;
+        ///&lt;raid&gt;
+        ///&lt;id&gt;2429&lt;/id&gt;
+        ///&lt;date&gt;2019-04-02 02:45:48&lt;/date&gt;
+        ///&lt;date_timestamp&gt;1554173148&lt;/date_timestamp&gt;
+        ///&lt;note&gt;Compact&lt;/note&gt;
+        ///&lt;event_id&gt;213&lt;/event_id&gt;
+        ///&lt;event_name&gt;LDON: Takish-Hiz: Within the Compact&lt;/event_name&gt;
+        ///&lt;added_by_id&gt;0&lt;/added_by_id&gt;
+        ///&lt;added_by_name&gt;Fangor&lt;/added_by_name&gt;
+        ///&lt;value&gt;15.00&lt;/value&gt;
+        ///&lt;/raid&gt;
+        ///&lt;raid&gt;
+        ///&lt;id&gt;2428&lt;/id&gt;
+        ///&lt;date&gt;2019-04-02 02:36:00&lt;/date&gt;
+        ///&lt;date_timestamp [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string GetRaids {
+            get {
+                return ResourceManager.GetString("GetRaids", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
         ///&lt;response&gt;
         ///  &lt;eqdkp&gt;

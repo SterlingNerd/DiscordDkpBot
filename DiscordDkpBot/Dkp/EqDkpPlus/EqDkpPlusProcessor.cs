@@ -4,6 +4,8 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 
+using Discord;
+
 using DiscordDkpBot.Auctions;
 using DiscordDkpBot.Configuration;
 using DiscordDkpBot.Dkp.EqDkpPlus.Xml;
@@ -14,8 +16,8 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 {
 	public class EqDkpPlusProcessor : IDkpProcessor
 	{
-		private readonly EqDkpPlusConfiguration config;
 		private readonly EqDkpPlusClient client;
+		private readonly EqDkpPlusConfiguration config;
 		private readonly ILogger<EqDkpPlusProcessor> log;
 		private readonly AuctionState state;
 
@@ -25,6 +27,31 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 			this.client = client;
 			this.state = state;
 			this.log = log;
+		}
+
+		public async Task<RaidInfo> StartRaid(int eventId, string creator)
+		{
+			AddRaidResponse response = await client.AddRaid(DateTimeOffset.Now, eventId, $"Created by {creator}.");
+			GetRaidsResponse raids = await client.GetRaids(10, 0); //Hopefully it's in the last 10 raids.
+
+
+			RaidInfo raid;
+			if (config.AddRaidUri.Contains("test=true"))
+			{
+				// We're testing, so just return the last raid.
+				raid = raids.Raids.First();
+			}
+			else
+			{
+				raid = raids.Raids.Single(x => x.Id == response.Id);
+			}
+
+			if (state.Raids.TryAdd(raid.Id, raid))
+			{
+				state.CurrentRaid = raid;
+			}
+
+			return raid;
 		}
 
 		public async Task<PlayerPoints> GetDkp(string character)

@@ -1,0 +1,113 @@
+<response>
+	<raid>
+		<id>2429</id>
+		<date>2019-04-02 02:45:48</date>
+		<date_timestamp>1554173148</date_timestamp>
+		<note>Compact</note>
+		<event_id>213</event_id>
+		<event_name>LDON: Takish-Hiz: Within the Compact</event_name>
+		<added_by_id>0</added_by_id>
+		<added_by_name>Fangor</added_by_name>
+		<value>15.00</value>
+	</raid>
+	<raid>
+	<id>2428</id>
+	<date>2019-04-02 02:36:00</date>
+	<date_timestamp>1554172560</date_timestamp>
+	<note>Items for 04-01-2019</note>
+	<event_id>111</event_id>
+	<event_name>ITEMS: Daily</event_name>
+	<added_by_id>0</added_by_id>
+	<added_by_name>Hobe</added_by_name>
+	<value>0.00</value>
+	</raid>
+	<raid>
+	<id>2427</id>
+	<date>2019-04-01 05:52:10</date>
+	<date_timestamp>1554097930</date_timestamp>
+	<note>Quarm</note>
+	<event_id>127</event_id>
+	<event_name>POP: Plane of Time</event_name>
+	<added_by_id>0</added_by_id>
+	<added_by_name>Fangor</added_by_name>
+	<value>10.00</value>
+	</raid>
+	<raid>
+	<id>2426</id>
+	<date>2019-04-01 05:48:00</date>
+	<date_timestamp>1554097680</date_timestamp>
+	<note>Phase 5</note>
+	<event_id>127</event_id>
+	<event_name>POP: Plane of Time</event_name>
+	<added_by_id>0</added_by_id>
+	<added_by_name>Fangor</added_by_name>
+	<value>15.00</value>
+	</raid>
+	<raid>
+	<id>2425</id>
+	<date>2019-04-01 04:26:00</date>
+	<date_timestamp>1554092760</date_timestamp>
+	<note>Phase 4</note>
+	<event_id>127</event_id>
+	<event_name>POP: Plane of Time</event_name>
+	<added_by_id>0</added_by_id>
+	<added_by_name>Fangor</added_by_name>
+	<value>15.00</value>
+	</raid>
+	<raid>
+	<id>2424</id>
+	<date>2019-04-01 03:33:00</date>
+	<date_timestamp>1554089580</date_timestamp>
+	<note>Phase 3</note>
+	<event_id>127</event_id>
+	<event_name>POP: Plane of Time</event_name>
+	<added_by_id>0</added_by_id>
+	<added_by_name>Fangor</added_by_name>
+	<value>10.00</value>
+	</raid>
+	<raid>
+	<id>2423</id>
+	<date>2019-04-01 02:44:00</date>
+	<date_timestamp>1554086640</date_timestamp>
+	<note>Phase 2</note>
+	<event_id>127</event_id>
+	<event_name>POP: Plane of Time</event_name>
+	<added_by_id>0</added_by_id>
+	<added_by_name>Fangor</added_by_name>
+	<value>0.00</value>
+	</raid>
+	<raid>
+	<id>2422</id>
+	<date>2019-04-01 02:05:00</date>
+	<date_timestamp>1554084300</date_timestamp>
+	<note>Items for 03-31-2019</note>
+	<event_id>111</event_id>
+	<event_name>ITEMS: Daily</event_name>
+	<added_by_id>0</added_by_id>
+	<added_by_name>Hobe</added_by_name>
+	<value>0.00</value>
+	</raid>
+	<raid>
+	<id>2421</id>
+	<date>2019-04-01 02:04:00</date>
+	<date_timestamp>1554084240</date_timestamp>
+	<note>Phase 1</note>
+	<event_id>127</event_id>
+	<event_name>POP: Plane of Time</event_name>
+	<added_by_id>0</added_by_id>
+	<added_by_name>Fangor</added_by_name>
+	<value>15.00</value>
+	</raid>
+	<raid>
+	<id>2420</id>
+	<date>2019-03-28 03:18:57</date>
+	<date_timestamp>1553743137</date_timestamp>
+	<note>Ritualist 2</note>
+	<event_id>214</event_id>
+	<event_name>LDON: Deepest Guk: Ritualist of Hate</event_name>
+	<added_by_id>0</added_by_id>
+	<added_by_name>Fangor</added_by_name>
+	<value>10.00</value>
+	</raid>
+	<status>1</status>
+</response>

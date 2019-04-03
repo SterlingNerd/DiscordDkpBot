@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using Discord;
 
 using DiscordDkpBot.Auctions;
-using DiscordDkpBot.Configuration;
 using DiscordDkpBot.Dkp;
 using DiscordDkpBot.Dkp.EqDkpPlus.Xml;
 using DiscordDkpBot.Extensions;
@@ -24,7 +23,7 @@ namespace DiscordDkpBot.Commands
 		private readonly ILogger<GetEventsCommand> log;
 		private readonly Regex pattern;
 
-		public GetEventsCommand(IDkpProcessor dkpProcessor, ILogger<GetEventsCommand> log)
+		public GetEventsCommand (IDkpProcessor dkpProcessor, ILogger<GetEventsCommand> log)
 		{
 			string regex = $@"^\s*(?<trigger>{string.Join('|', CommandTriggers)})($|\s+(?<name>.*)$)";
 			pattern = new Regex(regex, RegexOptions.IgnoreCase);
@@ -33,7 +32,7 @@ namespace DiscordDkpBot.Commands
 			this.log = log;
 		}
 
-		public (bool success, string name) ParseArgs(string args)
+		public (bool success, string name) ParseArgs (string args)
 		{
 			Match match = pattern.Match(args);
 
@@ -49,7 +48,7 @@ namespace DiscordDkpBot.Commands
 			return (true, name);
 		}
 
-		public async Task<bool> TryInvokeAsync(IMessage message)
+		public async Task<bool> TryInvokeAsync (IMessage message)
 		{
 			try
 			{

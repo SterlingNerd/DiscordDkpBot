@@ -10,5 +10,6 @@ namespace DiscordDkpBot.Dkp
 	{
 		Task<PlayerPoints> GetDkp(string character);
 		Task<IEnumerable<DkpEvent>> GetEvents(string name = null);
+		Task<RaidInfo> StartRaid(int EventId, string creator);
 	}
 }
