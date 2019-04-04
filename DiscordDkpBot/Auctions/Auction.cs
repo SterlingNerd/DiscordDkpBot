@@ -12,7 +12,7 @@ namespace DiscordDkpBot.Auctions
 		public IUser Author { get; }
 		public BidCollection Bids { get; } = new BidCollection();
 		public IMessageChannel Channel { get; }
-		public string ClosedText => $"***[{ShortDescription}]** Bids are now closed.";
+		public string ClosedText => $"**[{ShortDescription}]** Bids are now closed.";
 		public string DetailDescription => $"({ID}) {Quantity}x {Name} for {MinutesRemaining} min.";
 		public int ID { get; }
 		public double MinutesRemaining { get; private set; }

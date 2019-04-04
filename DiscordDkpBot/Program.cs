@@ -11,6 +11,7 @@ using DiscordDkpBot.Commands;
 using DiscordDkpBot.Configuration;
 using DiscordDkpBot.Dkp;
 using DiscordDkpBot.Dkp.EqDkpPlus;
+using DiscordDkpBot.Items;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -58,12 +59,32 @@ namespace DiscordDkpBot
 				.AddChatCommands()
 				.AddSingleton<EqDkpPlusClient>()
 				.AddSingleton<IDkpProcessor, EqDkpPlusProcessor>()
-				.AddSingleton<ICommandProcessor, CommandProcessor>()
-				.AddSingleton<IAuctionProcessor, AuctionProcessor>()
+				.AddSingleton<IItemSource, AllakhazamItemSource>()
+				.AddDefaultImplementations()
 				.AddSingleton<AuctionState>()
 				.AddSingleton<DkpBot>()
 				.AddDiscordNet()
 				;
+		}
+
+		private static IServiceCollection AddDefaultImplementations (this IServiceCollection services)
+		{
+			Assembly coreAssembly = Assembly.GetAssembly(typeof(Program));
+
+			// If there's an interface
+			foreach (Type interfaceType in coreAssembly.GetTypes().Where(x => x.IsInterface))
+			{
+				// strip the "I" off after the last . in it's full name
+				string defaultImplementationName = interfaceType.FullName.Remove(interfaceType.FullName.LastIndexOf('.') + 1, 1);
+				Type implementationType = coreAssembly.GetType(defaultImplementationName);
+				if (implementationType != null)
+				{
+					// If we found one, inject it!
+					services.AddSingleton(interfaceType, implementationType);
+				}
+			}
+
+			return services;
 		}
 
 		private static IServiceCollection AddLogging (this IServiceCollection services, IConfigurationSection loggingConfiguration)

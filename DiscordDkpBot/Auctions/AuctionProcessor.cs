@@ -7,6 +7,7 @@ using Discord;
 
 using DiscordDkpBot.Configuration;
 using DiscordDkpBot.Extensions;
+using DiscordDkpBot.Items;
 
 using Microsoft.Extensions.Logging;
 
@@ -16,18 +17,20 @@ namespace DiscordDkpBot.Auctions
 	{
 		private readonly AuctionState auctionState;
 		private readonly DkpBotConfiguration configuration;
+		private readonly IItemProcessor itemProcessor;
 		private readonly ILogger<AuctionProcessor> log;
 		private readonly Dictionary<string, RankConfiguration> ranks;
 
-		public AuctionProcessor (DkpBotConfiguration configuration, AuctionState auctionState, ILogger<AuctionProcessor> log)
+		public AuctionProcessor(DkpBotConfiguration configuration, AuctionState auctionState, IItemProcessor itemProcessor, ILogger<AuctionProcessor> log)
 		{
 			ranks = configuration.Ranks.ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
 			this.configuration = configuration;
 			this.auctionState = auctionState;
+			this.itemProcessor = itemProcessor;
 			this.log = log;
 		}
 
-		public Task<AuctionBid> AddOrUpdateBid (string item, string character, string rank, int bid, IMessage message)
+		public Task<AuctionBid> AddOrUpdateBid(string item, string character, string rank, int bid, IMessage message)
 		{
 			// First make sure we can make a valid bid out of it.
 			if (!ranks.TryGetValue(rank, out RankConfiguration rankConfig))
@@ -54,12 +57,12 @@ namespace DiscordDkpBot.Auctions
 			return Task.FromResult(newBid);
 		}
 
-		public CompletedAuction CalculateWinners (Auction auction)
+		public CompletedAuction CalculateWinners(Auction auction)
 		{
 			List<AuctionBid> bids = auction.Bids.ToList();
 			log.LogTrace("Finding winners for {0} from bids submitted: ({1})", auction.DetailDescription, string.Join("', ", auction.Bids));
 			List<AuctionBid> winningBids = new List<AuctionBid>();
-			
+
 			for (int i = 0; i < auction.Quantity; i++)
 			{
 				// Grab the first winner.
@@ -81,7 +84,7 @@ namespace DiscordDkpBot.Auctions
 
 			//Now, how much do they pay?
 			bids.Sort();
-			
+
 			// You lose! Good DAY sir!
 			AuctionBid loser = bids.FirstOrDefault();
 			List<WinningBid> winners = new List<WinningBid>();
@@ -113,7 +116,7 @@ namespace DiscordDkpBot.Auctions
 			return new CompletedAuction(auction, winners);
 		}
 
-		public async Task<Auction> CancelAuction (string name, IMessage message)
+		public async Task<Auction> CancelAuction(string name, IMessage message)
 		{
 			if (!auctionState.Auctions.TryRemove(name, out Auction auction))
 			{
@@ -134,7 +137,7 @@ namespace DiscordDkpBot.Auctions
 			return auction;
 		}
 
-		public Task<AuctionBid> CancelBid (string item, IMessage message)
+		public Task<AuctionBid> CancelBid(string item, IMessage message)
 		{
 			if (!auctionState.Auctions.TryGetValue(item, out Auction auction))
 			{
@@ -151,31 +154,45 @@ namespace DiscordDkpBot.Auctions
 			return Task.FromResult(bid);
 		}
 
-		public async Task<Auction> StartAuction (int? quantity, string name, int? minutes, IMessage message)
+		public async Task<Auction> StartAuction(int? quantity, string name, int? minutes, IMessage message)
 		{
 			Auction auction = new Auction(auctionState.NextAuctionId, quantity ?? 1, name, minutes ?? configuration.DefaultAuctionDurationMinutes, message);
 			if (!auctionState.Auctions.TryAdd(auction.Name, auction))
 			{
 				throw new AuctionAlreadyExistsException($"Auction for {auction.Name} already exists.");
 			}
+			try
+			{
+				ItemLookupResult itemResult = await itemProcessor.GetItemEmbed(name);
+				string announcementText = auction.AnnouncementText;
+				if (itemResult.MatchesFound > 1)
+				{
+					announcementText += "There were several items found with the same name, this might not actually be the correct item stats.";
+				}
 
-			IUserMessage announcement = await auction.Channel.SendMessageAsync(auction.AnnouncementText);
+				IUserMessage announcement = await auction.Channel.SendMessageAsync(announcementText, false, itemResult.Embed);
 
-			auction.Tick += async (o, s) => await announcement.ModifyAsync(m => m.Content = auction.AnnouncementText);
-			auction.Completed += async (o, s) =>
-										{
-											await announcement.ModifyAsync(m => m.Content = auction.ClosedText);
-											await FinishAuction(auction, announcement);
-										};
+				auction.Tick += async (o, s) => await announcement.ModifyAsync(m => m.Content = auction.AnnouncementText);
+				auction.Completed += async (o, s) =>
+											{
+												await announcement.ModifyAsync(m => m.Content = auction.ClosedText);
+												await FinishAuction(auction, announcement);
+											};
 
-			auction.Start();
+				auction.Start();
 
-			log.LogTrace("Started auction: {0}", auction.DetailDescription);
+				log.LogTrace("Started auction: {0}", auction.DetailDescription);
 
-			return auction;
+				return auction;
+			}
+			catch (Exception)
+			{
+				auctionState.Auctions.TryRemove(auction.Name, out Auction _);
+				throw;
+			}
 		}
 
-		private AuctionBid CalculateWinner (List<AuctionBid> bids)
+		private AuctionBid CalculateWinner(List<AuctionBid> bids)
 		{
 			bids.Sort();
 			log.LogTrace("Finding best winner from: ({0})", string.Join(", ", bids));
@@ -213,7 +230,7 @@ namespace DiscordDkpBot.Auctions
 			return winner;
 		}
 
-		private Task FinishAuction (Auction auction, IUserMessage announcement)
+		private Task FinishAuction(Auction auction, IUserMessage announcement)
 		{
 			auctionState.Auctions.TryRemove(auction.Name, out Auction _);
 

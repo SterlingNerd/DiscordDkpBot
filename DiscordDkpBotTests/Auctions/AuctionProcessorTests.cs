@@ -5,6 +5,7 @@ using Discord;
 
 using DiscordDkpBot.Auctions;
 using DiscordDkpBot.Configuration;
+using DiscordDkpBot.Items;
 
 using Microsoft.Extensions.Logging;
 
@@ -154,7 +155,7 @@ namespace DiscordDkpBotTests.Auctions
 		[SetUp]
 		public void SetUp ()
 		{
-			target = new AuctionProcessor(new DkpBotConfiguration(), new AuctionState(), new Mock<ILogger<AuctionProcessor>>().Object);
+			target = new AuctionProcessor(new DkpBotConfiguration(), new AuctionState(), new Mock<IItemProcessor>().Object, new Mock<ILogger<AuctionProcessor>>().Object);
 		}
 
 		#endregion
