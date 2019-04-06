@@ -67,7 +67,7 @@ namespace DiscordDkpBot.Commands
 				}
 
 				StringBuilder builder = new StringBuilder();
-				IEnumerable<string> winners = auction.WinningBids.Select(winner => $"**{winner.Bid.Character}**");
+				IEnumerable<string> winners = auction.WinningBids.Select(winner => $"**{winner.Bid.CharacterName}**");
 
 				builder.AppendLine($"**[{auction.Auction.ShortDescription}]** Awarded to {string.Join(", ", winners)}");
 				builder.AppendLine("Bids in ranked order:");

@@ -2,13 +2,17 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
+using DiscordDkpBot.Auctions;
 using DiscordDkpBot.Dkp.EqDkpPlus.Xml;
 
 namespace DiscordDkpBot.Dkp
 {
 	public interface IDkpProcessor
 	{
-		Task<PlayerPoints> GetDkp(string character);
+		Task ChargeWinners(CompletedAuction completedAuction);
+		Task<int> GetCharacterId(string characterName);
+		Task<PlayerPoints> GetDkp(string characterName);
+		Task<PlayerPoints> GetDkp(int characterId);
 		Task<IEnumerable<DkpEvent>> GetEvents(string name = null);
 		Task<RaidInfo> StartRaid(int EventId, string creator);
 	}

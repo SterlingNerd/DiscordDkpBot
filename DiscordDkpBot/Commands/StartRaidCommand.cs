@@ -73,8 +73,10 @@ namespace DiscordDkpBot.Commands
 				else
 				{
 					RaidInfo raid = await dkpProcessor.StartRaid(eventId, message.Author.Username);
-
 					log.LogDebug($"Created Raid: {raid}.");
+
+					
+
 					StringBuilder builder = new StringBuilder();
 
 					if (configuration.EqDkpPlus.AddRaidUri.Contains("test=true"))

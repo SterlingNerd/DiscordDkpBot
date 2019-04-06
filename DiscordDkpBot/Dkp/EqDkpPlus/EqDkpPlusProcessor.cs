@@ -4,8 +4,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 
-using Discord;
-
 using DiscordDkpBot.Auctions;
 using DiscordDkpBot.Configuration;
 using DiscordDkpBot.Dkp.EqDkpPlus.Xml;
@@ -29,32 +27,19 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 			this.log = log;
 		}
 
-		public async Task<RaidInfo> StartRaid(int eventId, string creator)
+		public async Task ChargeWinners(CompletedAuction completedAuction)
 		{
-			AddRaidResponse response = await client.AddRaid(DateTimeOffset.Now, eventId, $"Created by {creator}.");
-			GetRaidsResponse raids = await client.GetRaids(10, 0); //Hopefully it's in the last 10 raids.
+			List<Task> chargeTasks = new List<Task>();
 
-
-			RaidInfo raid;
-			if (config.AddRaidUri.Contains("test=true"))
+			foreach (WinningBid winner in completedAuction.WinningBids)
 			{
-				// We're testing, so just return the last raid.
-				raid = raids.Raids.First();
-			}
-			else
-			{
-				raid = raids.Raids.Single(x => x.Id == response.Id);
+				chargeTasks.Add(client.AddItem(winner.Bid.CharacterId, DateTime.Now, completedAuction.Auction.Name, winner.Price, completedAuction.Auction.Raid.Id));
 			}
 
-			if (state.Raids.TryAdd(raid.Id, raid))
-			{
-				state.CurrentRaid = raid;
-			}
-
-			return raid;
+			await Task.WhenAll(chargeTasks);
 		}
 
-		public async Task<PlayerPoints> GetDkp(string character)
+		public async Task<int> GetCharacterId(string character)
 		{
 			if (!state.PlayerIds.TryGetValue(character, out int id))
 			{
@@ -66,16 +51,27 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 					throw new PlayerNotFoundException(character);
 				}
 			}
+			return id;
+		}
+
+		public async Task<PlayerPoints> GetDkp(string character)
+		{
+			int id = await GetCharacterId(character);
+			return await GetDkp(id);
+		}
+
+		public async Task<PlayerPoints> GetDkp(int id)
+		{
 			PointsResponse points = await client.GetPoints(id);
 			Player player = points?.Players?.FirstOrDefault();
 			if (player?.MainId != id)
 			{
-				log.LogInformation($"{character} is an alt. Getting points for main.");
+				log.LogInformation($"Character id '{id}' is an alt. Getting points for main.");
 				points = await client.GetPoints(player?.MainId);
 				player = points?.Players?.FirstOrDefault();
 			}
 
-			return player?.Points?.FirstOrDefault() ?? throw new PlayerNotFoundException($"Player {character} not found.");
+			return player?.Points?.FirstOrDefault() ?? throw new PlayerNotFoundException($"Player id '{id}' not found.");
 		}
 
 		public async Task<IEnumerable<DkpEvent>> GetEvents(string name = null)
@@ -89,6 +85,28 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 			{
 				return response?.Events?.Where(x => config.FavoriteEvents?.Contains(x.Id) == true);
 			}
+		}
+
+		public async Task<RaidInfo> StartRaid(int eventId, string creator)
+		{
+			AddRaidResponse response = await client.AddRaid(DateTimeOffset.Now, eventId, $"Created by {creator}.");
+			GetRaidsResponse raids = await client.GetRaids(10, 0);//Hopefully it's in the last 10 raids.
+
+			RaidInfo raid;
+			if (config.AddRaidUri.Contains("test=true"))
+			{
+				// We're testing, so just return the last raid.
+				raid = raids.Raids.First();
+			}
+			else
+			{
+				raid = raids.Raids.Single(x => x.Id == response.Id);
+			}
+
+			state.Raids.TryAdd(raid.Id, raid);
+			state.CurrentRaid = raid;
+
+			return raid;
 		}
 
 		public async Task UpdatePlayerIds()

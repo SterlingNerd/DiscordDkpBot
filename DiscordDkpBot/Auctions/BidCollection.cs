@@ -8,11 +8,11 @@ namespace DiscordDkpBot.Auctions
 {
 	public class BidCollection : IEnumerable<AuctionBid>
 	{
-		private readonly ConcurrentDictionary<string, AuctionBid> bids = new ConcurrentDictionary<string, AuctionBid>();
+		private readonly ConcurrentDictionary<int, AuctionBid> bids = new ConcurrentDictionary<int, AuctionBid>();
 
 		public AuctionBid AddOrUpdate (AuctionBid bid)
 		{
-			return bids.AddOrUpdate(bid.Character, bid, (k, e) => bid);
+			return bids.AddOrUpdate(bid.CharacterId, bid, (k, e) => bid);
 		}
 
 		public IEnumerator<AuctionBid> GetEnumerator ()
@@ -28,7 +28,7 @@ namespace DiscordDkpBot.Auctions
 			//return bids.TryRemove(authorId, out bid);
 			foreach (AuctionBid liveBid in bids.Values.Where(x => x.Author.Id == authorId))
 			{
-				success |= bids.TryRemove(liveBid.Character, out bid);
+				success |= bids.TryRemove(liveBid.CharacterId, out bid);
 			}
 
 			return success;

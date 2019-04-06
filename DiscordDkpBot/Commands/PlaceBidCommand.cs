@@ -6,6 +6,7 @@ using Discord;
 using Discord.WebSocket;
 
 using DiscordDkpBot.Auctions;
+using DiscordDkpBot.Dkp.EqDkpPlus;
 using DiscordDkpBot.Extensions;
 
 using Microsoft.Extensions.Logging;
@@ -66,6 +67,12 @@ namespace DiscordDkpBot.Commands
 				return true;
 			}
 			catch (AuctionNotFoundException ex)
+			{
+				log.LogWarning(ex);
+				await message.Channel.SendMessageAsync(ex.Message);
+				return false;
+			}
+			catch (PlayerNotFoundException ex)
 			{
 				log.LogWarning(ex);
 				await message.Channel.SendMessageAsync(ex.Message);

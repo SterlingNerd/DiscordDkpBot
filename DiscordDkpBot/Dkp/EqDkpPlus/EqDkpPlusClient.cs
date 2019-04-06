@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Text;
@@ -19,14 +18,26 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 		private readonly DkpBotConfiguration config;
 		private readonly ILogger<EqDkpPlusClient> log;
 
-		public EqDkpPlusClient (DkpBotConfiguration config, IHttpClientFactory clientFactory, ILogger<EqDkpPlusClient> log)
+		public EqDkpPlusClient(DkpBotConfiguration config, IHttpClientFactory clientFactory, ILogger<EqDkpPlusClient> log)
 		{
 			this.config = config;
 			this.clientFactory = clientFactory;
 			this.log = log;
 		}
 
-		public Task<AddRaidResponse> AddRaid (DateTimeOffset date, int eventId, string note)
+		public Task AddItem(int buyer, DateTime itemDate, string itemName, int value, int raidId)
+		{
+			AddItemRequest item = new AddItemRequest(buyer, itemDate, itemName, 1, raidId, value);
+			log.LogInformation($"Creating item: {item}");
+
+			StringBuilder uri = new StringBuilder(config.EqDkpPlus.AddItemUri);
+			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, uri.ToString());
+
+			return SendAsync<AddItemRequest, AddItemResponse>(request, item);
+
+		}
+
+		public Task<AddRaidResponse> AddRaid(DateTimeOffset date, int eventId, string note)
 		{
 			AddRaidRequest addRequest = new AddRaidRequest(date.UtcDateTime, eventId, note);
 
@@ -38,7 +49,7 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 			return SendAsync<AddRaidRequest, AddRaidResponse>(request, addRequest);
 		}
 
-		public Task<EventsResponse> GetEvents ()
+		public Task<EventsResponse> GetEvents()
 		{
 			log.LogInformation("Getting events list.");
 
@@ -48,7 +59,7 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 			return SendAsync<EventsResponse>(request);
 		}
 
-		public Task<PointsResponse> GetPoints (int? playerId = null)
+		public Task<PointsResponse> GetPoints(int? playerId = null)
 		{
 			log.LogInformation($"Getting dkp for playerId:{playerId}.");
 
@@ -62,9 +73,9 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 			return SendAsync<PointsResponse>(request);
 		}
 
-		public Task<GetRaidsResponse> GetRaids (int number, int start)
+		public Task<GetRaidsResponse> GetRaids(int number, int start)
 		{
-			log.LogInformation($"Getting raids.");
+			log.LogInformation("Getting raids.");
 
 			StringBuilder uri = new StringBuilder(config.EqDkpPlus.GetRaidsUri);
 			uri.Append($"&number={number}&start={start}");
@@ -73,7 +84,7 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 			return SendAsync<GetRaidsResponse>(request);
 		}
 
-		private HttpClient GetClient ()
+		private HttpClient GetClient()
 		{
 			HttpClient client = clientFactory.CreateClient(nameof(EqDkpPlusClient));
 
@@ -85,7 +96,7 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 			return client;
 		}
 
-		private async Task<TResponse> SendAsync<TRequest, TResponse> (HttpRequestMessage request, TRequest content) where TResponse : class
+		private async Task<TResponse> SendAsync<TRequest, TResponse>(HttpRequestMessage request, TRequest content) where TResponse : class
 		{
 			if (content != null)
 			{
@@ -104,7 +115,7 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 			}
 		}
 
-		private async Task<TResponse> SendAsync<TResponse> (HttpRequestMessage request, Stream content = null) where TResponse : class
+		private async Task<TResponse> SendAsync<TResponse>(HttpRequestMessage request, Stream content = null) where TResponse : class
 		{
 			HttpClient client = GetClient();
 

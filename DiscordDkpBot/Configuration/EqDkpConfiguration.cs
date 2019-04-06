@@ -11,5 +11,6 @@ namespace DiscordDkpBot.Configuration
 		public string Token { get; set; }
 		public int[] FavoriteEvents { get; set; } = { };
 		public string GetRaidsUri { get; set; } = "api.php?function=raids";
+		public string AddItemUri { get; set; } = "api.php?function=add_item&test=true";
 	}
 }

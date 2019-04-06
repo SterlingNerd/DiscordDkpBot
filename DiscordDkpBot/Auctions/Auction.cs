@@ -3,6 +3,8 @@ using System.Timers;
 
 using Discord;
 
+using DiscordDkpBot.Dkp.EqDkpPlus.Xml;
+
 namespace DiscordDkpBot.Auctions
 {
 	public class Auction
@@ -20,11 +22,11 @@ namespace DiscordDkpBot.Auctions
 		public int Quantity { get; }
 		public string ShortDescription => $"{Quantity}x {Name}";
 		public string CancelledText => $"Cancelled auction: {ShortDescription}.";
-
+		public RaidInfo Raid { get; }
 		public event Action<object, Auction> Completed;
 		public event Action<object, Auction> Tick;
 
-		public Auction (int id, int quantity, string name, double minutesRemaining, IMessage message)
+		public Auction (int id, int quantity, string name, double minutesRemaining,RaidInfo raid, IMessage message)
 		{
 			ID = id;
 			Name = name;
@@ -32,6 +34,7 @@ namespace DiscordDkpBot.Auctions
 			MinutesRemaining = minutesRemaining;
 			Author = message.Author;
 			Channel = message.Channel;
+			Raid = raid;
 
 			timer = new Timer(TimeSpan.FromMinutes(0.5).TotalMilliseconds);
 			timer.AutoReset = true;

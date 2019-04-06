@@ -11,13 +11,15 @@ namespace DiscordDkpBot.Auctions
 		public Auction Auction { get; }
 		public IUser Author { get; }
 		public int BidAmount { get; }
-		public string Character { get; }
-		public string RevealString => $"{{{Character}: {BidAmount}}} ({Rank.Name}) #{Author.Username}";
+		public string CharacterName { get; }
+		public int CharacterId { get; }
+		public string RevealString => $"{{{CharacterName}: {BidAmount}}} ({Rank.Name}) #{Author.Username}";
 		public RankConfiguration Rank { get; }
 
-		public AuctionBid (Auction auction, string character, int bidAmount, RankConfiguration rank, IUser author)
+		public AuctionBid (Auction auction, string characterName, int characterId, int bidAmount, RankConfiguration rank, IUser author)
 		{
-			Character = character;
+			CharacterName = characterName;
+			CharacterId = characterId;
 			BidAmount = bidAmount;
 			Rank = rank;
 			Author = author;
@@ -84,7 +86,7 @@ namespace DiscordDkpBot.Auctions
 
 		public override string ToString ()
 		{
-			return $"{Character} {BidAmount} {Rank.Name}";
+			return $"{CharacterName} {BidAmount} {Rank.Name}";
 		}
 
 		public static bool operator == (AuctionBid left, AuctionBid right)

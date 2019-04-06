@@ -13,7 +13,7 @@ namespace DiscordDkpBotTests.Dkp.EqDkpPlus.Xml
 	public class GetRaidsResponseTests
 	{
 		[Test]
-		public void DeserializeTest()
+		public void DeserializeTest ()
 		{
 			//Arrange
 			XmlSerializer serializer = new XmlSerializer(typeof(GetRaidsResponse));
