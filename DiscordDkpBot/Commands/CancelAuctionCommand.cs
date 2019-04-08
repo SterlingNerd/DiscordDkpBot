@@ -6,21 +6,20 @@ using Discord;
 
 using DiscordDkpBot.Auctions;
 using DiscordDkpBot.Configuration;
-using DiscordDkpBot.Extensions;
 
 using Microsoft.Extensions.Logging;
 
 namespace DiscordDkpBot.Commands
 {
-	public class CancelAuctionCommand : ICommand
+	public class CancelAuctionCommand : IChannelCommand
 	{
-		public const string Syntax = "`\"ItemName\" cancel`";
 		private static readonly string[] CommandTriggers = { "cancel", "cancelbid", "cancelbids" };
 		private readonly IAuctionProcessor auctionProcessor;
 		private readonly ILogger<CancelAuctionCommand> log;
 		private readonly Regex pattern;
+		public string ChannelSyntax => "`\"ItemName\" cancel`";
 
-		public CancelAuctionCommand (DkpBotConfiguration configuration, IAuctionProcessor auctionProcessor, ILogger<CancelAuctionCommand> log)
+		public CancelAuctionCommand(DkpBotConfiguration configuration, IAuctionProcessor auctionProcessor, ILogger<CancelAuctionCommand> log)
 		{
 			string regex = "^" + Regex.Escape(configuration?.CommandPrefix) + "?(?<trigger>" + string.Join('|', CommandTriggers) + @")?\s*(?<number>\d+)?x?\s*""(?<name>.+)""\s*(?<time>\d+)?\s*$";
 			pattern = new Regex(regex, RegexOptions.IgnoreCase);
@@ -28,36 +27,21 @@ namespace DiscordDkpBot.Commands
 			this.log = log;
 		}
 
-		public Task<bool> TryInvokeAsync (IMessage message)
+		public async Task<bool> TryInvokeAsync(IMessage message)
 		{
-			try
-			{
-				Match match = pattern.Match(message.Content);
+			Match match = pattern.Match(message.Content);
 
-				if (!match.Success)
-				{
-					log.LogDebug("Did not match pattern.");
-					return Task.FromResult(false);
-				}
-
-				string name = match.Groups["name"].Value;
-				log.LogTrace("Parsed cancel arguments: {0}", name);
-				auctionProcessor.CancelAuction(name, message);
-
-				return Task.FromResult(true);
-			}
-			catch (AuctionNotFoundException ex)
+			if (!match.Success)
 			{
-				log.LogWarning(ex);
-				message.Channel.SendMessageAsync(ex.Message);
-				return Task.FromResult(false);
+				log.LogTrace("Did not match pattern.");
+				return false;
 			}
-			catch (Exception ex)
-			{
-				log.LogError(ex);
-				message.Channel.SendMessageAsync($"Yer doin it wrong!\n\nSyntax:\n{Syntax}");
-				return Task.FromResult(false);
-			}
+
+			string name = match.Groups["name"].Value;
+			log.LogDebug("Parsed cancel arguments: {0}", name);
+
+			await auctionProcessor.CancelAuction(name, message);
+			return true;
 		}
 	}
 }

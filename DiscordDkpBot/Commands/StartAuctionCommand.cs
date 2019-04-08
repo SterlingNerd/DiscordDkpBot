@@ -6,21 +6,21 @@ using Discord;
 
 using DiscordDkpBot.Auctions;
 using DiscordDkpBot.Configuration;
-using DiscordDkpBot.Extensions;
 
 using Microsoft.Extensions.Logging;
 
 namespace DiscordDkpBot.Commands
 {
-	public class StartAuctionCommand : ICommand
+	public class StartAuctionCommand : IChannelCommand
 	{
-		public const string Syntax = "One item:\t\t\t`\"Item_Name\"`\nTwo of an item:\t\t`2x\"Item_Name\"`\nCustom duration:\t\t`\"Item_Name\" 4`";
 		private static readonly string[] CommandTriggers = { "startbid", "startbids" };
 		private readonly IAuctionProcessor auctionProcessor;
 		private readonly ILogger<StartAuctionCommand> log;
 		private readonly Regex pattern;
 
-		public StartAuctionCommand (DkpBotConfiguration configuration, IAuctionProcessor auctionProcessor, ILogger<StartAuctionCommand> log)
+		public string ChannelSyntax => "One item:\t\t\t`\"Item_Name\"`\nTwo of an item:\t\t`2x\"Item_Name\"`\nCustom duration:\t\t`\"Item_Name\" 4`";
+
+		public StartAuctionCommand(DkpBotConfiguration configuration, IAuctionProcessor auctionProcessor, ILogger<StartAuctionCommand> log)
 		{
 			string regex = "^" + Regex.Escape(configuration.CommandPrefix) + @"\s*(?<trigger>" + string.Join('|', CommandTriggers) + @")?\s+(?<number>\d+)?x?\s*""(?<name>.+)""\s*(?<time>\d+)?\s*$";
 			pattern = new Regex(regex, RegexOptions.IgnoreCase);
@@ -28,7 +28,7 @@ namespace DiscordDkpBot.Commands
 			this.log = log;
 		}
 
-		public (bool success, int? number, string name, int? minutes) ParseArgs (string args)
+		public (bool success, int? number, string name, int? minutes) ParseArgs(string args)
 		{
 			Match match = pattern.Match(args);
 
@@ -46,42 +46,26 @@ namespace DiscordDkpBot.Commands
 			return (true, number, name, minutes);
 		}
 
-		public async Task<bool> TryInvokeAsync (IMessage message)
+		public async Task<bool> TryInvokeAsync(IMessage message)
 		{
-			try
+			if (message == null)
 			{
-				if (message == null)
-				{
-					return false;
-				}
-				(bool success, int? quantity, string name, int? minutes) = ParseArgs(message.Content);
+				return false;
+			}
+			(bool success, int? quantity, string name, int? minutes) = ParseArgs(message.Content);
 
-				if (!success)
-				{
-					return false;
-				}
-				else if (message.Channel is IPrivateChannel)
-				{
-					await message.Channel.SendMessageAsync("Yer doin it wrong!\n\nYou can only start auctions from a public channel, not DMs.");
-					return false;
-				}
-				else
-				{
-					await auctionProcessor.StartAuction(quantity, name, minutes, message);
-					return true;
-				}
-			}
-			catch (AuctionAlreadyExistsException ex)
+			if (!success)
 			{
-				log.LogWarning(ex);
-				await message.Channel.SendMessageAsync(ex.Message);
 				return false;
 			}
-			catch (Exception ex)
+			else if (message.Channel is IPrivateChannel)
 			{
-				log.LogWarning(ex);
-				await message.Channel.SendMessageAsync($"Yer doin it wrong!\n\nSyntax:\n{Syntax}");
 				return false;
+			}
+			else
+			{
+				await auctionProcessor.StartAuction(quantity, name, minutes, message);
+				return true;
 			}
 		}
 	}

@@ -8,7 +8,7 @@ using DiscordDkpBot.Dkp.EqDkpPlus.Xml;
 
 using NUnit.Framework;
 
-namespace DiscordDkpBotTests.Dkp.EqDkpPlus.Xml
+namespace DiscordDkpBotTests.Dkp.EqDkp.Xml
 {
 	[TestFixture]
 	public class PointsResponseTests

@@ -4,7 +4,7 @@ using DiscordDkpBot.Dkp.EqDkpPlus.Xml;
 
 namespace DiscordDkpBot.Dkp.EqDkpPlus
 {
-	public class EqDkpPlusException : DkpException
+	public class EqDkpPlusException : DkpBotException
 	{
 		public EqDkpPlusException(ErrorResponse errorResponse) : base(errorResponse.Error)
 		{

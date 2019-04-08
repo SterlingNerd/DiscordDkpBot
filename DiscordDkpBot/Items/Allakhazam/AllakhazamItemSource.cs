@@ -8,7 +8,7 @@ using Discord;
 
 using HtmlAgilityPack;
 
-namespace DiscordDkpBot.Items
+namespace DiscordDkpBot.Items.Allakhazam
 {
 	public class AllakhazamItemSource : IItemSource
 	{

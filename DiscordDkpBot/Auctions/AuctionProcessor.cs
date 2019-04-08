@@ -125,7 +125,7 @@ namespace DiscordDkpBot.Auctions
 		{
 			if (!state.Auctions.TryRemove(name, out Auction auction))
 			{
-				throw new AuctionAlreadyExistsException($"Auction for {name} does not exists.");
+				throw new AuctionNotFoundException($"Auction for {name} does not exist.");
 			}
 			auction.Stop();
 			string cancelMessage = auction.CancelledText;

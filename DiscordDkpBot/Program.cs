@@ -12,6 +12,7 @@ using DiscordDkpBot.Configuration;
 using DiscordDkpBot.Dkp;
 using DiscordDkpBot.Dkp.EqDkpPlus;
 using DiscordDkpBot.Items;
+using DiscordDkpBot.Items.Allakhazam;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,12 +33,19 @@ namespace DiscordDkpBot
 
 		private static IServiceCollection AddChatCommands (this IServiceCollection services)
 		{
-			// Add all implemntations of IChatCommand to DI.
+			// Add all implementations of IChatCommand to DI.
 			foreach (TypeInfo type in Assembly.GetCallingAssembly().DefinedTypes
-				.Where(x => x.ImplementedInterfaces.Contains(typeof(ICommand)) && x.IsAbstract == false))
+				.Where(x => x.ImplementedInterfaces.Contains(typeof(IDmCommand)) && x.IsAbstract == false))
 			{
-				services.AddSingleton(typeof(ICommand), type);
+				services.AddSingleton(typeof(IDmCommand), type);
 			}
+
+			foreach (TypeInfo type in Assembly.GetCallingAssembly().DefinedTypes
+				.Where(x => x.ImplementedInterfaces.Contains(typeof(IChannelCommand)) && x.IsAbstract == false))
+			{
+				services.AddSingleton(typeof(IChannelCommand), type);
+			}
+
 			return services;
 		}
 

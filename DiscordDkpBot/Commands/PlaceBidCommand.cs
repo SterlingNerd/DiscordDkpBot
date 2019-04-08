@@ -6,29 +6,26 @@ using Discord;
 using Discord.WebSocket;
 
 using DiscordDkpBot.Auctions;
-using DiscordDkpBot.Dkp.EqDkpPlus;
-using DiscordDkpBot.Extensions;
 
 using Microsoft.Extensions.Logging;
 
 namespace DiscordDkpBot.Commands
 {
-	public class PlaceBidCommand : ICommand
+	public class PlaceBidCommand : IDmCommand
 	{
-		public const string Syntax = "\"{Item_Name_With_Typos}\" {Character} {Amount} {Rank}";
-
 		private static readonly Regex pattern = new Regex(@"^\s*""(?<Item>.+)""\s+(?<Character>\w+)(\s+(?<Bid>\d+)\s+(?<Rank>\w+)|\s+(?<Rank>\w+)\s+(?<Bid>\d+))\s*$", RegexOptions.IgnoreCase);
 
 		private readonly IAuctionProcessor auctionProcessor;
 		private readonly ILogger<PlaceBidCommand> log;
+		public string DmSyntax => "\"{Item_Name_With_Typos}\" {Character} {Amount} {Rank}";
 
-		public PlaceBidCommand (IAuctionProcessor auctionProcessor, ILogger<PlaceBidCommand> log)
+		public PlaceBidCommand(IAuctionProcessor auctionProcessor, ILogger<PlaceBidCommand> log)
 		{
 			this.auctionProcessor = auctionProcessor;
 			this.log = log;
 		}
 
-		public (bool success, string item, string character, string rank, int bid) ParseArgs (string messageContent)
+		public (bool success, string item, string character, string rank, int bid) ParseArgs(string messageContent)
 		{
 			Match match = pattern.Match(messageContent);
 			if (!match.Success)
@@ -46,44 +43,23 @@ namespace DiscordDkpBot.Commands
 			return (true, item, character, rank, bid);
 		}
 
-		public async Task<bool> TryInvokeAsync (IMessage message)
+		public async Task<bool> TryInvokeAsync(IMessage message)
 		{
-			try
+			if (!(message.Channel is SocketDMChannel))
 			{
-				if (!(message.Channel is SocketDMChannel))
-				{
-					return false;
-				}
-
-				(bool success, string item, string character, string rank, int bid) = ParseArgs(message.Content);
-
-				if (!success)
-				{
-					return false;
-				}
-
-				await auctionProcessor.AddOrUpdateBid(item, character, rank, bid, message);
-
-				return true;
-			}
-			catch (AuctionNotFoundException ex)
-			{
-				log.LogWarning(ex);
-				await message.Channel.SendMessageAsync(ex.Message);
 				return false;
 			}
-			catch (PlayerNotFoundException ex)
+
+			(bool success, string item, string character, string rank, int bid) = ParseArgs(message.Content);
+
+			if (!success)
 			{
-				log.LogWarning(ex);
-				await message.Channel.SendMessageAsync(ex.Message);
 				return false;
 			}
-			catch (Exception ex)
-			{
-				log.LogWarning(ex);
-				await message.Channel.SendMessageAsync($"Yer doin it wrong!\n\nSyntax:\n{Syntax}");
-				return false;
-			}
+
+			await auctionProcessor.AddOrUpdateBid(item, character, rank, bid, message);
+
+			return true;
 		}
 	}
 }
