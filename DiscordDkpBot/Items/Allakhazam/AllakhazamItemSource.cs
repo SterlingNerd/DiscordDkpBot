@@ -68,7 +68,7 @@ namespace DiscordDkpBot.Items.Allakhazam
 			HtmlDocument htmlDoc = new HtmlDocument();
 			htmlDoc.LoadHtml(html);
 
-			HtmlNodeCollection links = htmlDoc.GetElementbyId("Items_t").SelectNodes("//td[2]/a");
+			HtmlNodeCollection links = htmlDoc.GetElementbyId("Items_t")?.SelectNodes("//td[2]/a");
 			List<int> itemIds = new List<int>();
 			if (links?.Any() == true)
 			{
