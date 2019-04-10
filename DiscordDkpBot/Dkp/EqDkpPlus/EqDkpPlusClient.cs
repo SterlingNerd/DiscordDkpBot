@@ -3,6 +3,7 @@ using System.IO;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 using System.Xml.Serialization;
 
 using DiscordDkpBot.Configuration;
@@ -18,14 +19,14 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 		private readonly DkpBotConfiguration config;
 		private readonly ILogger<EqDkpPlusClient> log;
 
-		public EqDkpPlusClient(DkpBotConfiguration config, IHttpClientFactory clientFactory, ILogger<EqDkpPlusClient> log)
+		public EqDkpPlusClient (DkpBotConfiguration config, IHttpClientFactory clientFactory, ILogger<EqDkpPlusClient> log)
 		{
 			this.config = config;
 			this.clientFactory = clientFactory;
 			this.log = log;
 		}
 
-		public Task AddItem(int buyer, DateTime itemDate, string itemName, int value, int raidId)
+		public Task AddItem (int buyer, DateTime itemDate, string itemName, int value, int raidId)
 		{
 			AddItemRequest item = new AddItemRequest(buyer, itemDate, itemName, 1, raidId, value);
 			log.LogInformation($"Creating item: {item}");
@@ -34,12 +35,11 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, uri.ToString());
 
 			return SendAsync<AddItemRequest, AddItemResponse>(request, item);
-
 		}
 
-		public Task<AddRaidResponse> AddRaid(DateTimeOffset date, int eventId, string note)
+		public Task<AddRaidResponse> AddRaid (DateTimeOffset date, int eventId, string note)
 		{
-			AddRaidRequest addRequest = new AddRaidRequest(date.UtcDateTime, eventId, note);
+			AddRaidRequest addRequest = new AddRaidRequest(date.UtcDateTime, eventId, note, config.EqDkpPlus.BotCharacterId);
 
 			log.LogInformation($"Creating raid: {eventId} @ {date.LocalDateTime} \"{note}\"");
 
@@ -49,7 +49,7 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 			return SendAsync<AddRaidRequest, AddRaidResponse>(request, addRequest);
 		}
 
-		public Task<EventsResponse> GetEvents()
+		public Task<EventsResponse> GetEvents ()
 		{
 			log.LogInformation("Getting events list.");
 
@@ -59,7 +59,7 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 			return SendAsync<EventsResponse>(request);
 		}
 
-		public Task<PointsResponse> GetPoints(int? playerId = null)
+		public Task<PointsResponse> GetPoints (int? playerId = null)
 		{
 			log.LogInformation($"Getting dkp for playerId:{playerId}.");
 
@@ -73,7 +73,7 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 			return SendAsync<PointsResponse>(request);
 		}
 
-		public Task<GetRaidsResponse> GetRaids(int number, int start)
+		public Task<GetRaidsResponse> GetRaids (int number, int start)
 		{
 			log.LogInformation("Getting raids.");
 
@@ -84,7 +84,7 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 			return SendAsync<GetRaidsResponse>(request);
 		}
 
-		private HttpClient GetClient()
+		private HttpClient GetClient ()
 		{
 			HttpClient client = clientFactory.CreateClient(nameof(EqDkpPlusClient));
 
@@ -96,18 +96,31 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 			return client;
 		}
 
-		private async Task<TResponse> SendAsync<TRequest, TResponse>(HttpRequestMessage request, TRequest content) where TResponse : class
+		private async Task<TResponse> SendAsync<TRequest, TResponse> (HttpRequestMessage request, TRequest content) where TResponse : class
 		{
 			if (content != null)
 			{
+				var emptyNamespaces = new XmlSerializerNamespaces(new[] { XmlQualifiedName.Empty });
+				var settings = new XmlWriterSettings();
+				settings.Indent = true;
+				settings.OmitXmlDeclaration = true;
+
 				XmlSerializer ser = new XmlSerializer(typeof(TRequest));
 
-				using (MemoryStream stream = new MemoryStream())
+				using (var stringWriter = new StringWriter())
 				{
-					ser.Serialize(stream, content);
-					stream.Position = 0;
-					return await SendAsync<TResponse>(request, stream);
+					using (var xmlWriter = XmlWriter.Create(stringWriter, settings))
+					{
+						ser.Serialize(xmlWriter, content, emptyNamespaces);
+						string contentString = stringWriter.ToString();
+						log.LogTrace($"Sending Content: {contentString}");
+						return await SendAsync<TResponse>(request, contentString);
+
+					}
 				}
+
+
+
 			}
 			else
 			{
@@ -115,13 +128,13 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 			}
 		}
 
-		private async Task<TResponse> SendAsync<TResponse>(HttpRequestMessage request, Stream content = null) where TResponse : class
+		private async Task<TResponse> SendAsync<TResponse> (HttpRequestMessage request, string content = null) where TResponse : class
 		{
 			HttpClient client = GetClient();
 
 			if (content != null)
 			{
-				request.Content = new StreamContent(content);
+				request.Content = new StringContent(content);
 			}
 
 			HttpResponseMessage response = await client.SendAsync(request);
@@ -133,7 +146,7 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 				XmlSerializer serializer;
 
 				// But did we actually succeed?
-				if (xml?.Contains("</error>\r\n<response>") == true)
+				if (xml?.Contains("</error>\r\n<response>") == true || xml?.Contains("<status>0</status>") == true)
 				{
 					log.LogWarning($"{request.RequestUri} Failed.\t{xml}");
 

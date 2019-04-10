@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -13,16 +14,18 @@ namespace DiscordDkpBot.Commands
 {
 	public class CancelAuctionCommand : IChannelCommand
 	{
-		private static readonly string[] CommandTriggers = { "cancel", "cancelbid", "cancelbids" };
+		private static readonly string[] CommandTriggers = { "cancelbids", "cancel", "cancelbid"};
+		private readonly DkpBotConfiguration configuration;
 		private readonly IAuctionProcessor auctionProcessor;
 		private readonly ILogger<CancelAuctionCommand> log;
 		private readonly Regex pattern;
-		public string ChannelSyntax => "`\"ItemName\" cancel`";
+		public string ChannelSyntax => $"{configuration.CommandPrefix} {CommandTriggers.First()} \"ItemName\"";
 
 		public CancelAuctionCommand(DkpBotConfiguration configuration, IAuctionProcessor auctionProcessor, ILogger<CancelAuctionCommand> log)
 		{
-			string regex = "^" + Regex.Escape(configuration?.CommandPrefix) + "?(?<trigger>" + string.Join('|', CommandTriggers) + @")?\s*(?<number>\d+)?x?\s*""(?<name>.+)""\s*(?<time>\d+)?\s*$";
+			string regex = "^" + Regex.Escape(configuration?.CommandPrefix) + "?(?<trigger>" + string.Join('|', CommandTriggers) + @")?\s*""(?<name>.+)""\s*$";
 			pattern = new Regex(regex, RegexOptions.IgnoreCase);
+			this.configuration = configuration;
 			this.auctionProcessor = auctionProcessor;
 			this.log = log;
 		}

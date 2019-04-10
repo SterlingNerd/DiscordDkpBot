@@ -9,41 +9,63 @@ using DiscordDkpBot.Dkp;
 using DiscordDkpBot.Dkp.EqDkpPlus.Xml;
 using DiscordDkpBot.Extensions;
 
-using JetBrains.Annotations;
-
 using Microsoft.Extensions.Logging;
 
 namespace DiscordDkpBot.Commands
 {
-	[UsedImplicitly]
 	public class DkpCheckCommand : IChannelCommand, IDmCommand
 	{
 		private readonly DkpBotConfiguration config;
 		private readonly IDkpProcessor dkpProcessor;
 		private readonly ILogger<DkpCheckCommand> log;
-		private readonly Regex pattern;
+		private readonly Regex channelPattern;
+		private readonly Regex dmPattern;
 
-		public string ChannelSyntax => $"{config.CommandPrefix} dkp {{character-name}}";
+		public string ChannelSyntax => $"{config.CommandPrefix} {{character-name}}";
 		public string DmSyntax => "dkp {character-name}";
 
 		public DkpCheckCommand(DkpBotConfiguration config, IDkpProcessor dkpProcessor, ILogger<DkpCheckCommand> log)
 		{
-			pattern = new Regex($@"^\s*((?<character>\w+) dkp|{Regex.Escape(config.CommandPrefix)} (?<character>\w+))\s*$", RegexOptions.IgnoreCase);
+			channelPattern = new Regex($@"^\s*((?<character>\w+) dkp|{Regex.Escape(config.CommandPrefix)} (?<character>\w+))\s*$", RegexOptions.IgnoreCase);
+			dmPattern = new Regex($@"^\s*((?<character>\w+) dkp|dkp (?<character>\w+))\s*$", RegexOptions.IgnoreCase);
 			this.config = config;
 			this.dkpProcessor = dkpProcessor;
 			this.log = log;
 		}
 
-		public async Task<bool> TryInvokeAsync(IMessage message)
+		public (bool success, string characters) ParseArgs(string args)
 		{
-			Match match = pattern.Match(message.Content);
+			Match match = channelPattern.Match(args);
+
 			if (!match.Success)
 			{
-				return false;
+				match = dmPattern.Match(args);
+			}
+
+			if (!match.Success)
+			{
+				return (false, null);
 			}
 
 			string character = match.Groups["character"].Value;
 			log.LogDebug($"Parsed character name '{character}'.");
+
+			return (true, character);
+		}
+
+		public async Task<bool> TryInvokeAsync(IMessage message)
+		{
+			if (message == null)
+			{
+				return false;
+			}
+			(bool success, string character) = ParseArgs(message.Content);
+
+			if (!success)
+			{
+				return false;
+			}
+
 			PlayerPoints dkp = await dkpProcessor.GetDkp(character);
 
 			string dkpMessage = $"{character.UppercaseFirst()} has **{dkp.PointsCurrentWithTwink}** available to spend.\n```brainfuck\nLifetime DKP for {character}: Earned {dkp.PointsEarnedWithTwink} - Spent {dkp.PointsSpentWithTwink} - Adjustments {dkp.PointsAdjustmentWithTwink}.```";

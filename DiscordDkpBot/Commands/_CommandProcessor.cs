@@ -33,8 +33,8 @@ namespace DiscordDkpBot.Commands
 			this.channelCommands = channelCommands?.ToList() ?? new List<IChannelCommand>();
 			this.dmCommands = dmCommands?.ToList() ?? new List<IDmCommand>();
 
-			DmHelpMessage = GetHelpMessage(dmCommands);
-			ChannelHelpMessage = GetHelpMessage(channelCommands);
+			DmHelpMessage = GetDmHelpMessage(dmCommands);
+			ChannelHelpMessage = GetChannelHelpMessage(channelCommands);
 
 			this.config = config;
 			this.log = log;
@@ -67,24 +67,20 @@ namespace DiscordDkpBot.Commands
 			catch (Exception ex)
 			{
 				log.LogError(ex);
-				await message.Channel.SendMessageAsync("**Look ma, I'm roadkill!** (something went wrong, check the logs.");
+				await message.Channel.SendMessageAsync("**Look ma, I'm roadkill!** (something went wrong, check the logs.)");
 			}
 		}
 
 		private IEnumerable<Task<bool>> ProcessChannelCommand(SocketMessage message)
 		{
 			List<Task<bool>> commandTasks = new List<Task<bool>>();
-			if (Regex.Match($@"{Regex.Escape(config.CommandPrefix)}\s+help", message.Content, RegexOptions.IgnoreCase).Success)
+			if (Regex.Match(message.Content, $@"{Regex.Escape(config.CommandPrefix)}\s+help",  RegexOptions.IgnoreCase).Success)
 			{
 				commandTasks.Add(SendHelp(ChannelHelpMessage, message.Channel));
 			}
 			else
 			{
-				foreach (IChannelCommand command in channelCommands)
-				{
-					commandTasks.Add(RunCommand(command, message));
-					return commandTasks;
-				}
+				commandTasks.AddRange(channelCommands.Select(command => RunCommand(command, message)));
 			}
 			return commandTasks;
 		}
@@ -123,21 +119,14 @@ namespace DiscordDkpBot.Commands
 			}
 		}
 
-		private static string GetHelpMessage(IEnumerable<ICommand> commands)
+
+		private static string GetChannelHelpMessage (IEnumerable<IChannelCommand> channelCommands)
 		{
-			StringBuilder builder = new StringBuilder("Available Commands:");
-			foreach (ICommand command in commands)
-			{
-				if (command is IDmCommand dmCommand)
-				{
-					builder.AppendLine($"```{dmCommand.DmSyntax}```");
-				}
-				else if (command is IChannelCommand channelCommand)
-				{
-					builder.AppendLine($"```{channelCommand.ChannelSyntax}```");
-				}
-			}
-			return builder.ToString();
+			return string.Join(Environment.NewLine, channelCommands.Select(x => $"```\n{x.ChannelSyntax}\n```"));
+		}
+		private static string GetDmHelpMessage (IEnumerable<IDmCommand> channelCommands)
+		{
+			return string.Join(Environment.NewLine, channelCommands.Select(x => $"```\n{x.DmSyntax}\n```"));
 		}
 
 		private static async Task<bool> SendHelp(string message, IMessageChannel channel)
