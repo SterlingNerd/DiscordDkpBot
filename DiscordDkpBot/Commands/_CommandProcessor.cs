@@ -21,26 +21,24 @@ namespace DiscordDkpBot.Commands
 	public class CommandProcessor : ICommandProcessor
 	{
 		private readonly ICollection<IChannelCommand> channelCommands;
-		private readonly string ChannelHelpMessage;
 		private readonly DkpBotConfiguration config;
 		private readonly ICollection<IDmCommand> dmCommands;
 
-		private readonly string DmHelpMessage;
+		private readonly string HelpMessage;
 		private readonly ILogger<CommandProcessor> log;
 
-		public CommandProcessor(DkpBotConfiguration config, IEnumerable<IChannelCommand> channelCommands, IEnumerable<IDmCommand> dmCommands, ILogger<CommandProcessor> log)
+		public CommandProcessor (DkpBotConfiguration config, IEnumerable<IChannelCommand> channelCommands, IEnumerable<IDmCommand> dmCommands, ILogger<CommandProcessor> log)
 		{
 			this.channelCommands = channelCommands?.ToList() ?? new List<IChannelCommand>();
 			this.dmCommands = dmCommands?.ToList() ?? new List<IDmCommand>();
 
-			DmHelpMessage = GetDmHelpMessage(dmCommands);
-			ChannelHelpMessage = GetChannelHelpMessage(channelCommands);
+			HelpMessage = GetHelpMessage(channelCommands, dmCommands);
 
 			this.config = config;
 			this.log = log;
 		}
 
-		public async Task ProcessCommand(SocketMessage message)
+		public async Task ProcessCommand (SocketMessage message)
 		{
 			log.LogInformation($"{message.Author} ({message.Channel}): {message}");
 			List<Task<bool>> commandTasks = new List<Task<bool>>();
@@ -61,7 +59,7 @@ namespace DiscordDkpBot.Commands
 				//As an extra help, if we're dealing with PMs and nothing matched, we can give them the help message.
 				if (message.Channel is IPrivateChannel && commandTasks.All(x => x.Result == false))
 				{
-					commandTasks.Add(SendHelp(DmHelpMessage, message.Channel));
+					commandTasks.Add(SendHelp(message.Author));
 				}
 			}
 			catch (Exception ex)
@@ -71,12 +69,12 @@ namespace DiscordDkpBot.Commands
 			}
 		}
 
-		private IEnumerable<Task<bool>> ProcessChannelCommand(SocketMessage message)
+		private IEnumerable<Task<bool>> ProcessChannelCommand (SocketMessage message)
 		{
 			List<Task<bool>> commandTasks = new List<Task<bool>>();
-			if (Regex.Match(message.Content, $@"{Regex.Escape(config.CommandPrefix)}\s+help",  RegexOptions.IgnoreCase).Success)
+			if (Regex.Match(message.Content, $@"{Regex.Escape(config.CommandPrefix)}\s+help", RegexOptions.IgnoreCase).Success)
 			{
-				commandTasks.Add(SendHelp(ChannelHelpMessage, message.Channel));
+				commandTasks.Add(SendHelp(message.Author));
 			}
 			else
 			{
@@ -85,12 +83,12 @@ namespace DiscordDkpBot.Commands
 			return commandTasks;
 		}
 
-		private IEnumerable<Task<bool>> ProcessDmCommand(SocketMessage message)
+		private IEnumerable<Task<bool>> ProcessDmCommand (SocketMessage message)
 		{
 			List<Task<bool>> commandTasks = new List<Task<bool>>();
 			if (message.Content.StartsWith("help", StringComparison.OrdinalIgnoreCase))
 			{
-				commandTasks.Add(SendHelp(DmHelpMessage, message.Channel));
+				commandTasks.Add(SendHelp(message.Author));
 			}
 
 			else
@@ -104,7 +102,7 @@ namespace DiscordDkpBot.Commands
 			return commandTasks;
 		}
 
-		private async Task<bool> RunCommand(ICommand command, IMessage message)
+		private async Task<bool> RunCommand (ICommand command, IMessage message)
 		{
 			try
 			{
@@ -120,18 +118,20 @@ namespace DiscordDkpBot.Commands
 		}
 
 
-		private static string GetChannelHelpMessage (IEnumerable<IChannelCommand> channelCommands)
+		private static string GetHelpMessage (IEnumerable<IChannelCommand> channelCommands, IEnumerable<IDmCommand> dmCommands)
 		{
-			return string.Join(Environment.NewLine, channelCommands.Select(x => $"```\n{x.ChannelSyntax}\n```"));
-		}
-		private static string GetDmHelpMessage (IEnumerable<IDmCommand> channelCommands)
-		{
-			return string.Join(Environment.NewLine, channelCommands.Select(x => $"```\n{x.DmSyntax}\n```"));
+			StringBuilder builder = new StringBuilder();
+			builder.AppendLine("**Valid Channel Commands**");
+			builder.AppendLine(string.Join(Environment.NewLine, channelCommands.Select(x => $"```\n{x.ChannelSyntax}\n```")));
+			builder.AppendLine("**Valid DM Commands**");
+			builder.AppendLine(string.Join(Environment.NewLine, dmCommands.Select(x => $"```\n{x.DmSyntax}\n```")));
+			return builder.ToString();
 		}
 
-		private static async Task<bool> SendHelp(string message, IMessageChannel channel)
+		private async Task<bool> SendHelp (IUser author)
 		{
-			await channel.SendMessageAsync(message);
+			IDMChannel dm = await author.GetOrCreateDMChannelAsync();
+			await dm.SendMessageAsync(HelpMessage);
 			return true;
 		}
 	}
