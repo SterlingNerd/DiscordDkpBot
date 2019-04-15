@@ -1,5 +1,9 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
+
+using AutoFixture;
+using AutoFixture.AutoMoq;
 
 using Discord;
 
@@ -156,13 +160,92 @@ namespace DiscordDkpBotTests.Auctions
 			Assert.AreEqual(18, mainWinner.Price, "main should pay 18");
 			Assert.AreEqual(18, altWinner.Price, "alt should pay 18");
 		}
+		[Test]
+		public async Task AuctionNotFound ()
+		{
+			//Arrange
+
+			void Act ()
+			{
+				target.AddOrUpdateBid("some item", "someCharacter", main.Name, 100, new Mock<IMessage>().Object).GetAwaiter().GetResult();
+				//Act
+			}
+
+			//Assert
+			Assert.Throws<AuctionNotFoundException>(Act);
+		}
+
+
+		[Test]
+		public void PlaceBidOverMax ()
+		{
+			//Arrange
+			const int characterId = 42;
+			const string charName = "someCharacter";
+			Auction auction = new Auction(42, 2, "some item", 2.0, new RaidInfo(), new Mock<IMessage>().Object);
+			state.Auctions.TryAdd("some item", auction);
+			dkpProcessor.Setup(x => x.GetDkp(characterId)).Returns(Task.FromResult(new PlayerPoints { PointsCurrentWithTwink = 90 }));
+			dkpProcessor.Setup(x => x.GetCharacterId(charName)).Returns(Task.FromResult(characterId));
+		
+			//Act
+			void Act ()
+			{
+				target.AddOrUpdateBid("some item", charName, main.Name, 100, message.Object).GetAwaiter().GetResult();
+			}
+
+			//Assert
+			Assert.Throws<InsufficientDkpException>(Act);
+		}
+
+		[Test]
+		public void PlaceSeveralBidsOverMax ()
+		{
+			//Arrange
+			const int characterId = 42;
+			const string charName = "someCharacter";
+			Auction auction1 = new Auction(42, 2, "1", 2.0, new RaidInfo(), new Mock<IMessage>().Object);
+			Auction auction2 = new Auction(42, 2, "2", 2.0, new RaidInfo(), new Mock<IMessage>().Object);
+			Auction auction3 = new Auction(42, 2, "3", 2.0, new RaidInfo(), new Mock<IMessage>().Object);
+			state.Auctions.TryAdd("1", auction1);
+			state.Auctions.TryAdd("2", auction2);
+			state.Auctions.TryAdd("3", auction3);
+
+			dkpProcessor.Setup(x => x.GetDkp(characterId)).Returns(Task.FromResult(new PlayerPoints { PointsCurrentWithTwink = 90 }));
+			dkpProcessor.Setup(x => x.GetCharacterId(charName)).Returns(Task.FromResult(characterId));
+
+
+			//Act
+			// These should succeed
+			target.AddOrUpdateBid("1", charName, main.Name, 40, message.Object).GetAwaiter().GetResult();
+			target.AddOrUpdateBid("2", charName, main.Name, 40, message.Object).GetAwaiter().GetResult();
+
+			// This one should fail.
+			void Act ()
+			{
+				target.AddOrUpdateBid("3", charName, main.Name, 11, message.Object).GetAwaiter().GetResult();
+			}
+
+			//Assert
+			Assert.Throws<InsufficientDkpException>(Act);
+		}
 
 		#region Setup/Teardown
 
 		[SetUp]
 		public void SetUp ()
 		{
-			target = new AuctionProcessor(new DkpBotConfiguration(), new AuctionState(), new Mock<IItemProcessor>().Object, new Mock<IDkpProcessor>().Object, new Mock<ILogger<AuctionProcessor>>().Object);
+			dkpProcessor = new Mock<IDkpProcessor>();
+			itemProcessor = new Mock<IItemProcessor>();
+			configuration = new DkpBotConfiguration();
+			configuration.Ranks = new[] { alt, box, main };
+
+			Mock<IMessageChannel> channel = new Mock<IMessageChannel>();
+			channel.Setup(x => x.SendMessageAsync(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<Embed>(), It.IsAny<RequestOptions>()))
+				.Returns(Task.FromResult(new Mock<IUserMessage>().Object));
+			message = new Mock<IMessage>();
+			message.SetupGet(x => x.Channel).Returns(channel.Object);
+
+			target = new AuctionProcessor(configuration, state, itemProcessor.Object, dkpProcessor.Object, new Mock<ILogger<AuctionProcessor>>().Object);
 		}
 
 		#endregion
@@ -171,9 +254,13 @@ namespace DiscordDkpBotTests.Auctions
 
 		private readonly RankConfiguration alt = new RankConfiguration("alt", 25, null);
 		private readonly RankConfiguration box = new RankConfiguration("box", 100, 3);
+		private Mock<IDkpProcessor> dkpProcessor;
+		private Mock<IItemProcessor> itemProcessor;
 		private readonly RankConfiguration main = new RankConfiguration("main", null, null);
-
+		private readonly AuctionState state = new AuctionState();
 		private AuctionProcessor target;
+		private DkpBotConfiguration configuration;
+		private Mock<IMessage> message;
 
 		private IUser GetAuthor (ulong id)
 		{

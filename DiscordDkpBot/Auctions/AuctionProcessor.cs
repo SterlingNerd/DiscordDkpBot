@@ -7,8 +7,11 @@ using Discord;
 
 using DiscordDkpBot.Configuration;
 using DiscordDkpBot.Dkp;
+using DiscordDkpBot.Dkp.EqDkpPlus.Xml;
 using DiscordDkpBot.Extensions;
 using DiscordDkpBot.Items;
+
+using JetBrains.Annotations;
 
 using Microsoft.Extensions.Logging;
 
@@ -47,6 +50,14 @@ namespace DiscordDkpBot.Auctions
 			}
 
 			int characterId = await dkpProcessor.GetCharacterId(character);
+			PlayerPoints points = await dkpProcessor.GetDkp(characterId);
+			int pointsAlreadBid = state.Auctions.Values.SelectMany(x => x.Bids).Where(b => b.CharacterId == characterId).Sum(x => x.BidAmount);
+			decimal availableDkp = points.PointsCurrentWithTwink - pointsAlreadBid;
+
+			if (availableDkp < bid)
+			{
+				throw new InsufficientDkpException($"{character} only has {availableDkp} left to bid with. Cancel some bids, or bid less!");
+			}
 
 			AuctionBid newBid = auction.Bids.AddOrUpdate(new AuctionBid(auction, character, characterId, bid, rankConfig, message.Author));
 

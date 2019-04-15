@@ -13,13 +13,12 @@ namespace DiscordDkpBot.Commands
 	{
 		private readonly DkpBotConfiguration config;
 		public const string todo = @"```
- - prevent overbid available dkp
- - prevent overbid available dkp across multiple items
  - attach to existing raid Id
  - list recent raids
  - get attached raid status
  - reign in dkpcheck (so it doesn't trigger on "".dkp todo"" etc)
  - add class leaderboards
+ - add configuration options for messages.
  ```";
 		public TodoCommand(DkpBotConfiguration config)
 		{
