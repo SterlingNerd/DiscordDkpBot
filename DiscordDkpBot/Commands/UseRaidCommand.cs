@@ -1,26 +1,29 @@
 ﻿using System;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 using Discord;
 
-using DiscordDkpBot.Auctions;
 using DiscordDkpBot.Configuration;
 using DiscordDkpBot.Dkp;
+using DiscordDkpBot.Dkp.EqDkpPlus.Xml;
 
 using Microsoft.Extensions.Logging;
 
 namespace DiscordDkpBot.Commands
 {
-	public class UseRaidCommand : ICommand
+	public class UseRaidCommand : IChannelCommand
 	{
-		private readonly Regex pattern;
 		private const string commandName = "UseRaid";
-		private readonly ILogger<UseRaidCommand> log;
 		private readonly DkpBotConfiguration config;
 		private readonly IDkpProcessor dkpProcessor;
+		private readonly ILogger<UseRaidCommand> log;
+		private readonly Regex pattern;
 
-		public UseRaidCommand (DkpBotConfiguration config, IDkpProcessor dkpProcessor, ILogger<UseRaidCommand> log)
+		public string ChannelSyntax => $"{config.CommandPrefix} {commandName} {{raid-id}}";
+
+		public UseRaidCommand(DkpBotConfiguration config, IDkpProcessor dkpProcessor, ILogger<UseRaidCommand> log)
 		{
 			this.config = config;
 			this.dkpProcessor = dkpProcessor;
@@ -29,12 +32,13 @@ namespace DiscordDkpBot.Commands
 			pattern = new Regex($@"^{Regex.Escape(config.CommandPrefix)}\s+{Regex.Escape(commandName)}\s+(?<raidId>\d+)\s*$", RegexOptions.IgnoreCase);
 		}
 
-		public (bool success, int raidId) ParseArgs (string messageContent)
+		public (bool success, int raidId) ParseArgs(string messageContent)
 		{
 			Match match = pattern.Match(messageContent);
 			if (match.Success)
 			{
 				int id = int.Parse(match.Groups["raidId"].Value);
+				log.LogDebug("Parsed Id {0}", id);
 				return (true, id);
 			}
 			else
@@ -43,7 +47,7 @@ namespace DiscordDkpBot.Commands
 			}
 		}
 
-		public async Task<bool> TryInvokeAsync (IMessage message)
+		public async Task<bool> TryInvokeAsync(IMessage message)
 		{
 			if (!(message.Channel is IDMChannel))
 			{
@@ -57,7 +61,15 @@ namespace DiscordDkpBot.Commands
 				return false;
 			}
 
-			await dkpProcessor.UseRaid(raidId, message);
+			RaidInfo raid = await dkpProcessor.UseRaid(raidId, message);
+
+			StringBuilder builder = new StringBuilder();
+			builder.AppendLine("Using Raid:");
+			builder.AppendLine("```json");
+			builder.AppendLine($"{{{raid.Id} : \"{raid.EventName}\"}}");
+			builder.AppendLine("```");
+
+			await message.Channel.SendMessageAsync(builder.ToString());
 
 			return true;
 		}
