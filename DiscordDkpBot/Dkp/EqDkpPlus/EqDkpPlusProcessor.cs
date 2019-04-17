@@ -4,6 +4,8 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 
+using Discord;
+
 using DiscordDkpBot.Auctions;
 using DiscordDkpBot.Configuration;
 using DiscordDkpBot.Dkp.EqDkpPlus.Xml;
@@ -19,7 +21,7 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 		private readonly ILogger<EqDkpPlusProcessor> log;
 		private readonly AuctionState state;
 
-		public EqDkpPlusProcessor(EqDkpPlusConfiguration config, EqDkpPlusClient client, AuctionState state, ILogger<EqDkpPlusProcessor> log)
+		public EqDkpPlusProcessor (EqDkpPlusConfiguration config, EqDkpPlusClient client, AuctionState state, ILogger<EqDkpPlusProcessor> log)
 		{
 			this.config = config;
 			this.client = client;
@@ -27,7 +29,7 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 			this.log = log;
 		}
 
-		public async Task ChargeWinners(CompletedAuction completedAuction)
+		public async Task ChargeWinners (CompletedAuction completedAuction)
 		{
 			List<Task> chargeTasks = new List<Task>();
 
@@ -39,7 +41,7 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 			await Task.WhenAll(chargeTasks);
 		}
 
-		public async Task<int> GetCharacterId(string character)
+		public async Task<int> GetCharacterId (string character)
 		{
 			if (!state.PlayerIds.TryGetValue(character, out int id))
 			{
@@ -54,13 +56,13 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 			return id;
 		}
 
-		public async Task<PlayerPoints> GetDkp(string character)
+		public async Task<PlayerPoints> GetDkp (string character)
 		{
 			int id = await GetCharacterId(character);
 			return await GetDkp(id);
 		}
 
-		public async Task<PlayerPoints> GetDkp(int id)
+		public async Task<PlayerPoints> GetDkp (int id)
 		{
 			PointsResponse points = await client.GetPoints(id);
 			Player player = points?.Players?.FirstOrDefault();
@@ -74,7 +76,7 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 			return player?.Points?.FirstOrDefault() ?? throw new PlayerNotFoundException($"Player id '{id}' not found.");
 		}
 
-		public async Task<IEnumerable<DkpEvent>> GetEvents(string name = null)
+		public async Task<IEnumerable<DkpEvent>> GetEvents (string name = null)
 		{
 			EventsResponse response = await client.GetEvents();
 			if (!string.IsNullOrWhiteSpace(name))
@@ -87,20 +89,18 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 			}
 		}
 
-		public async Task<RaidInfo> StartRaid(int eventId, string creator)
+		public async Task<RaidInfo> StartRaid (int eventId, string creator)
 		{
 			AddRaidResponse response = await client.AddRaid(DateTimeOffset.Now, eventId, $"Created by {creator}.");
-			GetRaidsResponse raids = await client.GetRaids(10, 0);//Hopefully it's in the last 10 raids.
-
 			RaidInfo raid;
 			if (config.AddRaidUri.Contains("test=true"))
 			{
 				// We're testing, so just return the last raid.
-				raid = raids.Raids.First();
+				raid = (await client.GetRaids(1, 0)).FirstOrDefault();
 			}
 			else
 			{
-				raid = raids.Raids.Single(x => x.Id == response.Id);
+				raid = await GetRaid(response.Id);
 			}
 
 			state.Raids.TryAdd(raid.Id, raid);
@@ -109,10 +109,48 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 			return raid;
 		}
 
-		public async Task UpdatePlayerIds()
+		public async Task UpdatePlayerIds ()
 		{
 			PointsResponse points = await client.GetPoints();
 			state.PlayerIds = new ReadOnlyDictionary<string, int>(points.Players.ToDictionary(x => x.Name, x => x.Id, StringComparer.OrdinalIgnoreCase));
+		}
+
+		public async Task<RaidInfo> UseRaid (int raidId, IMessage message)
+		{
+			RaidInfo raid = await GetRaid(raidId);
+			state.CurrentRaid = raid;
+
+			return raid;
+		}
+
+		private async Task<RaidInfo> GetRaid (int raidId)
+		{
+			//Maybe it's in the most recent 10?
+			RaidInfo[] raids = await client.GetRaids(10, 0);
+			RaidInfo raid = raids?.FirstOrDefault(x => x.Id == raidId);
+
+			if (raid != null && raid.Id == raidId)
+			{
+				return raid;
+			}
+			else
+			{
+				// We could try to get fancy and binary search this thing.
+				// However, requests have overhead, and we don't actually know how many raids there are (there could be gaps in IDs)
+				// So until proven otherwise, getting the whole damn list of raids is probably just as quick.
+				raids = await client.GetAllRaids();
+				raid = raids?.FirstOrDefault(x => x.Id == raidId);
+
+				if (raid != null)
+				{
+					return raid;
+				}
+				else
+				{
+					throw new RaidNotFoundException($"Could not find raid id '{raidId}'.");
+				}
+
+			}
 		}
 	}
 }

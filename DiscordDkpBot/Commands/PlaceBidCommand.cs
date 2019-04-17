@@ -45,7 +45,7 @@ namespace DiscordDkpBot.Commands
 
 		public async Task<bool> TryInvokeAsync(IMessage message)
 		{
-			if (!(message.Channel is SocketDMChannel))
+			if (!(message.Channel is IDMChannel))
 			{
 				return false;
 			}

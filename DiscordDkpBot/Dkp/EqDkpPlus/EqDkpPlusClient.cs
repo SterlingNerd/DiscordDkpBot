@@ -73,7 +73,7 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 			return SendAsync<PointsResponse>(request);
 		}
 
-		public Task<GetRaidsResponse> GetRaids (int number, int start)
+		public async Task<RaidInfo[]> GetRaids (int number, int start)
 		{
 			log.LogInformation("Getting raids.");
 
@@ -81,7 +81,21 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 			uri.Append($"&number={number}&start={start}");
 
 			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, uri.ToString());
-			return SendAsync<GetRaidsResponse>(request);
+			GetRaidsResponse response = await SendAsync<GetRaidsResponse>(request);
+
+			return response?.Raids ?? new RaidInfo[0];
+		}
+
+		public async Task<RaidInfo[]> GetAllRaids ()
+		{
+			log.LogInformation("Getting raids.");
+
+			StringBuilder uri = new StringBuilder(config.EqDkpPlus.GetRaidsUri);
+
+			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, uri.ToString());
+			GetRaidsResponse response = await SendAsync<GetRaidsResponse>(request);
+
+			return response?.Raids ?? new RaidInfo[0];
 		}
 
 		private HttpClient GetClient ()

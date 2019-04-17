@@ -13,7 +13,6 @@ namespace DiscordDkpBot.Commands
 	{
 		private readonly DkpBotConfiguration config;
 		public const string todo = @"```
- - attach to existing raid Id
  - add attendance to raid
  - list recent raids
  - get attached raid status
