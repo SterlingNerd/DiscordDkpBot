@@ -61,7 +61,7 @@ namespace DiscordDkpBot.Commands
 				return false;
 			}
 
-			RaidInfo raid = await dkpProcessor.UseRaid(raidId, message);
+			RaidInfo raid = await dkpProcessor.UseRaid(raidId);
 
 			StringBuilder builder = new StringBuilder();
 			builder.AppendLine("Using Raid:");

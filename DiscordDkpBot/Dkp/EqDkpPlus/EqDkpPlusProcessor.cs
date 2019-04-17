@@ -116,7 +116,7 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 			state.PlayerIds = new ReadOnlyDictionary<string, int>(points.Players.ToDictionary(x => x.Name, x => x.Id, StringComparer.OrdinalIgnoreCase));
 		}
 
-		public async Task<RaidInfo> UseRaid (int raidId, IMessage message)
+		public async Task<RaidInfo> UseRaid(int raidId)
 		{
 			RaidInfo raid = await GetRaid(raidId);
 			state.CurrentRaid = raid;
