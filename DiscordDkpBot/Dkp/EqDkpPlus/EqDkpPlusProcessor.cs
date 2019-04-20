@@ -18,14 +18,16 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 	public class EqDkpPlusProcessor : IDkpProcessor
 	{
 		private readonly EqDkpPlusClient client;
+		private readonly IAttendanceParser parser;
 		private readonly EqDkpPlusConfiguration config;
 		private readonly ILogger<EqDkpPlusProcessor> log;
 		private readonly AuctionState state;
 
-		public EqDkpPlusProcessor (EqDkpPlusConfiguration config, EqDkpPlusClient client, AuctionState state, ILogger<EqDkpPlusProcessor> log)
+		public EqDkpPlusProcessor (EqDkpPlusConfiguration config,AuctionState state, EqDkpPlusClient client, IAttendanceParser parser, ILogger<EqDkpPlusProcessor> log)
 		{
 			this.config = config;
 			this.client = client;
+			this.parser = parser;
 			this.state = state;
 			this.log = log;
 		}
@@ -122,6 +124,11 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 			state.CurrentRaid = raid;
 
 			return raid;
+		}
+
+		public async Task AddDkp(string lines, int? raidId)
+		{
+			throw new NotImplementedException();
 		}
 
 		private async Task<RaidInfo> GetRaid (int raidId)

@@ -116,23 +116,24 @@ namespace DiscordDkpBotTests {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to This XML file does not appear to have any style information associated with it. The document tree is shown below.
-        ///&lt;response&gt;
-        ///&lt;raid&gt;
-        ///&lt;id&gt;2429&lt;/id&gt;
-        ///&lt;date&gt;2019-04-02 02:45:48&lt;/date&gt;
-        ///&lt;date_timestamp&gt;1554173148&lt;/date_timestamp&gt;
-        ///&lt;note&gt;Compact&lt;/note&gt;
-        ///&lt;event_id&gt;213&lt;/event_id&gt;
-        ///&lt;event_name&gt;LDON: Takish-Hiz: Within the Compact&lt;/event_name&gt;
-        ///&lt;added_by_id&gt;0&lt;/added_by_id&gt;
-        ///&lt;added_by_name&gt;Fangor&lt;/added_by_name&gt;
-        ///&lt;value&gt;15.00&lt;/value&gt;
-        ///&lt;/raid&gt;
-        ///&lt;raid&gt;
-        ///&lt;id&gt;2428&lt;/id&gt;
-        ///&lt;date&gt;2019-04-02 02:36:00&lt;/date&gt;
-        ///&lt;date_timestamp [rest of string was truncated]&quot;;.
+        ///   Looks up a localized string similar to &lt;response&gt;
+        ///	&lt;raid&gt;
+        ///		&lt;id&gt;2429&lt;/id&gt;
+        ///		&lt;date&gt;2019-04-02 02:45:48&lt;/date&gt;
+        ///		&lt;date_timestamp&gt;1554173148&lt;/date_timestamp&gt;
+        ///		&lt;note&gt;Compact&lt;/note&gt;
+        ///		&lt;event_id&gt;213&lt;/event_id&gt;
+        ///		&lt;event_name&gt;LDON: Takish-Hiz: Within the Compact&lt;/event_name&gt;
+        ///		&lt;added_by_id&gt;0&lt;/added_by_id&gt;
+        ///		&lt;added_by_name&gt;Fangor&lt;/added_by_name&gt;
+        ///		&lt;value&gt;15.00&lt;/value&gt;
+        ///	&lt;/raid&gt;
+        ///	&lt;raid&gt;
+        ///	&lt;id&gt;2428&lt;/id&gt;
+        ///	&lt;date&gt;2019-04-02 02:36:00&lt;/date&gt;
+        ///	&lt;date_timestamp&gt;1554172560&lt;/date_timestamp&gt;
+        ///	&lt;note&gt;Items for 04-01-2019&lt;/note&gt;
+        ///	&lt;event_id&gt;111&lt;/event_id&gt; [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string GetRaids {
             get {
@@ -166,6 +167,31 @@ namespace DiscordDkpBotTests {
         internal static string MaggDkp {
             get {
                 return ResourceManager.GetString("MaggDkp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 10	Lordly	65	Wizard				Yes	
+        ///6	Arsin	65	Wizard	Group Leader			Yes	
+        ///4	Tankmeme	65	Warrior	Group Leader			Yes	
+        ///9	Maggez	65	Warrior				Yes	
+        ///6	Bman	65	Shaman				Yes	
+        ///9	Diminish	65	Shaman				Yes	
+        ///2	Brunnhilde	62	Shaman				Yes	
+        ///1	Xaint	65	Shadow Knight				Yes	
+        ///2	Madmac	65	Rogue	Group Leader			Yes	
+        ///9	Iian	62	Ranger				No	
+        ///3	Slybow	65	Ranger				Yes	
+        ///3	Nipr	65	Ranger	Group Leader			Yes	
+        ///3	Scarlyte	65	Ranger				Yes	
+        ///4	Redranger	65	Ranger				Yes	
+        ///1	Rouan	65	Ranger				Yes	
+        ///4	Blueranger	65	Ranger				Yes	
+        /// [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string RaidParse1 {
+            get {
+                return ResourceManager.GetString("RaidParse1", resourceCulture);
             }
         }
     }

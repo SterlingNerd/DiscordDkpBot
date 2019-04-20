@@ -18,5 +18,6 @@ namespace DiscordDkpBot.Dkp
 		Task<IEnumerable<DkpEvent>> GetEvents(string name = null);
 		Task<RaidInfo> StartRaid(int EventId, string creator);
 		Task<RaidInfo> UseRaid(int raidId);
+		Task AddDkp(string lines, int? raidId);
 	}
 }

@@ -1,0 +1,53 @@
+10	Lordly	65	Wizard				Yes	
+6	Arsin	65	Wizard	Group Leader			Yes	
+4	Tankmeme	65	Warrior	Group Leader			Yes	
+9	Maggez	65	Warrior				Yes	
+6	Bman	65	Shaman				Yes	
+9	Diminish	65	Shaman				Yes	
+2	Brunnhilde	62	Shaman				Yes	
+1	Xaint	65	Shadow Knight				Yes	
+2	Madmac	65	Rogue	Group Leader			Yes	
+9	Iian	62	Ranger				No	
+3	Slybow	65	Ranger				Yes	
+3	Nipr	65	Ranger	Group Leader			Yes	
+3	Scarlyte	65	Ranger				Yes	
+4	Redranger	65	Ranger				Yes	
+1	Rouan	65	Ranger				Yes	
+4	Blueranger	65	Ranger				Yes	
+4	Pinkranger	65	Ranger				Yes	
+4	Blackranger	65	Ranger				Yes	
+5	Burgundyy	65	Ranger				Yes	
+5	Fantana	65	Ranger				Yes	
+5	Tamland	65	Ranger				Yes	
+5	Kindd	65	Ranger				Yes	
+7	Nezbit	65	Paladin	Group Leader			Yes	
+10	Tumance	65	Paladin				Yes	
+10	Kahlev	65	Paladin				Yes	
+6	Vaelos	65	Necromancer				Yes	
+1	Zheak	65	Monk	Group Leader			Yes	
+9	Ragnaroth	65	Monk	Group Leader			No	
+8	Stasia	65	Enchanter	Group Leader			Yes	
+10	Chaub	65	Enchanter	Raid Leader			Yes	
+2	Hipnos	65	Enchanter				Yes	
+2	Ookami	65	Druid				Yes	
+3	Nipa	65	Druid				Yes	
+1	Zheakid	65	Druid				Yes	
+7	Katora	65	Cleric				Yes	
+7	Tinklepuff	65	Cleric				Yes	
+7	Jebzi	65	Cleric				Yes	
+7	Razbi	65	Cleric				Yes	
+8	Pinkytoes	65	Cleric				Yes	
+8	Bobbles	65	Cleric				Yes	
+8	Naddy	65	Cleric				Yes	
+8	Nubmuffin	65	Cleric				Yes	
+2	Nuwa	65	Cleric				Yes	
+5	Healingmeme	65	Cleric	Group Leader			Yes	
+4	Healingmemefive	65	Cleric				Yes	
+10	Caub	65	Cleric				Yes	
+9	Rezrobbin	65	Cleric				Yes	
+8	Ferromatic	65	Beastlord				Yes	
+5	Utilitymeme	65	Bard				Yes	
+3	Abbi	65	Bard				Yes	
+10	Talyen	65	Bard				Yes	
+7	Corbite	65	Bard				Yes	
+9	Lyrista	62	Bard				No	
