@@ -14,7 +14,7 @@ using Microsoft.Extensions.Logging;
 
 namespace DiscordDkpBot.Commands
 {
-	public class StartRaidCommand : IChannelCommand
+	public class StartRaidCommand //: IChannelCommand
 	{
 		private static readonly string[] CommandTriggers = { "startraid" };
 		private readonly DkpBotConfiguration configuration;

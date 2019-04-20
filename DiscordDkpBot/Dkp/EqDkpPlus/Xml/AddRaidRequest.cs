@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
 
@@ -33,12 +34,13 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus.Xml
 			// Required for xml serializer
 		}
 
-		public AddRaidRequest (DateTime date, int eventId, string note, int botCharacterId)
+		public AddRaidRequest (DateTime date, int eventId,int value, string note, IEnumerable<int> characterIds)
 		{
 			Date = date;
 			EventId = eventId;
+			Value = value;
 			Note = note;
-			Attendees = new[] { botCharacterId };
+			Attendees = characterIds.ToArray();
 		}
 	}
 }
