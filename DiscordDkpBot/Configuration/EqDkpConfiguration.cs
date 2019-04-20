@@ -13,5 +13,6 @@ namespace DiscordDkpBot.Configuration
 		public string PointsUri { get; set; } = "api.php?function=points";
 		public string Token { get; set; }
 		public int BotCharacterId { get; set; }
+		public int DailyItemsEventId { get; set; }
 	}
 }

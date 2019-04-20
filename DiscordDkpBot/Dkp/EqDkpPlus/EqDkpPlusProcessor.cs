@@ -21,9 +21,9 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 		private readonly IAttendanceParser parser;
 		private readonly EqDkpPlusConfiguration config;
 		private readonly ILogger<EqDkpPlusProcessor> log;
-		private readonly AuctionState state;
+		private readonly DkpState state;
 
-		public EqDkpPlusProcessor (EqDkpPlusConfiguration config,AuctionState state, EqDkpPlusClient client, IAttendanceParser parser, ILogger<EqDkpPlusProcessor> log)
+		public EqDkpPlusProcessor (EqDkpPlusConfiguration config, DkpState state, EqDkpPlusClient client, IAttendanceParser parser, ILogger<EqDkpPlusProcessor> log)
 		{
 			this.config = config;
 			this.client = client;
@@ -92,9 +92,9 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 			}
 		}
 
-		public async Task<RaidInfo> StartRaid (int eventId, string creator)
+		public async Task<RaidInfo> StartRaid (int eventId, string note)
 		{
-			AddRaidResponse response = await client.AddRaid(DateTimeOffset.Now, eventId, $"Created by {creator}.");
+			AddRaidResponse response = await client.AddRaid(DateTimeOffset.Now, eventId, note);
 			RaidInfo raid;
 			if (config.AddRaidUri.Contains("test=true"))
 			{
@@ -118,7 +118,7 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 			state.PlayerIds = new ReadOnlyDictionary<string, int>(points.Players.ToDictionary(x => x.Name, x => x.Id, StringComparer.OrdinalIgnoreCase));
 		}
 
-		public async Task<RaidInfo> UseRaid(int raidId)
+		public async Task<RaidInfo> UseRaid (int raidId)
 		{
 			RaidInfo raid = await GetRaid(raidId);
 			state.CurrentRaid = raid;
@@ -126,9 +126,37 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 			return raid;
 		}
 
-		public async Task AddDkp(string lines, int? raidId)
+		public Task AddDkp (string lines, int? raidId)
 		{
 			throw new NotImplementedException();
+		}
+
+		public async Task<RaidInfo> GetDailyItemsRaid ()
+		{
+			DateTime today = DateTime.Today.Date;
+			if (state.CurrentRaid == null || state.CurrentRaid.Date != today)
+			{
+				RaidInfo[] raids = await client.GetRaids(10, 0);
+				RaidInfo raid = raids?.FirstOrDefault(x => x.Date.Date == today);
+				if (raid != null)
+				{
+					return raid;
+				}
+
+				raids = await client.GetAllRaids();
+				raid = raids?.FirstOrDefault(x => x.Date.Date == today);
+
+				if (raid != null)
+				{
+					state.CurrentRaid = raid;
+				}
+				else
+				{
+					state.CurrentRaid = await StartRaid(config.DailyItemsEventId, $"Items for {today.ToShortDateString()}");
+				}
+			}
+
+			return state.CurrentRaid;
 		}
 
 		private async Task<RaidInfo> GetRaid (int raidId)

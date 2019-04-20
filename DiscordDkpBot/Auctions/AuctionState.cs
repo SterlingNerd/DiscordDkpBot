@@ -15,10 +15,6 @@ namespace DiscordDkpBot.Auctions
 		public ConcurrentDictionary<int, CompletedAuction> CompletedAuctions { get; } = new ConcurrentDictionary<int, CompletedAuction>();
 
 		public int NextAuctionId => hider.NextAuctionId;
-		public ReadOnlyDictionary<string, int> PlayerIds { get; set; } = new ReadOnlyDictionary<string, int>(new Dictionary<string, int>());
-
-		public ConcurrentDictionary<int, RaidInfo> Raids { get; set; } = new ConcurrentDictionary<int, RaidInfo>();
-		public RaidInfo CurrentRaid { get; set; }
 
 		private class AuctionIdHider
 		{

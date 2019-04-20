@@ -172,14 +172,8 @@ namespace DiscordDkpBot.Auctions
 
 		public async Task<Auction> StartAuction (int? quantity, string name, int? minutes, IMessage message)
 		{
-			if (state.CurrentRaid == null)//|| state.CurrentRaid.Date.AddHours(12) < DateTimeOffset.Now)
-			{
-				state.CurrentRaid = null;
-				await message.Channel.SendMessageAsync($"Start a raid first!");
-				throw new RaidNotFoundException("No active raid found.");
-			}
-
-			Auction auction = new Auction(state.NextAuctionId, quantity ?? 1, name, minutes ?? configuration.DefaultAuctionDurationMinutes, state.CurrentRaid, message);
+			RaidInfo raid = await dkpProcessor.GetDailyItemsRaid();
+			Auction auction = new Auction(state.NextAuctionId, quantity ?? 1, name, minutes ?? configuration.DefaultAuctionDurationMinutes, raid, message);
 			if (!state.Auctions.TryAdd(auction.Name, auction))
 			{
 				throw new AuctionAlreadyExistsException($"Auction for {auction.Name} already exists.");
