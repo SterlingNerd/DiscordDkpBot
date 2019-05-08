@@ -90,7 +90,6 @@ namespace DiscordDkpBot.Commands
 			{
 				commandTasks.Add(SendHelp(message.Author));
 			}
-
 			else
 			{
 				foreach (IDmCommand command in dmCommands)
@@ -113,7 +112,8 @@ namespace DiscordDkpBot.Commands
 			{
 				log.LogWarning(ex, $"{command.GetType()} threw an exception:");
 				await message.Channel.SendMessageAsync(ex.Message);
-				return false;
+				// True here, because it matched.
+				return true;
 			}
 		}
 
