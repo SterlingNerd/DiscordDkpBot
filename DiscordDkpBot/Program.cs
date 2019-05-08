@@ -68,8 +68,10 @@ namespace DiscordDkpBot
 				.AddSingleton<EqDkpPlusClient>()
 				.AddSingleton<IDkpProcessor, EqDkpPlusProcessor>()
 				.AddSingleton<IItemSource, AllakhazamItemSource>()
+				.AddSingleton<IAttendanceParser, RaidWindowParser>()
 				.AddDefaultImplementations()
 				.AddSingleton<AuctionState>()
+				.AddSingleton<DkpState>()
 				.AddSingleton<DkpBot>()
 				.AddDiscordNet()
 				;

@@ -145,7 +145,8 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 
 			if (content != null)
 			{
-				request.Content = new StringContent(content);
+				request.Content = new StringContent(content, Encoding.UTF8, "application/xml");
+				
 			}
 
 			HttpResponseMessage response = await client.SendAsync(request);

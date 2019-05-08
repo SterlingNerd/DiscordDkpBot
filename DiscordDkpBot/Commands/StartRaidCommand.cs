@@ -52,43 +52,44 @@ namespace DiscordDkpBot.Commands
 
 		public async Task<bool> TryInvokeAsync(IMessage message)
 		{
-			if (message == null)
-			{
-				return false;
-			}
+			throw new NotSupportedException("Can't do it this way with eqdkp");
+			//if (message == null)
+			//{
+			//	return false;
+			//}
 
-			(bool success, int eventId) = ParseArgs(message.Content);
+			//(bool success, int eventId) = ParseArgs(message.Content);
 
-			if (!success)
-			{
-				log.LogTrace("Did not match.");
-				return false;
-			}
-			else if (message.Channel is IPrivateChannel)
-			{
-				log.LogTrace("Must be public channel");
-				return false;
-			}
-			else
-			{
-				RaidInfo raid = await dkpProcessor.StartRaid(eventId, message.Author.Username);
-				log.LogDebug($"Created Raid: {raid}.");
+			//if (!success)
+			//{
+			//	log.LogTrace("Did not match.");
+			//	return false;
+			//}
+			//else if (message.Channel is IPrivateChannel)
+			//{
+			//	log.LogTrace("Must be public channel");
+			//	return false;
+			//}
+			//else
+			//{
+			//	RaidInfo raid = await dkpProcessor.StartRaid(eventId, message.Author.Username);
+			//	log.LogDebug($"Created Raid: {raid}.");
 
-				StringBuilder builder = new StringBuilder();
+			//	StringBuilder builder = new StringBuilder();
 
-				if (configuration.EqDkpPlus.AddRaidUri.Contains("test=true"))
-				{
-					builder.AppendLine("**[Test Mode]** (didn't actually add a raid. Here's the most recent one.)");
-				}
-				builder.AppendLine("Started Raid:");
+			//	if (configuration.EqDkpPlus.AddRaidUri.Contains("test=true"))
+			//	{
+			//		builder.AppendLine("**[Test Mode]** (didn't actually add a raid. Here's the most recent one.)");
+			//	}
+			//	builder.AppendLine("Started Raid:");
 
-				builder.AppendLine("```json");
-				builder.AppendLine($"{{{raid.Id} : \"{raid.EventName}\"}}");
-				builder.AppendLine("```");
+			//	builder.AppendLine("```json");
+			//	builder.AppendLine($"{{{raid.Id} : \"{raid.EventName}\"}}");
+			//	builder.AppendLine("```");
 
-				await message.Channel.SendMessageAsync(builder.ToString());
-				return true;
-			}
+			//	await message.Channel.SendMessageAsync(builder.ToString());
+			//	return true;
+			//}
 		}
 	}
 }

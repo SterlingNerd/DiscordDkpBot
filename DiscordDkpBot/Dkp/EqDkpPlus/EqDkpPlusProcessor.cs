@@ -20,7 +20,7 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 		private readonly IAttendanceParser parser;
 		private readonly DkpState state;
 
-		public EqDkpPlusProcessor(EqDkpPlusConfiguration config, DkpState state, EqDkpPlusClient client, IAttendanceParser parser, ILogger<EqDkpPlusProcessor> log)
+		public EqDkpPlusProcessor (EqDkpPlusConfiguration config, DkpState state, EqDkpPlusClient client, IAttendanceParser parser, ILogger<EqDkpPlusProcessor> log)
 		{
 			this.config = config;
 			this.client = client;
@@ -29,7 +29,7 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 			this.log = log;
 		}
 
-		public async Task<RaidInfo> AddDkp(int eventId, int value, string comment, string lines)
+		public async Task<RaidInfo> AddDkp (int eventId, int value, string comment, string lines)
 		{
 			IEnumerable<Character> chars = parser.Parse(lines);
 			List<int> characterIds = await GetCharacterIds(chars.Select(x => x.Name));
@@ -37,7 +37,7 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 			return await GetRaid(response.Id);
 		}
 
-		public async Task ChargeWinners(CompletedAuction completedAuction)
+		public async Task ChargeWinners (CompletedAuction completedAuction)
 		{
 			List<Task> chargeTasks = new List<Task>();
 
@@ -49,7 +49,7 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 			await Task.WhenAll(chargeTasks);
 		}
 
-		public async Task<int> GetCharacterId(string character)
+		public async Task<int> GetCharacterId (string character)
 		{
 			if (!state.PlayerIds.TryGetValue(character, out int id))
 			{
@@ -64,7 +64,7 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 			return id;
 		}
 
-		public async Task<List<int>> GetCharacterIds(IEnumerable<string> names)
+		public async Task<List<int>> GetCharacterIds (IEnumerable<string> names)
 		{
 			List<int> characterIds = new List<int>();
 			foreach (string name in names)
@@ -74,7 +74,7 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 			return characterIds;
 		}
 
-		public async Task<RaidInfo> GetDailyItemsRaid()
+		public async Task<RaidInfo> GetDailyItemsRaid ()
 		{
 			DateTime today = DateTime.Today.Date;
 			if (state.CurrentRaid == null || state.CurrentRaid.Date != today)
@@ -95,20 +95,20 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 				}
 				else
 				{
-					state.CurrentRaid = await StartRaid(config.DailyItemsEventId, $"Items for {today.ToShortDateString()}");
+					state.CurrentRaid = await StartRaid(config.DailyItemsEventId, new[] { config.BotCharacterId }, 0, $"Items for {today.ToShortDateString()}");
 				}
 			}
 
 			return state.CurrentRaid;
 		}
 
-		public async Task<PlayerPoints> GetDkp(string character)
+		public async Task<PlayerPoints> GetDkp (string character)
 		{
 			int id = await GetCharacterId(character);
 			return await GetDkp(id);
 		}
 
-		public async Task<PlayerPoints> GetDkp(int id)
+		public async Task<PlayerPoints> GetDkp (int id)
 		{
 			PointsResponse points = await client.GetPoints(id);
 			Player player = points?.Players?.FirstOrDefault();
@@ -122,7 +122,7 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 			return player?.Points?.FirstOrDefault() ?? throw new PlayerNotFoundException($"Player id '{id}' not found.");
 		}
 
-		public async Task<IEnumerable<DkpEvent>> GetEvents(string name = null)
+		public async Task<IEnumerable<DkpEvent>> GetEvents (string name = null)
 		{
 			EventsResponse response = await client.GetEvents();
 			if (!string.IsNullOrWhiteSpace(name))
@@ -135,34 +135,35 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 			}
 		}
 
-		public Task<RaidInfo> StartRaid(int eventId, string note)
+		public async Task<RaidInfo> StartRaid (int eventId, IEnumerable<int> characterIds, int value, string note)
 		{
-			//AddRaidResponse response = await client.AddRaid(DateTimeOffset.Now, eventId, note);
-			//;
-			//if (config.AddRaidUri.Contains("test=true"))
-			//{
-			//	// We're testing, so just return the last raid.
-			//	raid = (await client.GetRaids(1, 0)).FirstOrDefault();
-			//}
-			//else
-			//{
-			//	raid = await GetRaid(response.Id);
-			//}
+			AddRaidResponse response = await client.AddRaid(DateTime.Now, eventId, value, note, characterIds);
 
-			//state.Raids.TryAdd(raid.Id, raid);
-			//state.CurrentRaid = raid;
+			RaidInfo raid;
 
-			//return raid;
-			throw new NotSupportedException();
+			if (config.AddRaidUri.Contains("test=true"))
+			{
+				// We're testing, so just return the last raid.
+				raid = (await client.GetRaids(1, 0)).FirstOrDefault();
+			}
+			else
+			{
+				raid = await GetRaid(response.Id);
+			}
+
+			state.Raids.TryAdd(raid.Id, raid);
+			state.CurrentRaid = raid;
+
+			return raid;
 		}
 
-		public async Task UpdatePlayerIds()
+		public async Task UpdatePlayerIds ()
 		{
 			PointsResponse points = await client.GetPoints();
 			state.PlayerIds = new ReadOnlyDictionary<string, int>(points.Players.ToDictionary(x => x.Name, x => x.Id, StringComparer.OrdinalIgnoreCase));
 		}
 
-		public async Task<RaidInfo> UseRaid(int raidId)
+		public async Task<RaidInfo> UseRaid (int raidId)
 		{
 			RaidInfo raid = await GetRaid(raidId);
 			state.CurrentRaid = raid;
@@ -170,7 +171,7 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 			return raid;
 		}
 
-		private async Task<RaidInfo> GetRaid(int raidId)
+		private async Task<RaidInfo> GetRaid (int raidId)
 		{
 			//Maybe it's in the most recent 10?
 			RaidInfo[] raids = await client.GetRaids(10, 0);
