@@ -26,7 +26,7 @@ namespace DiscordDkpBot.Commands
 
 		public RevealBidsCommand(DkpBotConfiguration configuration, AuctionState state, ILogger<RevealBidsCommand> log)
 		{
-			pattern = new Regex($@"^{Regex.Escape(configuration.CommandPrefix)}\s*reveal\s+(?<auction>\d+)\s*$");
+			pattern = new Regex($@"^{Regex.Escape(configuration.CommandPrefix)}\s*reveal\s+(?<auction>\d+)\s*$", RegexOptions.IgnoreCase);
 			this.configuration = configuration;
 			this.state = state;
 			this.log = log;
