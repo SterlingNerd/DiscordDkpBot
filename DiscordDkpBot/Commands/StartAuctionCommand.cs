@@ -55,13 +55,18 @@ namespace DiscordDkpBot.Commands
 			{
 				return false;
 			}
-			(bool success, int? quantity, string name, int? minutes) = ParseArgs(message.Content);
-
-			if (!success)
+			else if (message.Channel is IPrivateChannel)
 			{
 				return false;
 			}
-			else if (message.Channel is IPrivateChannel)
+			else if (message.Channel.Name != configuration.Discord.SilentAuctionsChannelName)
+			{
+				return false;
+			}
+
+			(bool success, int? quantity, string name, int? minutes) = ParseArgs(message.Content);
+
+			if (!success)
 			{
 				return false;
 			}
