@@ -40,6 +40,12 @@ namespace DiscordDkpBot.Commands
 
 		public async Task ProcessCommand (SocketMessage message)
 		{
+			if (!message.Content.StartsWith(config.CommandPrefix, StringComparison.CurrentCultureIgnoreCase))
+			{
+				// Only trigger on commands.
+				return;
+			}
+
 			log.LogInformation($"{message.Author} ({message.Channel}): {message}");
 			List<Task<bool>> commandTasks = new List<Task<bool>>();
 			try
