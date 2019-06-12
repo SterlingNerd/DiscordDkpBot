@@ -40,9 +40,9 @@ namespace DiscordDkpBot.Commands
 
 		public async Task ProcessCommand (SocketMessage message)
 		{
-			if (!message.Content.StartsWith(config.CommandPrefix, StringComparison.CurrentCultureIgnoreCase))
+			if (!message.Content.StartsWith(config.CommandPrefix, StringComparison.CurrentCultureIgnoreCase) && !(message.Channel is IDMChannel))
 			{
-				// Only trigger on commands.
+				// Only trigger on commands or DMs.
 				return;
 			}
 
