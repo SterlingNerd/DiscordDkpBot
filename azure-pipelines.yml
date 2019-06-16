@@ -21,8 +21,7 @@ steps:
 
 - task: VSBuild@1
   inputs:
-    solution: '$(solution)'
-    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)\WebApp.zip" /p:DeployIisAppPath="Default Web Site"'
+    solution: '$(solution)'    
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
@@ -31,7 +30,22 @@ steps:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
+- task: CopyFiles@2
+  inputs:
+    contents: DiscordDkpBot\appsettings.json
+    targetFilder: '$(Build.ArtifactStagingDirectory)'
+
+- task: CopyFiles@2
+  inputs:
+    contents: DiscordDkpBot\AuthSettings.json.example.txt
+    targetFilder: '$(Build.ArtifactStagingDirectory)'
+
 - task: CmdLine@2
   inputs:
-    script: dotnet-warp
+    script: dotnet-warp --output $(build.artifactStagingDirectory)\DiscordDkpBot.exe
     workingDirectory: DiscordDkpBot
+
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: '$(Build.ArtifactStagingDirectory)' 
+    archiveFile: '$(Build.ArtifactStagingDirectory)/$DiscordDkpBot-(Build.BuildId).zip' 
