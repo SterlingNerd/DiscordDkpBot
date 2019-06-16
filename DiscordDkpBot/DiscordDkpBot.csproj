@@ -4,7 +4,7 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <LangVersion>latest</LangVersion>
-    <Version>1.0.4</Version>
+    <Version>1.0.5</Version>
     <AssemblyVersion>1.0.4.0</AssemblyVersion>
     <Authors>Josh Sterling</Authors>
     <Description>A Discord based dkp bot for integration with eqdkp</Description>
