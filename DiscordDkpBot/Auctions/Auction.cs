@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Timers;
 
 using Discord;
@@ -44,7 +45,7 @@ namespace DiscordDkpBot.Auctions
 
 		public string GetAnnouncementText(IEnumerable<RankConfiguration> ranks)
 		{
-			return $"**[{ShortDescription}]**\nBids are open for **{ShortDescription}** for **{MinutesRemaining}** minutes.\n```\"{Name}\" character 69 {string.Join("/", ranks)}```";
+			return $"**[{ShortDescription}]**\nBids are open for **{ShortDescription}** for **{MinutesRemaining}** minutes.\n```\"{Name}\" character 69 {string.Join("/", ranks.Select(x=>x.Name))}```";
 		}
 
 		public void Start()
