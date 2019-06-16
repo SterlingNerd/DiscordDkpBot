@@ -17,6 +17,12 @@ variables:
 steps:
 - task: NuGetToolInstaller@0
 
+- task: DotNetCoreInstaller@0
+  inputs:
+    version: '2.1'
+
+- script: dotnet tool install dotnet-warp
+
 - task: NuGetCommand@2
   inputs:
     restoreSolution: '$(solution)'
@@ -32,3 +38,5 @@ steps:
   inputs:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
+
+- script: dotnet-warp
