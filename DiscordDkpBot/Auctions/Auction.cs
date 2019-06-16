@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Timers;
 
 using Discord;
 
+using DiscordDkpBot.Configuration;
 using DiscordDkpBot.Dkp.EqDkpPlus.Xml;
 
 namespace DiscordDkpBot.Auctions
@@ -10,9 +12,9 @@ namespace DiscordDkpBot.Auctions
 	public class Auction
 	{
 		private readonly Timer timer;
-		public string AnnouncementText => $"**[{ShortDescription}]**\nBids are open for **{ShortDescription}** for **{MinutesRemaining}** minutes.\n```\"{Name}\" character 69 main/box/alt/recruit```";
 		public IUser Author { get; }
 		public BidCollection Bids { get; } = new BidCollection();
+		public string CancelledText => $"Cancelled auction: {ShortDescription}.";
 		public IMessageChannel Channel { get; }
 		public string ClosedText => $"**[{ShortDescription}]** Bids are now closed.";
 		public string DetailDescription => $"({ID}) {Quantity}x {Name} for {MinutesRemaining} min.";
@@ -20,13 +22,12 @@ namespace DiscordDkpBot.Auctions
 		public double MinutesRemaining { get; private set; }
 		public string Name { get; }
 		public int Quantity { get; }
-		public string ShortDescription => $"{Quantity}x {Name}";
-		public string CancelledText => $"Cancelled auction: {ShortDescription}.";
 		public RaidInfo Raid { get; }
+		public string ShortDescription => $"{Quantity}x {Name}";
 		public event Action<object, Auction> Completed;
 		public event Action<object, Auction> Tick;
 
-		public Auction (int id, int quantity, string name, double minutesRemaining,RaidInfo raid, IMessage message)
+		public Auction(int id, int quantity, string name, double minutesRemaining, RaidInfo raid, IMessage message)
 		{
 			ID = id;
 			Name = name;
@@ -41,22 +42,27 @@ namespace DiscordDkpBot.Auctions
 			timer.Elapsed += OnTick;
 		}
 
-		public void Start ()
+		public string GetAnnouncementText(IEnumerable<RankConfiguration> ranks)
+		{
+			return $"**[{ShortDescription}]**\nBids are open for **{ShortDescription}** for **{MinutesRemaining}** minutes.\n```\"{Name}\" character 69 {string.Join("/", ranks)}```";
+		}
+
+		public void Start()
 		{
 			timer.Start();
 		}
 
-		public void Stop ()
+		public void Stop()
 		{
 			timer.Stop();
 		}
 
-		public override string ToString ()
+		public override string ToString()
 		{
 			return ShortDescription;
 		}
 
-		private void OnTick (object sender, ElapsedEventArgs e)
+		private void OnTick(object sender, ElapsedEventArgs e)
 		{
 			MinutesRemaining -= 0.5;
 

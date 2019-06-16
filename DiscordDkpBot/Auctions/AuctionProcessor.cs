@@ -181,7 +181,7 @@ namespace DiscordDkpBot.Auctions
 			try
 			{
 				ItemLookupResult itemResult = await itemProcessor.GetItemEmbed(name);
-				string announcementText = auction.AnnouncementText;
+				string announcementText = auction.GetAnnouncementText(configuration.Ranks);
 				if (itemResult.MatchesFound > 1)
 				{
 					announcementText += "There were several items found with the same name, this might not actually be the correct item stats.";
@@ -189,7 +189,7 @@ namespace DiscordDkpBot.Auctions
 
 				IUserMessage announcement = await auction.Channel.SendMessageAsync(announcementText, false, itemResult.Embed);
 
-				auction.Tick += async (o, s) => await announcement.ModifyAsync(m => m.Content = auction.AnnouncementText);
+				auction.Tick += async (o, s) => await announcement.ModifyAsync(m => m.Content = auction.GetAnnouncementText(configuration.Ranks));
 				auction.Completed += async (o, s) =>
 											{
 												await announcement.ModifyAsync(m => m.Content = auction.ClosedText);

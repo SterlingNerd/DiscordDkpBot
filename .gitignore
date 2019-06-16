@@ -260,3 +260,5 @@ paket-files/
 __pycache__/
 *.pyc
 /DiscordDkpBot/AuthSettings.json
+/DiscordDkpBot/DiscordDkpBot.zip
+*.exe
