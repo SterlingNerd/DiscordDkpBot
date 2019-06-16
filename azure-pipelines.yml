@@ -21,7 +21,9 @@ steps:
   inputs:
     version: '2.1.300'
 
-- script: dotnet tool install --global dotnet-warp
+- task: CmdLine@2
+  inputs:
+    script: dotnet tool install --global dotnet-warp
 
 - task: NuGetCommand@2
   inputs:
@@ -39,4 +41,7 @@ steps:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
-- script: dotnet-warp
+- task: CmdLine@2
+  inputs:
+    script: dotnet-warp
+    workingDirectory: DiscordDkpBot
