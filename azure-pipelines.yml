@@ -15,10 +15,9 @@ variables:
 
 steps:
 
-- task: DotNetCoreCLI@2
+- task: CmdLine@2
   inputs:
-    command: 'custom'
-    custom: 'tool install --global dotnet-warp'
+    script: 'dotnet tool install --global dotnet-warp'
 
 
 - task: DotNetCoreCLI@2
