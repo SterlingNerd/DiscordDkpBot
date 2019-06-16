@@ -15,9 +15,14 @@ variables:
 
 steps:
 
-- task: NuGetCommand@2
+- task: DotnetGlobalToolInstaller@0
   inputs:
-    restoreSolution: '$(solution)'
+    name: 'dotnet-warp'
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'restore'
+    projects: '**/*.csproj'
 
 - task: VSBuild@1
   inputs:
@@ -33,12 +38,14 @@ steps:
 - task: CopyFiles@2
   inputs:
     contents: DiscordDkpBot\appsettings.json
-    targetFilder: '$(Build.ArtifactStagingDirectory)'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)'
+    flattenFolders: true
 
 - task: CopyFiles@2
   inputs:
     contents: DiscordDkpBot\AuthSettings.json.example.txt
-    targetFilder: '$(Build.ArtifactStagingDirectory)'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)'
+    flattenFolders: true
 
 - task: CmdLine@2
   inputs:
@@ -48,4 +55,11 @@ steps:
 - task: ArchiveFiles@2
   inputs:
     rootFolderOrFile: '$(Build.ArtifactStagingDirectory)' 
-    archiveFile: '$(Build.ArtifactStagingDirectory)/$DiscordDkpBot-(Build.BuildId).zip' 
+    archiveFile: '$(Build.ArtifactStagingDirectory)/DiscordDkpBot-$(Build.BuildId).zip'
+    includeRootFolder: false
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)/DiscordDkpBot-$(Build.BuildId).zip'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
