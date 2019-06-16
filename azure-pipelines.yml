@@ -15,10 +15,9 @@ variables:
 
 steps:
 
-- task: CmdLine@2
+- task: DotnetGlobalToolInstaller@0
   inputs:
-    script: 'dotnet tool install --global dotnet-warp'
-  continueOnError: true
+    name: 'dotnet-warp'
 
 - task: DotNetCoreCLI@2
   inputs:
