@@ -4,12 +4,8 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
 
 trigger:
-  tags:
-    include:
-      - 'v*'
-  branches:
-    include:
-    - master
+- master
+- refs/tags/*
 
 pool: 'Default'
 
