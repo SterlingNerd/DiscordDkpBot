@@ -38,12 +38,14 @@ steps:
 - task: CopyFiles@2
   inputs:
     contents: DiscordDkpBot\appsettings.json
-    TargetFolder: 
+    TargetFolder: '$(Build.ArtifactStagingDirectory)'
+    flattenFolders: true
 
 - task: CopyFiles@2
   inputs:
     contents: DiscordDkpBot\AuthSettings.json.example.txt
-    TargetFolder:
+    TargetFolder: '$(Build.ArtifactStagingDirectory)'
+    flattenFolders: true
 
 - task: CmdLine@2
   inputs:
@@ -53,4 +55,4 @@ steps:
 - task: ArchiveFiles@2
   inputs:
     rootFolderOrFile: '$(Build.ArtifactStagingDirectory)' 
-    archiveFile: '$(Build.ArtifactStagingDirectory)/$DiscordDkpBot-(Build.BuildId).zip' 
+    archiveFile: '$(Build.ArtifactStagingDirectory)/$DiscordDkpBot-$(Build.BuildId).zip' 
