@@ -21,7 +21,7 @@ steps:
   inputs:
     version: '2.1.300'
 
-- script: dotnet tool install dotnet-warp
+- script: dotnet tool install --global dotnet-warp
 
 - task: NuGetCommand@2
   inputs:
