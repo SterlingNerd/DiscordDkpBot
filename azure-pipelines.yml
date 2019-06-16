@@ -38,12 +38,12 @@ steps:
 - task: CopyFiles@2
   inputs:
     contents: DiscordDkpBot\appsettings.json
-    TargetFolder: '$(Build.ArtifactStagingDirectory)'
+    TargetFolder: 
 
 - task: CopyFiles@2
   inputs:
     contents: DiscordDkpBot\AuthSettings.json.example.txt
-    TargetFolder: '$(Build.ArtifactStagingDirectory)'
+    TargetFolder:
 
 - task: CmdLine@2
   inputs:
