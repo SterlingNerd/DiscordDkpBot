@@ -4,10 +4,10 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <LangVersion>latest</LangVersion>
-    <Version>1.0.9</Version>
+    <Version>1.0.10</Version>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <Authors>Josh Sterling</Authors>
-    <Description>A Discord based dkp bot for integration with eqdkp</Description>
+    <Description>A Discord based dkp bot for integration with eqdkp.</Description>
     <PackageLicenseExpression>WTFP</PackageLicenseExpression>
   </PropertyGroup>
 
