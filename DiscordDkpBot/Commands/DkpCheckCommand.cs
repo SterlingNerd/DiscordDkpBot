@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Buffers.Text;
+using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -8,6 +10,7 @@ using DiscordDkpBot.Configuration;
 using DiscordDkpBot.Dkp;
 using DiscordDkpBot.Dkp.EqDkpPlus.Xml;
 using DiscordDkpBot.Extensions;
+using DiscordDkpBot.Properties;
 
 using Microsoft.Extensions.Logging;
 
@@ -69,10 +72,13 @@ namespace DiscordDkpBot.Commands
 			PlayerPoints dkp = await dkpProcessor.GetDkp(character);
 
 			string dkpMessage = $"{character.UppercaseFirst()} has **{dkp.PointsCurrentWithTwink}** available to spend.\n```brainfuck\nLifetime DKP for {character}: Earned {dkp.PointsEarnedWithTwink} - Spent {dkp.PointsSpentWithTwink} - Adjustments {dkp.PointsAdjustmentWithTwink}.```";
-			if (character.Equals("magg", StringComparison.OrdinalIgnoreCase))
+			if (config.Discord.EnableMaggDkp && character.Equals("magg", StringComparison.OrdinalIgnoreCase))
 			{
 				log.LogInformation("magg dkp memes!");
-				await message.Channel.SendFileAsync("./resources/dkpmagg.jpg", dkpMessage);
+				using (MemoryStream stream = new MemoryStream(Convert.FromBase64String(Resources.dkpmagg)))
+				{
+					await message.Channel.SendFileAsync(stream, "dkpmagg.jpg", dkpMessage);
+				}
 			}
 			else
 			{
