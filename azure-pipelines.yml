@@ -6,7 +6,6 @@
 trigger:
  branches:
    include:
-     - master
      - refs/tags/*
 
 pool: 'Default'
