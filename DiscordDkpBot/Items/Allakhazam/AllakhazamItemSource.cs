@@ -61,27 +61,35 @@ namespace DiscordDkpBot.Items.Allakhazam
 
 		public async Task<List<int>> GetItemIds(string itemName)
 		{
-			HttpClient client = clientFactory.CreateClient();
-			HttpResponseMessage response = await client.GetAsync($@"http://everquest.allakhazam.com/search.html?q={itemName}");
-			string html = await response.Content.ReadAsStringAsync();
-
-			HtmlDocument htmlDoc = new HtmlDocument();
-			htmlDoc.LoadHtml(html);
-
-			HtmlNodeCollection links = htmlDoc.GetElementbyId("Items_t")?.SelectNodes("//td[2]/a");
 			List<int> itemIds = new List<int>();
-			if (links?.Any() == true)
+
+			HttpClient client = clientFactory.CreateClient();
+
+			Task<HttpResponseMessage> lookup = client.GetAsync($@"http://everquest.allakhazam.com/search.html?q={itemName}");
+
+			await Task.WhenAny(lookup, Task.Delay(TimeSpan.FromSeconds(10)));
+
+			if (lookup.IsCompleted)
 			{
-				foreach (HtmlNode link in links)
+				string html = await lookup.Result.Content.ReadAsStringAsync();
+
+				HtmlDocument htmlDoc = new HtmlDocument();
+				htmlDoc.LoadHtml(html);
+
+				HtmlNodeCollection links = htmlDoc.GetElementbyId("Items_t")?.SelectNodes("//td[2]/a");
+				if (links?.Any() == true)
 				{
-					string idString = link.Attributes["href"].Value.Replace("/db/item.html?item=", string.Empty);
-					int id = int.Parse(idString);
-
-					string name = link.FirstChild.InnerText.Trim();
-
-					if (name == itemName)
+					foreach (HtmlNode link in links)
 					{
-						itemIds.Add(id);
+						string idString = link.Attributes["href"].Value.Replace("/db/item.html?item=", string.Empty);
+						int id = int.Parse(idString);
+
+						string name = link.FirstChild.InnerText.Trim();
+
+						if (name == itemName)
+						{
+							itemIds.Add(id);
+						}
 					}
 				}
 			}
