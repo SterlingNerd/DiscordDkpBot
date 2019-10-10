@@ -2,9 +2,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 
-using AutoFixture;
-using AutoFixture.AutoMoq;
-
 using Discord;
 
 using DiscordDkpBot.Auctions;
@@ -25,7 +22,22 @@ namespace DiscordDkpBotTests.Auctions
 	public class AuctionProcessorTests
 	{
 		[Test]
-		public void CalculateWinners_OneItem_OneBid ()
+		public async Task AuctionNotFound()
+		{
+			//Arrange
+
+			void Act()
+			{
+				target.AddOrUpdateBid("some item", "someCharacter", main.Name, 100, new Mock<IMessage>().Object).GetAwaiter().GetResult();
+				//Act
+			}
+
+			//Assert
+			Assert.Throws<AuctionNotFoundException>(Act);
+		}
+
+		[Test]
+		public void CalculateWinners_OneItem_OneBid()
 		{
 			//Arrange
 			RaidInfo raid = new RaidInfo();
@@ -49,7 +61,7 @@ namespace DiscordDkpBotTests.Auctions
 		}
 
 		[Test]
-		public void CalculateWinners_OneItem_ThreeBids ()
+		public void CalculateWinners_OneItem_ThreeBids()
 		{
 			//Arrange
 			RaidInfo raid = new RaidInfo();
@@ -77,7 +89,7 @@ namespace DiscordDkpBotTests.Auctions
 		}
 
 		[Test]
-		public void CalculateWinners_TwoItems_BigBoxBid ()
+		public void CalculateWinners_TwoItems_BigBoxBid()
 		{
 			//Arrange
 			RaidInfo raid = new RaidInfo();
@@ -102,15 +114,58 @@ namespace DiscordDkpBotTests.Auctions
 			WinningBid winner1 = completedAuction.WinningBids[0];
 			WinningBid winner2 = completedAuction.WinningBids[1];
 
-			Assert.AreEqual(mainBid.CharacterName, winner1.Bid.CharacterName);
-			Assert.AreEqual(101, winner1.Price);
+			Assert.AreEqual(mainBid.CharacterName, winner1.Bid.CharacterName, "winner1 should be main." );
+			Assert.AreEqual(101, winner1.Price, "main should pay 101");
 
-			Assert.AreEqual(boxBid1.CharacterName, winner2.Bid.CharacterName);
-			Assert.AreEqual(753, winner2.Price);
+			Assert.AreEqual(boxBid1.CharacterName, winner2.Bid.CharacterName, "Winner2 should be box1");
+			Assert.AreEqual(753, winner2.Price, "Box should pay 753");
 		}
 
 		[Test]
-		public void CalculateWinners_TwoItems_SingleBid ()
+		public void CalculateWinners_TwoItems_ManyBids()
+		{
+			//Arrange
+			RankConfiguration raider = new RankConfiguration("Raider", null, 1);
+			RankConfiguration box = new RankConfiguration("Box", 50, 3);
+			RankConfiguration alt = new RankConfiguration("Alt", 10, 1);
+			RankConfiguration member = new RankConfiguration("Member", 10, 1);
+
+			configuration.Ranks = new[] { raider, box, alt, member };
+			RaidInfo raid = new RaidInfo();
+			Auction auction = new Auction(23423, 2, "Nuke", 2, raid, GetMessage(42));
+
+			AuctionBid galvanized = new AuctionBid(auction, "Galvanized", 1, 26, raider, GetAuthor(43));
+			AuctionBid autobahn = new AuctionBid(auction, "Autobahn", 2, 10, raider, GetAuthor(44));
+			AuctionBid barogue = new AuctionBid(auction, "Barogue", 3, 14, alt, GetAuthor(45));
+			AuctionBid khaldraks = new AuctionBid(auction, "Khaldraks", 4, 10, member, GetAuthor(46));
+			AuctionBid windforce = new AuctionBid(auction, "Windforce", 5, 5, alt, GetAuthor(47));
+			AuctionBid glororhan = new AuctionBid(auction, "Glororhan", 6, 5, raider, GetAuthor(48));
+
+			auction.Bids.AddOrUpdate(galvanized);
+			auction.Bids.AddOrUpdate(autobahn);
+			auction.Bids.AddOrUpdate(barogue);
+			auction.Bids.AddOrUpdate(khaldraks);
+			auction.Bids.AddOrUpdate(windforce);
+			auction.Bids.AddOrUpdate(glororhan);
+
+			//Act
+			CompletedAuction completedAuction = target.CalculateWinners(auction);
+
+			//Assert
+			Assert.AreEqual(2, completedAuction.WinningBids.Count);
+
+			WinningBid winner1 = completedAuction.WinningBids[0];
+			WinningBid winner2 = completedAuction.WinningBids[1];
+
+			Assert.AreEqual(galvanized.CharacterName, winner1.Bid.CharacterName);
+			Assert.AreEqual(11, winner1.Price);
+
+			Assert.AreEqual(barogue.CharacterName, winner2.Bid.CharacterName);
+			Assert.AreEqual(11, winner2.Price);
+		}
+
+		[Test]
+		public void CalculateWinners_TwoItems_SingleBid()
 		{
 			//Arrange
 			RaidInfo raid = new RaidInfo();
@@ -131,7 +186,7 @@ namespace DiscordDkpBotTests.Auctions
 		}
 
 		[Test]
-		public void CalculateWinners_TwoItems_ThreeBids ()
+		public void CalculateWinners_TwoItems_ThreeBids()
 		{
 			//Arrange
 			RaidInfo raid = new RaidInfo();
@@ -157,27 +212,12 @@ namespace DiscordDkpBotTests.Auctions
 			Assert.IsNotNull(mainWinner, "main should be a winner.");
 			Assert.IsNotNull(altWinner, "alt should be a winner.");
 
-			Assert.AreEqual(18, mainWinner.Price, "main should pay 18");
-			Assert.AreEqual(18, altWinner.Price, "alt should pay 18");
-		}
-		[Test]
-		public async Task AuctionNotFound ()
-		{
-			//Arrange
-
-			void Act ()
-			{
-				target.AddOrUpdateBid("some item", "someCharacter", main.Name, 100, new Mock<IMessage>().Object).GetAwaiter().GetResult();
-				//Act
-			}
-
-			//Assert
-			Assert.Throws<AuctionNotFoundException>(Act);
+			Assert.AreEqual(26, mainWinner.Price, "main should pay 26 (alt max is 25)");
+			Assert.AreEqual(18, altWinner.Price, "alt should pay 18 (1 more than main2)");
 		}
 
-
 		[Test]
-		public void PlaceBidOverMax ()
+		public void PlaceBidOverMax()
 		{
 			//Arrange
 			const int characterId = 42;
@@ -186,9 +226,9 @@ namespace DiscordDkpBotTests.Auctions
 			state.Auctions.TryAdd("some item", auction);
 			dkpProcessor.Setup(x => x.GetDkp(characterId)).Returns(Task.FromResult(new PlayerPoints { PointsCurrentWithTwink = 90 }));
 			dkpProcessor.Setup(x => x.GetCharacterId(charName)).Returns(Task.FromResult(characterId));
-		
+
 			//Act
-			void Act ()
+			void Act()
 			{
 				target.AddOrUpdateBid("some item", charName, main.Name, 100, message.Object).GetAwaiter().GetResult();
 			}
@@ -198,7 +238,7 @@ namespace DiscordDkpBotTests.Auctions
 		}
 
 		[Test]
-		public void PlaceSeveralBidsOverMax ()
+		public void PlaceSeveralBidsOverMax()
 		{
 			//Arrange
 			const int characterId = 42;
@@ -213,14 +253,13 @@ namespace DiscordDkpBotTests.Auctions
 			dkpProcessor.Setup(x => x.GetDkp(characterId)).Returns(Task.FromResult(new PlayerPoints { PointsCurrentWithTwink = 90 }));
 			dkpProcessor.Setup(x => x.GetCharacterId(charName)).Returns(Task.FromResult(characterId));
 
-
 			//Act
 			// These should succeed
 			target.AddOrUpdateBid("1", charName, main.Name, 40, message.Object).GetAwaiter().GetResult();
 			target.AddOrUpdateBid("2", charName, main.Name, 40, message.Object).GetAwaiter().GetResult();
 
 			// This one should fail.
-			void Act ()
+			void Act()
 			{
 				target.AddOrUpdateBid("3", charName, main.Name, 11, message.Object).GetAwaiter().GetResult();
 			}
@@ -232,7 +271,7 @@ namespace DiscordDkpBotTests.Auctions
 		#region Setup/Teardown
 
 		[SetUp]
-		public void SetUp ()
+		public void SetUp()
 		{
 			dkpProcessor = new Mock<IDkpProcessor>();
 			itemProcessor = new Mock<IItemProcessor>();
@@ -254,22 +293,22 @@ namespace DiscordDkpBotTests.Auctions
 
 		private readonly RankConfiguration alt = new RankConfiguration("alt", 25, null);
 		private readonly RankConfiguration box = new RankConfiguration("box", 100, 3);
+		private DkpBotConfiguration configuration;
 		private Mock<IDkpProcessor> dkpProcessor;
 		private Mock<IItemProcessor> itemProcessor;
 		private readonly RankConfiguration main = new RankConfiguration("main", null, null);
+		private Mock<IMessage> message;
 		private readonly AuctionState state = new AuctionState();
 		private AuctionProcessor target;
-		private DkpBotConfiguration configuration;
-		private Mock<IMessage> message;
 
-		private IUser GetAuthor (ulong id)
+		private IUser GetAuthor(ulong id)
 		{
 			Mock<IUser> mock = new Mock<IUser>();
 			mock.SetupGet(x => x.Id).Returns(id);
 			return mock.Object;
 		}
 
-		private IMessage GetMessage (ulong id)
+		private IMessage GetMessage(ulong id)
 		{
 			Mock<IMessage> message = new Mock<IMessage>();
 			message.Setup(x => x.Author).Returns(GetAuthor(id));

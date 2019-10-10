@@ -15,6 +15,7 @@ namespace DiscordDkpBot.Auctions
 		public int CharacterId { get; }
 		public string RevealString => $"{{{CharacterName}: {BidAmount}}} ({Rank.Name}) #{Author.Username}";
 		public RankConfiguration Rank { get; }
+		public int MaxBid => Rank.MaxBid;
 
 		public AuctionBid (Auction auction, string characterName, int characterId, int bidAmount, RankConfiguration rank, IUser author)
 		{
@@ -38,16 +39,16 @@ namespace DiscordDkpBot.Auctions
 				return -1;
 			}
 
-			if (Rank.MaxBid > other.Rank.MaxBid)
+			if (MaxBid > other.MaxBid && BidAmount > other.MaxBid)
 			{
-				// Our cap is bigger, so reduce their bid.
-				return Math.Min(other.BidAmount, other.Rank.MaxBid) - BidAmount;
+				// We outbid their cap, so reduce their bid.
+				return Math.Min(other.BidAmount, other.MaxBid) - BidAmount;
 			}
 
-			if (Rank.MaxBid < other.Rank.MaxBid)
+			if (other.MaxBid > MaxBid && other.BidAmount > MaxBid)
 			{
-				// their cap is bigger, so reduce our bid.
-				return other.BidAmount - Math.Min(BidAmount, Rank.MaxBid);
+				// they outbid our cap, so reduce our bid..
+				return other.BidAmount - Math.Min(BidAmount, MaxBid);
 			}
 
 			// Caps are the same, compare bids.

@@ -19,34 +19,44 @@ namespace DiscordDkpBotTests.Auctions
 	[TestFixture]
 	public class AuctionBidTests
 	{
-		[TestCase(200, null, 250, null, 2)]
-		[TestCase(200, null, 200, null, 0)]
-		[TestCase(200, null, 250, 100, 1)]
-		[TestCase(200, 25, 250, 100, 2)]
-		[TestCase(200, 100, 250, 100, 2)]
-		[TestCase(300, 25, 250, 25, 1)]
-		[TestCase(300, null, null, null, 1)]
-		[TestCase(300, 25, null, null, 1)]
-		[TestCase(104, null, 54, 25, 1)]
-		[TestCase(54, 25, 300, 100, 2)]
-		public void Compare (int? bid1, int? cap1, int? bid2, int? cap2, int expected)
+		[TestCase(200, null, 250, null, ExpectedWinner.Second)]
+		[TestCase(200, null, 200, null, ExpectedWinner.Tie)]
+		[TestCase(200, null, 250, 100, ExpectedWinner.First)]
+		[TestCase(200, 25, 250, 100, ExpectedWinner.Second)]
+		[TestCase(200, 100, 250, 100, ExpectedWinner.Second)]
+		[TestCase(300, 25, 250, 25, ExpectedWinner.First)]
+		[TestCase(300, null, null, null, ExpectedWinner.First)]
+		[TestCase(300, 25, null, null, ExpectedWinner.First)]
+		[TestCase(104, null, 54, 25, ExpectedWinner.First)]
+		[TestCase(54, 25, 300, 100, ExpectedWinner.Second)]
+		[TestCase(14, 10, 10, null, ExpectedWinner.First)]
+		[TestCase(10, null, 14, 10, ExpectedWinner.Second)]
+		[TestCase(104, null, 250, 100, ExpectedWinner.First)]
+		[TestCase(250, 100, 104, null, ExpectedWinner.Second)]
+		public void Compare (int? bid1, int? cap1, int? bid2, int? cap2, ExpectedWinner expected)
 		{
 			//Arrange
 			RaidInfo raid = new RaidInfo();
 			Auction auction = new Auction(23423, 1, "Nuke", 2, raid, GetMessage(42));
-			RankConfiguration rank1 = new RankConfiguration("rank1", cap1 ?? int.MaxValue, 1);
-			RankConfiguration rank2 = new RankConfiguration("rank2", cap2 ?? int.MaxValue, 1);
+			RankConfiguration rank1 = new RankConfiguration("rank1", cap1, 1);
+			RankConfiguration rank2 = new RankConfiguration("rank2", cap2, 1);
 			AuctionBid a1 = bid1 != null ? new AuctionBid(auction, "1", 1, bid1.Value, rank1, GetAuthor(45)) : null;
 			AuctionBid a2 = bid2 != null ? new AuctionBid(auction, "2", 2, bid2.Value, rank2, GetAuthor(41)) : null;
 
 			//Act
 			int comparison = a1?.CompareTo(a2) ?? 0;
-			int actual = comparison < 0 ? 1 : comparison > 0 ? 2 : 0;
+			ExpectedWinner actual = comparison < 0 ? ExpectedWinner.First : comparison > 0 ? ExpectedWinner.Second : ExpectedWinner.Tie;
 
 			//Assert
 			Assert.AreEqual(expected, actual);
 		}
 
+	public	enum ExpectedWinner
+		{
+			Tie = 0,
+			First = 1,
+			Second = 2
+		}
 		[Test]
 		public void CompareToMultiples ()
 		{

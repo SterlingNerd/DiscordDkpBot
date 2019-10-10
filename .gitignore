@@ -262,3 +262,4 @@ __pycache__/
 /DiscordDkpBot/AuthSettings.json
 /DiscordDkpBot/DiscordDkpBot.zip
 *.exe
+/DiscordDkpBot/.vscode
