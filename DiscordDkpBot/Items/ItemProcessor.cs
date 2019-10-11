@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 
 using Discord;
 
-using DiscordDkpBot.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace DiscordDkpBot.Items
 {
@@ -15,39 +13,47 @@ namespace DiscordDkpBot.Items
 	{
 		Task<ItemLookupResult> GetItemEmbed(string itemName);
 	}
+
 	public class ItemProcessor : IItemProcessor
 	{
-		private readonly DkpBotConfiguration configuration;
 		private readonly IItemSource itemSource;
-		private readonly IHttpClientFactory clientFactory;
+		private readonly ILogger<ItemProcessor> log;
 
-		public ItemProcessor(DkpBotConfiguration configuration, IItemSource itemSource)
+		public ItemProcessor(IItemSource itemSource, ILogger<ItemProcessor> log)
 		{
-			this.configuration = configuration;
 			this.itemSource = itemSource;
-			this.clientFactory = clientFactory;
+			this.log = log;
 		}
+
 		public async Task<ItemLookupResult> GetItemEmbed(string itemName)
 		{
-			List<int> itemIds = await itemSource.GetItemIds(itemName);
+			Embed embed = null;
+			int matchesFound = 0;
+			try
+			{
+				List<int> itemIds = await itemSource.GetItemIds(itemName);
 
-			Embed embed;
-			if (itemIds?.Any() == false)
+				if (itemIds?.Any() == true)
+				{
+					// TODO: make this configurable for live to use max.
+					embed = await itemSource.BuildEmbed(itemIds.Min());
+					matchesFound = itemIds.Count;
+				}
+			}
+			catch (Exception ex)
+			{
+				log.LogError(ex, $"Failed to lookup item '{itemName}'");
+			}
+
+			if (embed == null)
 			{
 				embed = BuildFakeEmbed(itemName);
 			}
-			else
-			{
-				// TODO: make this configurable for live to use max.
-				embed = await itemSource.BuildEmbed(itemIds.Min());
-			}
 
-			return new ItemLookupResult(embed, itemIds?.Count ?? 0);
+			return new ItemLookupResult(embed, matchesFound);
 		}
 
-
-
-		private Embed BuildFakeEmbed (string itemName)
+		private Embed BuildFakeEmbed(string itemName)
 		{
 			EmbedBuilder builder = new EmbedBuilder();
 			builder.Description = "Item Not Found. This could be because (in order of probability)\n- The item name has a typo in it\n- eq.allakahazam.com is down/uber slow\nThis item is not in the item database";
@@ -56,8 +62,5 @@ namespace DiscordDkpBot.Items
 
 			return builder.Build();
 		}
-
-
-
 	}
 }

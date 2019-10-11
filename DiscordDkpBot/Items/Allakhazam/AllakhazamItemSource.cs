@@ -14,12 +14,12 @@ namespace DiscordDkpBot.Items.Allakhazam
 	{
 		private readonly IHttpClientFactory clientFactory;
 
-		public AllakhazamItemSource(IHttpClientFactory clientFactory)
+		public AllakhazamItemSource (IHttpClientFactory clientFactory)
 		{
 			this.clientFactory = clientFactory;
 		}
 
-		public async Task<Embed> BuildEmbed(int id)
+		public async Task<Embed> BuildEmbed (int id)
 		{
 			EmbedBuilder builder = new EmbedBuilder();
 			HtmlDocument htmlDoc = new HtmlDocument();
@@ -45,7 +45,7 @@ namespace DiscordDkpBot.Items.Allakhazam
 			return builder.Build();
 		}
 
-		private static void ReplaceHyperlinks(HtmlDocument htmlDoc)
+		private static void ReplaceHyperlinks (HtmlDocument htmlDoc)
 		{
 			HtmlNodeCollection effects = htmlDoc.DocumentNode.SelectNodes("//a");
 			if (effects?.Any() == true)
@@ -59,7 +59,7 @@ namespace DiscordDkpBot.Items.Allakhazam
 			}
 		}
 
-		public async Task<List<int>> GetItemIds(string itemName)
+		public async Task<List<int>> GetItemIds (string itemName)
 		{
 			List<int> itemIds = new List<int>();
 
@@ -76,7 +76,13 @@ namespace DiscordDkpBot.Items.Allakhazam
 				HtmlDocument htmlDoc = new HtmlDocument();
 				htmlDoc.LoadHtml(html);
 
-				HtmlNodeCollection links = htmlDoc.GetElementbyId("Items_t")?.SelectNodes("//td[2]/a");
+				var div = htmlDoc.GetElementbyId("Items_t");
+				var table = div?.FirstChild;// table
+				var body = table?.ChildNodes.Single(x => x.Name == "tbody");
+				var trs = body?.ChildNodes.Where(x => x.Name == "tr");
+				var tds = trs?.Select(tr => tr.ChildNodes.Skip(1).First());
+				var links = tds?.Select(td => td.ChildNodes.First(x => x.Name == "a"));
+				
 				if (links?.Any() == true)
 				{
 					foreach (HtmlNode link in links)
@@ -97,7 +103,7 @@ namespace DiscordDkpBot.Items.Allakhazam
 			return itemIds;
 		}
 
-		public async Task<string> GetItemTooltipHtml(int id)
+		public async Task<string> GetItemTooltipHtml (int id)
 		{
 			HttpClient client = clientFactory.CreateClient();
 			HttpResponseMessage response = await client.GetAsync($@"http://everquest.allakhazam.com/cluster/ihtml.pl?item={id}");
