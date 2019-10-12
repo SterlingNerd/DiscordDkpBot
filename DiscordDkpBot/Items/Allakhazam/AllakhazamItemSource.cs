@@ -82,7 +82,7 @@ namespace DiscordDkpBot.Items.Allakhazam
 				var trs = body?.ChildNodes.Where(x => x.Name == "tr");
 				var tds = trs?.Select(tr => tr.ChildNodes.Skip(1).First());
 				var links = tds?.Select(td => td.ChildNodes.First(x => x.Name == "a"));
-				
+
 				if (links?.Any() == true)
 				{
 					foreach (HtmlNode link in links)
@@ -92,7 +92,7 @@ namespace DiscordDkpBot.Items.Allakhazam
 
 						string name = link.FirstChild.InnerText.Trim();
 
-						if (name == itemName)
+						if (name?.Equals(itemName, StringComparison.CurrentCultureIgnoreCase) == true)
 						{
 							itemIds.Add(id);
 						}
