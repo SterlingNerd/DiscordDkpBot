@@ -53,8 +53,8 @@ namespace DiscordDkpBot.Auctions
 
 			int characterId = await dkpProcessor.GetCharacterId(character);
 			PlayerPoints points = await dkpProcessor.GetDkp(characterId);
-			int pointsAlreadBid = state.Auctions.Values.SelectMany(x => x.Bids).Where(b => b.CharacterId == characterId).Sum(x => x.BidAmount);
-			decimal availableDkp = points.PointsCurrentWithTwink - pointsAlreadBid;
+			int pointsAlreadyBid = state.Auctions.Values.SelectMany(x => x.Bids).Where(b => b.CharacterId == characterId).Sum(x => x.BidAmount) * rankConfig.PriceMultiplier;
+			decimal availableDkp = (points.PointsCurrentWithTwink - pointsAlreadyBid ) / rankConfig.PriceMultiplier;
 
 			if (availableDkp < bid)
 			{
