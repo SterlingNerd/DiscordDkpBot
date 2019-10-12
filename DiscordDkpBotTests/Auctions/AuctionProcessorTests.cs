@@ -22,7 +22,7 @@ namespace DiscordDkpBotTests.Auctions
 	public class AuctionProcessorTests
 	{
 		[Test]
-		public async Task AuctionNotFound()
+		public void AuctionNotFound()
 		{
 			//Arrange
 
@@ -275,8 +275,7 @@ namespace DiscordDkpBotTests.Auctions
 		{
 			dkpProcessor = new Mock<IDkpProcessor>();
 			itemProcessor = new Mock<IItemProcessor>();
-			configuration = new DkpBotConfiguration();
-			configuration.Ranks = new[] { alt, box, main };
+			configuration = new DkpBotConfiguration { Ranks = new[] { alt, box, main } };
 
 			Mock<IMessageChannel> channel = new Mock<IMessageChannel>();
 			channel.Setup(x => x.SendMessageAsync(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<Embed>(), It.IsAny<RequestOptions>()))

@@ -2,10 +2,10 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
     <LangVersion>latest</LangVersion>
-    <Version>1.0.14</Version>
-    <AssemblyVersion>1.0.14.0</AssemblyVersion>
+    <Version>1.1.0</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <Authors>Josh Sterling</Authors>
     <Description>A Discord based dkp bot for integration with eqdkp.</Description>
     <PackageLicenseExpression>WTFP</PackageLicenseExpression>
