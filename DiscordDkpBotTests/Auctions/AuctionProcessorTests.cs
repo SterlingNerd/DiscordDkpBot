@@ -122,7 +122,7 @@ namespace DiscordDkpBotTests.Auctions
 		}
 
 		[Test]
-		public void CalculateWinners_TwoItems_ManyBids()
+		public void CalculateWinners_TwoItems_ManyBids ()
 		{
 			//Arrange
 			RankConfiguration raider = new RankConfiguration("Raider", null, 1);
@@ -135,8 +135,8 @@ namespace DiscordDkpBotTests.Auctions
 			Auction auction = new Auction(23423, 2, "Nuke", 2, raid, GetMessage(42));
 
 			AuctionBid galvanized = new AuctionBid(auction, "Galvanized", 1, 26, raider, GetAuthor(43));
-			AuctionBid autobahn = new AuctionBid(auction, "Autobahn", 2, 10, raider, GetAuthor(44));
 			AuctionBid barogue = new AuctionBid(auction, "Barogue", 3, 14, alt, GetAuthor(45));
+			AuctionBid autobahn = new AuctionBid(auction, "Autobahn", 2, 10, raider, GetAuthor(44));
 			AuctionBid khaldraks = new AuctionBid(auction, "Khaldraks", 4, 10, member, GetAuthor(46));
 			AuctionBid windforce = new AuctionBid(auction, "Windforce", 5, 5, alt, GetAuthor(47));
 			AuctionBid glororhan = new AuctionBid(auction, "Glororhan", 6, 5, raider, GetAuthor(48));
@@ -162,6 +162,45 @@ namespace DiscordDkpBotTests.Auctions
 
 			Assert.AreEqual(barogue.CharacterName, winner2.Bid.CharacterName);
 			Assert.AreEqual(11, winner2.Price);
+		}
+		[Test]
+		public void CalculateWinners_TwoItems_ManyRaiderBids ()
+		{
+			//Arrange
+			RankConfiguration raider = new RankConfiguration("Raider", null, 1);
+
+			configuration.Ranks = new[] { raider };
+			RaidInfo raid = new RaidInfo();
+			Auction auction = new Auction(23423, 2, "Nuke", 2, raid, GetMessage(42));
+
+			AuctionBid blace = new AuctionBid(auction, "Blace", 1, 103, raider, GetAuthor(43));
+			AuctionBid khovet = new AuctionBid(auction, "Khovet", 2, 75, raider, GetAuthor(44));
+			AuctionBid glororhan = new AuctionBid(auction, "Glororhan", 3, 69, raider, GetAuthor(45));
+			AuctionBid mowron = new AuctionBid(auction, "Mowron", 4, 69, raider, GetAuthor(46));
+			AuctionBid kalvin = new AuctionBid(auction, "kalvin", 5, 67, raider, GetAuthor(47));
+			AuctionBid galvanized = new AuctionBid(auction, "GALVANIZED", 6, 55, raider, GetAuthor(48));
+
+			auction.Bids.AddOrUpdate(blace);
+			auction.Bids.AddOrUpdate(khovet);
+			auction.Bids.AddOrUpdate(glororhan);
+			auction.Bids.AddOrUpdate(mowron);
+			auction.Bids.AddOrUpdate(kalvin);
+			auction.Bids.AddOrUpdate(galvanized);
+
+			//Act
+			CompletedAuction completedAuction = target.CalculateWinners(auction);
+
+			//Assert
+			Assert.AreEqual(2, completedAuction.WinningBids.Count);
+
+			WinningBid winner1 = completedAuction.WinningBids[0];
+			WinningBid winner2 = completedAuction.WinningBids[1];
+
+			Assert.AreEqual(blace.CharacterName, winner1.Bid.CharacterName);
+			Assert.AreEqual(70, winner1.Price);
+
+			Assert.AreEqual(khovet.CharacterName, winner2.Bid.CharacterName);
+			Assert.AreEqual(70, winner2.Price);
 		}
 
 		[Test]

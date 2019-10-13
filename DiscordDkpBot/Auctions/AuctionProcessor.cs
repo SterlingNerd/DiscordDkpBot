@@ -11,24 +11,21 @@ using DiscordDkpBot.Dkp.EqDkpPlus.Xml;
 using DiscordDkpBot.Extensions;
 using DiscordDkpBot.Items;
 
-using JetBrains.Annotations;
-
 using Microsoft.Extensions.Logging;
 
 namespace DiscordDkpBot.Auctions
 {
 	public class AuctionProcessor : IAuctionProcessor
 	{
-		private readonly AuctionState state;
 		private readonly DkpBotConfiguration configuration;
-		private readonly IItemProcessor itemProcessor;
 		private readonly IDkpProcessor dkpProcessor;
+		private readonly IItemProcessor itemProcessor;
 		private readonly ILogger<AuctionProcessor> log;
-		private readonly Dictionary<string, RankConfiguration> ranks;
 		private readonly Random random = new Random();
+		private readonly Dictionary<string, RankConfiguration> ranks;
+		private readonly AuctionState state;
 
-
-		public AuctionProcessor (DkpBotConfiguration configuration, AuctionState state, IItemProcessor itemProcessor, IDkpProcessor dkpProcessor, ILogger<AuctionProcessor> log)
+		public AuctionProcessor(DkpBotConfiguration configuration, AuctionState state, IItemProcessor itemProcessor, IDkpProcessor dkpProcessor, ILogger<AuctionProcessor> log)
 		{
 			ranks = configuration.Ranks.ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
 			this.configuration = configuration;
@@ -38,7 +35,7 @@ namespace DiscordDkpBot.Auctions
 			this.log = log;
 		}
 
-		public async Task<AuctionBid> AddOrUpdateBid (string item, string character, string rank, int bid, IMessage message)
+		public async Task<AuctionBid> AddOrUpdateBid(string item, string character, string rank, int bid, IMessage message)
 		{
 			// First make sure we can make a valid bid out of it.
 			if (!ranks.TryGetValue(rank, out RankConfiguration rankConfig))
@@ -54,7 +51,7 @@ namespace DiscordDkpBot.Auctions
 			int characterId = await dkpProcessor.GetCharacterId(character);
 			PlayerPoints points = await dkpProcessor.GetDkp(characterId);
 			int pointsAlreadyBid = state.Auctions.Values.SelectMany(x => x.Bids).Where(b => b.CharacterId == characterId).Sum(x => x.BidAmount) * rankConfig.PriceMultiplier;
-			decimal availableDkp = (points.PointsCurrentWithTwink - pointsAlreadyBid ) / rankConfig.PriceMultiplier;
+			decimal availableDkp = (points.PointsCurrentWithTwink - pointsAlreadyBid) / rankConfig.PriceMultiplier;
 
 			if (availableDkp < bid)
 			{
@@ -66,25 +63,25 @@ namespace DiscordDkpBot.Auctions
 			log.LogInformation($"Created bid: {newBid}");
 
 			await message.Channel.SendMessageAsync($"Bid accepted for **{newBid.Auction}**\n"
-					+ $"```\"{auction.Name}\" {newBid}```"
-					+ $"If you win, you could pay up to **{newBid.BidAmount * newBid.Rank.PriceMultiplier}**.\n"
-					+ $"If you wish to modify your bid before the auction completes, simply enter a new bid in the next **{auction.MinutesRemaining:##.#}** minutes.\n"
-					+ "If you wish to cancel your bid use the following syntax:\n"
-					+ $"```\"{newBid.Auction.Name}\" cancel```");
+				+ $"```\"{auction.Name}\" {newBid}```"
+				+ $"If you win, you could pay up to **{newBid.BidAmount * newBid.Rank.PriceMultiplier}**.\n"
+				+ $"If you wish to modify your bid before the auction completes, simply enter a new bid in the next **{auction.MinutesRemaining:##.#}** minutes.\n"
+				+ "If you wish to cancel your bid use the following syntax:\n"
+				+ $"```\"{newBid.Auction.Name}\" cancel```");
 
 			return newBid;
 		}
 
-		public CompletedAuction CalculateWinners (Auction auction)
+		public CompletedAuction CalculateWinners(Auction auction)
 		{
 			List<AuctionBid> bids = auction.Bids.ToList();
 			log.LogTrace("Finding winners for {0} from bids submitted: ({1})", auction.DetailDescription, string.Join("', ", auction.Bids));
-			List<WinningBid> winners = new List<WinningBid>();
+			List<AuctionBid> winners = new List<AuctionBid>();
 
 			for (int i = 0; i < auction.Quantity; i++)
 			{
 				// Grab the first winner.
-				WinningBid winner = CalculateWinner(bids);
+				AuctionBid winner = CalculateWinner(bids);
 
 				if (winner == null)
 				{
@@ -96,17 +93,18 @@ namespace DiscordDkpBot.Auctions
 					winners.Add(winner);
 
 					// Remove that winner and go again.
-					bids.Remove(winner.Bid);
+					bids.Remove(winner);
 				}
 			}
 
+			List<WinningBid> winningBids = CalculatePrices(winners, bids);
 
 			log.LogInformation("{0} found {1} winners: {2}", auction.DetailDescription, winners.Count, string.Join(", ", winners));
 
-			return new CompletedAuction(auction, winners);
+			return new CompletedAuction(auction, winningBids);
 		}
 
-		public async Task<Auction> CancelAuction (string name, IMessage message)
+		public async Task<Auction> CancelAuction(string name, IMessage message)
 		{
 			if (!state.Auctions.TryRemove(name, out Auction auction))
 			{
@@ -127,7 +125,7 @@ namespace DiscordDkpBot.Auctions
 			return auction;
 		}
 
-		public Task<AuctionBid> CancelBid (string item, IMessage message)
+		public Task<AuctionBid> CancelBid(string item, IMessage message)
 		{
 			if (!state.Auctions.TryGetValue(item, out Auction auction))
 			{
@@ -144,7 +142,7 @@ namespace DiscordDkpBot.Auctions
 			return Task.FromResult(bid);
 		}
 
-		public async Task<Auction> StartAuction (int? quantity, string name, int? minutes, IMessage message)
+		public async Task<Auction> StartAuction(int? quantity, string name, int? minutes, IMessage message)
 		{
 			RaidInfo raid = await dkpProcessor.GetDailyItemsRaid();
 			Auction auction = new Auction(state.NextAuctionId, quantity ?? 1, name, minutes ?? configuration.DefaultAuctionDurationMinutes, raid, message);
@@ -183,7 +181,57 @@ namespace DiscordDkpBot.Auctions
 			}
 		}
 
-		private WinningBid CalculateWinner (List<AuctionBid> bids)
+		private List<WinningBid> CalculatePrices(ICollection<AuctionBid> winners, ICollection<AuctionBid> losers)
+		{
+			List<WinningBid> winningBids = new List<WinningBid>(winners.Count);
+
+			int winnerNumber = 1;
+			foreach (AuctionBid winner in winners.OrderBy(x => x))
+			{
+				AuctionBid loser = null;
+
+				// check and see if we won because we out-bid somebody's cap.
+				AuctionBid potentialLoser = winners.OrderBy(x => x).Skip(winnerNumber).FirstOrDefault();
+
+				if (potentialLoser != null && potentialLoser.MaxBid < winner.BidAmount)
+				{
+					// If we outbid their cap, we'll use them to calculate our price instead of the first unsuccessful bid.
+					loser = potentialLoser;
+				}
+
+				if (loser == null)
+				{
+					// You lose! Good DAY sir!
+					loser = losers.FirstOrDefault(x => x != winner);
+				}
+
+				int applicableLooserBid;
+				if (loser == null)
+				{
+					applicableLooserBid = 0;
+				}
+				else if (winner.Rank.MaxBid > loser.Rank.MaxBid && winner.BidAmount > loser.Rank.MaxBid)
+				{
+					// If our bid cap and is higher than their bid cap, and we bid over their cap. reduce their bid.
+					applicableLooserBid = Math.Min(loser.BidAmount, loser.Rank.MaxBid);
+				}
+				else
+				{
+					// Otherwise
+					applicableLooserBid = loser.BidAmount;
+				}
+
+				int price = applicableLooserBid + 1;
+				int finalPrice = price * winner.Rank.PriceMultiplier;
+
+				winningBids.Add(new WinningBid(winner, finalPrice));
+				winnerNumber++;
+			}
+			return
+				winningBids;
+		}
+
+		private AuctionBid CalculateWinner(List<AuctionBid> bids)
 		{
 			bids.Sort();
 			log.LogTrace("Finding best winner from: ({0})", string.Join(", ", bids));
@@ -217,32 +265,10 @@ namespace DiscordDkpBot.Auctions
 
 			AuctionBid winner = winningBids.OrderBy(x => random.Next()).First();
 
-			// You lose! Good DAY sir!
-			AuctionBid loser = bids.FirstOrDefault(x => x != winner);
-
-			int applicableLooserBid;
-			if (loser == null)
-			{
-				applicableLooserBid = 0;
-			}
-			else if (winner.Rank.MaxBid > loser.Rank.MaxBid && winner.BidAmount > loser.Rank.MaxBid)
-			{
-				// If our bid cap and is higher than their bid cap, and we bid over their cap. reduce their bid.
-				applicableLooserBid = Math.Min(loser.BidAmount, loser.Rank.MaxBid);
-			}
-			else
-			{
-				// Otherwise
-				applicableLooserBid = loser.BidAmount;
-			}
-
-			int price = applicableLooserBid + 1;
-			int finalPrice = price * winner.Rank.PriceMultiplier;
-			
-			return new WinningBid(winner, finalPrice);
+			return winner;
 		}
 
-		private async Task FinishAuction (Auction auction, IUserMessage announcement)
+		private async Task FinishAuction(Auction auction, IUserMessage announcement)
 		{
 			state.Auctions.TryRemove(auction.Name, out Auction _);
 
