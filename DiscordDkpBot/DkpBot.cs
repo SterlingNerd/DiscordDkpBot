@@ -89,7 +89,7 @@ namespace DiscordDkpBot
 
 			Task task = Task.Run(() => commandProcessor.ProcessCommand(message), src.Token);
 
-			if (Task.WhenAny(task, Task.Delay(TimeSpan.FromSeconds(30))) == task)
+			if (await Task.WhenAny(task, Task.Delay(TimeSpan.FromSeconds(30))) == task)
 			{
 				// ok.
 			}
