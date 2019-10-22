@@ -79,7 +79,26 @@ namespace DiscordDkpBot
 				return Task.CompletedTask;
 			}
 
-			return commandProcessor.ProcessCommand(message);
+			Task.Run(() => ProcessCommand(message));
+			return Task.CompletedTask;
+		}
+
+		private async Task ProcessCommand (SocketMessage message)
+		{
+			CancellationTokenSource src = new CancellationTokenSource();
+
+			Task task = Task.Run(() => commandProcessor.ProcessCommand(message), src.Token);
+
+			if (Task.WhenAny(task, Task.Delay(TimeSpan.FromSeconds(30))) == task)
+			{
+				// ok.
+			}
+			else
+			{
+				src.Cancel();
+				await message.Channel.SendMessageAsync($"'{message.Content}' took too long to process.");
+				log.LogError($"Timed out: '{message.Content}'");
+			}
 		}
 
 		// The Ready event indicates that the client has opened a
