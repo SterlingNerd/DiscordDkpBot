@@ -184,6 +184,7 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 			}
 			else
 			{
+				log.LogWarning($"Could not find raid {raidId} in last 10 raids, searching whole list:");
 				// We could try to get fancy and binary search this thing.
 				// However, requests have overhead, and we don't actually know how many raids there are (there could be gaps in IDs)
 				// So until proven otherwise, getting the whole damn list of raids is probably just as quick.
