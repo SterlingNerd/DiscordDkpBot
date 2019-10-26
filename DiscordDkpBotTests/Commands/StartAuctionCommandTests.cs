@@ -37,6 +37,7 @@ namespace DiscordDkpBotTests.Commands
 		[TestCase("@ startbid \"YoMomma\"", null, "YoMomma", null)]
 		[TestCase("@ startbid \"YoMomma\" 4", null, "YoMomma", 4)]
 		[TestCase("@ startbid 2x\"YoMomma\"", 2, "YoMomma", null)]
+		[TestCase("@ startbids “mAnA rObE”", null, "mAnA rObE", null)]
 		public void ParseArgs(string args, int? expectedQuantity, string expectedName, int? expectedMinutes)
 		{
 			//Arrange

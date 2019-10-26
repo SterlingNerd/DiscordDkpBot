@@ -33,6 +33,7 @@ namespace DiscordDkpBot.Commands
 
 		public (bool success, int? number, string name, int? minutes) ParseArgs(string args)
 		{
+			args = args.Replace('“', '"').Replace('”', '"');
 			Match match = pattern.Match(args);
 
 			if (!match.Success)
