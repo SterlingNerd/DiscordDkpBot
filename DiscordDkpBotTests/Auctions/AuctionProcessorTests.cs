@@ -89,7 +89,7 @@ namespace DiscordDkpBotTests.Auctions
 		}
 
 		[Test]
-		public void CalculateWinners_TwoItems_BigBoxBid()
+		public void CalculateWinners_TwoItems_BigBoxBid ()
 		{
 			//Arrange
 			RaidInfo raid = new RaidInfo();
@@ -119,6 +119,35 @@ namespace DiscordDkpBotTests.Auctions
 
 			Assert.AreEqual(boxBid1.CharacterName, winner2.Bid.CharacterName, "Winner2 should be box1");
 			Assert.AreEqual(753, winner2.Price, "Box should pay 753");
+		}
+
+		[Test]
+		public void CalculateWinners_TwoItems_TwoBidsBid ()
+		{
+			//Arrange
+			RaidInfo raid = new RaidInfo();
+			Auction auction = new Auction(23423, 2, "Nuke", 2, raid, GetMessage(42));
+
+			AuctionBid bid1 = new AuctionBid(auction, "main", 1, 104, main, GetAuthor(43));
+			AuctionBid bid2 = new AuctionBid(auction, "main2", 2, 45, main, GetAuthor(44));
+
+			auction.Bids.AddOrUpdate(bid2);
+			auction.Bids.AddOrUpdate(bid1);
+
+			//Act
+			CompletedAuction completedAuction = target.CalculateWinners(auction);
+
+			//Assert
+			Assert.AreEqual(2, completedAuction.WinningBids.Count);
+
+			WinningBid winner1 = completedAuction.WinningBids[0];
+			WinningBid winner2 = completedAuction.WinningBids[1];
+
+			Assert.AreEqual(bid1.CharacterName, winner1.Bid.CharacterName, "winner1 should be main.");
+			Assert.AreEqual(1, winner1.Price, "Winner 1 should pay 1.");
+
+			Assert.AreEqual(bid2.CharacterName, winner2.Bid.CharacterName, "Winner2 should be main2");
+			Assert.AreEqual(1, winner2.Price, "Winner 2 should pay 1");
 		}
 
 		[Test]
