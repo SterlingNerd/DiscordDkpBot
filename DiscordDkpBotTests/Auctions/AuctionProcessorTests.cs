@@ -61,7 +61,7 @@ namespace DiscordDkpBotTests.Auctions
 		}
 
 		[Test]
-		public void CalculateWinners_OneItem_ThreeBids()
+		public void CalculateWinners_OneItem_ThreeBids ()
 		{
 			//Arrange
 			RaidInfo raid = new RaidInfo();
@@ -86,6 +86,28 @@ namespace DiscordDkpBotTests.Auctions
 			Assert.IsNotNull(mainWinner, "main should be a winner.");
 
 			Assert.AreEqual(26, mainWinner.Price, "main should pay 26");
+		}
+		[Test]
+		public void CalculateWinners_OneItem_TieBids ()
+		{
+			//Arrange
+			RaidInfo raid = new RaidInfo();
+			Auction auction = new Auction(23423, 1, "Nuke", 2, raid, GetMessage(42));
+
+			AuctionBid mainBid = new AuctionBid(auction, "main", 1, 10, main, GetAuthor(42));
+			AuctionBid altBid = new AuctionBid(auction, "alt", 3, 10, alt, GetAuthor(44));
+
+			auction.Bids.AddOrUpdate(mainBid);
+			auction.Bids.AddOrUpdate(altBid);
+
+			//Act
+			CompletedAuction completedAuction = target.CalculateWinners(auction);
+
+			//Assert
+			Assert.AreEqual(1, completedAuction.WinningBids.Count);
+
+			
+			Assert.AreEqual(10, completedAuction.WinningBids.First().Price, "Winner should pay 10.");
 		}
 
 		[Test]

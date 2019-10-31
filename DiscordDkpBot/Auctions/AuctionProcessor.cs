@@ -205,7 +205,7 @@ namespace DiscordDkpBot.Auctions
 					if (loser == null)
 					{
 						// You lose! Good DAY sir!
-						loser = losers.FirstOrDefault(x => x != winner);
+						loser = losers.FirstOrDefault();
 					}
 
 					if (loser != null)
@@ -223,7 +223,8 @@ namespace DiscordDkpBot.Auctions
 					}
 				}
 
-				int price = applicableLooserBid + 1;
+				// They pay loser+1, but not more than their bid. Aka full price if a tie.
+				int price = Math.Min(applicableLooserBid + 1, winner.BidAmount);
 				int finalPrice = price * winner.Rank.PriceMultiplier;
 
 				winningBids.Add(new WinningBid(winner, finalPrice));
