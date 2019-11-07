@@ -184,28 +184,35 @@ namespace DiscordDkpBot.Auctions
 		private List<WinningBid> CalculatePrices (ICollection<AuctionBid> winners, ICollection<AuctionBid> losers)
 		{
 			List<WinningBid> winningBids = new List<WinningBid>(winners.Count);
-
+			
 			int winnerNumber = 1;
 			foreach (AuctionBid winner in winners.OrderBy(x => x))
 			{
 				int applicableLooserBid = 0;
+				bool loserTied = false;
 				if (losers.Any())
 				{
 					AuctionBid loser = null;
 
 					// check and see if we won because we out-bid somebody's cap.
-					AuctionBid potentialLoser = winners.OrderBy(x => x).Skip(winnerNumber).FirstOrDefault();
+					AuctionBid outbidWinner = winners.OrderBy(x => x).Skip(winnerNumber).FirstOrDefault();
 
-					if (potentialLoser != null && potentialLoser.MaxBid < winner.BidAmount)
+					if (outbidWinner != null && outbidWinner.MaxBid < winner.BidAmount)
 					{
 						// If we outbid their cap, we'll use them to calculate our price instead of the first unsuccessful bid.
-						loser = potentialLoser;
+						loser = outbidWinner;
 					}
 
 					if (loser == null)
 					{
 						// You lose! Good DAY sir!
-						loser = losers.FirstOrDefault();
+						loser = losers.OrderBy(x=>x).FirstOrDefault();
+
+						//If the loser tied a winner, that adjusts the final price.
+						if (loser?.BidAmount == winners.LastOrDefault()?.BidAmount)
+						{
+							loserTied = true;
+						}
 					}
 
 					if (loser != null)
@@ -220,11 +227,24 @@ namespace DiscordDkpBot.Auctions
 							// Otherwise
 							applicableLooserBid = loser.BidAmount;
 						}
+
 					}
 				}
 
-				// They pay loser+1, but not more than their bid. Aka full price if a tie.
-				int price = Math.Min(applicableLooserBid + 1, winner.BidAmount);
+				int price;
+				if (loserTied)
+				{
+					// If the first loser was a tie, everybody pays the tie price.
+					price = applicableLooserBid;
+				}
+				else
+				{
+					// They pay loser+1, but not more than their bid. Aka full price if a tie.
+					price = applicableLooserBid + 1;
+				}
+
+				// Never go over their bid amount.
+				price = Math.Min(price, winner.BidAmount);
 				int finalPrice = price * winner.Rank.PriceMultiplier;
 
 				winningBids.Add(new WinningBid(winner, finalPrice));

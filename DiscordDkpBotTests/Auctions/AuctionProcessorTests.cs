@@ -142,6 +142,38 @@ namespace DiscordDkpBotTests.Auctions
 			Assert.AreEqual(boxBid1.CharacterName, winner2.Bid.CharacterName, "Winner2 should be box1");
 			Assert.AreEqual(753, winner2.Price, "Box should pay 753");
 		}
+		[Test]
+		public void CalculateWinners_TwoItems_SecondPlaceTie ()
+		{
+			//Arrange
+			RaidInfo raid = new RaidInfo();
+			Auction auction = new Auction(23423, 2, "Nuke", 2, raid, GetMessage(42));
+
+			AuctionBid mainBid = new AuctionBid(auction, "first", 1, 15, main, GetAuthor(43));
+			AuctionBid boxBid1 = new AuctionBid(auction, "second1", 2, 5, main, GetAuthor(44));
+			AuctionBid boxBid2 = new AuctionBid(auction, "second2", 3, 5, main, GetAuthor(45));
+			AuctionBid altBid = new AuctionBid(auction, "alt", 4, 2, alt, GetAuthor(46));
+
+			auction.Bids.AddOrUpdate(altBid);
+			auction.Bids.AddOrUpdate(boxBid1);
+			auction.Bids.AddOrUpdate(mainBid);
+			auction.Bids.AddOrUpdate(boxBid2);
+
+			//Act
+			CompletedAuction completedAuction = target.CalculateWinners(auction);
+
+			//Assert
+			Assert.AreEqual(2, completedAuction.WinningBids.Count);
+
+			WinningBid winner1 = completedAuction.WinningBids[0];
+			WinningBid winner2 = completedAuction.WinningBids[1];
+
+			Assert.AreEqual(mainBid.CharacterName, winner1.Bid.CharacterName, "winner1 should be main.");
+			Assert.AreEqual(5, winner1.Price, "main should pay 5");
+
+			Assert.IsTrue(boxBid1.CharacterName.StartsWith("second"), "Winner2 should be a second");
+			Assert.AreEqual(5, winner2.Price, "second should pay 5");
+		}
 
 		[Test]
 		public void CalculateWinners_TwoItems_TwoBidsBid ()
