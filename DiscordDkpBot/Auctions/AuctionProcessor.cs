@@ -80,20 +80,11 @@ namespace DiscordDkpBot.Auctions
 
 			for (int i = 0; i < auction.Quantity; i++)
 			{
-				// Grab the first winner.
-				AuctionBid winner = CalculateWinner(bids);
-
-				if (winner == null)
+				if (bids.Any())
 				{
-					// No more bids to be found. we're done.
-					break;
-				}
-				else
-				{
+					// Grab the first winner.
+					AuctionBid winner = RemoveWinner(bids);
 					winners.Add(winner);
-
-					// Remove that winner and go again.
-					bids.Remove(winner);
 				}
 			}
 
@@ -254,23 +245,25 @@ namespace DiscordDkpBot.Auctions
 				winningBids;
 		}
 
-		private AuctionBid CalculateWinner (List<AuctionBid> bids)
+		private AuctionBid RemoveWinner (List<AuctionBid> bids)
 		{
 			bids.Sort();
 			log.LogTrace("Finding best winner from: ({0})", string.Join(", ", bids));
-			List<AuctionBid> winningBids = new List<AuctionBid>();
+			List<int> winningIndexes = new List<int>();
 
-			foreach (AuctionBid bid in bids)
+			for (int i = 0; i < bids.Count; i++)
 			{
-				if (winningBids.None())
+				AuctionBid bid = bids[i];
+
+				if (winningIndexes.None())
 				{
 					// First winner
-					winningBids.Add(bid);
+					winningIndexes.Add(i);
 				}
-				else if (winningBids.Last().CompareTo(bid) == 0)
+				else if (bids[winningIndexes.Last()].CompareTo(bid) == 0)
 				{
 					// Tied for first winner.
-					winningBids.Add(bid);
+					winningIndexes.Add(i);
 				}
 				else
 				{
@@ -279,14 +272,16 @@ namespace DiscordDkpBot.Auctions
 				}
 			}
 
-			log.LogTrace("Found {0} winners.", winningBids.Count);
+			log.LogTrace("Found {0} winners.", winningIndexes.Count);
 
-			if (winningBids.None())
+			if (winningIndexes.None())
 			{
 				return null;
 			}
 
-			AuctionBid winner = winningBids.OrderBy(x => random.Next()).First();
+			int winningIndex = winningIndexes.OrderBy(x => random.Next()).First();
+			AuctionBid winner = bids[winningIndex];
+			bids.RemoveAt(winningIndex);
 
 			return winner;
 		}

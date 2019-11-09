@@ -142,6 +142,7 @@ namespace DiscordDkpBotTests.Auctions
 			Assert.AreEqual(boxBid1.CharacterName, winner2.Bid.CharacterName, "Winner2 should be box1");
 			Assert.AreEqual(753, winner2.Price, "Box should pay 753");
 		}
+
 		[Test]
 		public void CalculateWinners_TwoItems_SecondPlaceTie ()
 		{
@@ -171,10 +172,48 @@ namespace DiscordDkpBotTests.Auctions
 			Assert.AreEqual(mainBid.CharacterName, winner1.Bid.CharacterName, "winner1 should be main.");
 			Assert.AreEqual(5, winner1.Price, "main should pay 5");
 
-			Assert.IsTrue(boxBid1.CharacterName.StartsWith("second"), "Winner2 should be a second");
+			Assert.IsTrue(winner2.Bid.CharacterName.StartsWith("second"), "Winner2 should be a second");
 			Assert.AreEqual(5, winner2.Price, "second should pay 5");
 		}
 
+		[Test]
+		public void CalculateWinners_ThreeItems_SecondPlaceTie ()
+		{
+			//Arrange
+			RaidInfo raid = new RaidInfo();
+			Auction auction = new Auction(23423, 3, "Nuke", 2, raid, GetMessage(42));
+
+			AuctionBid bid1 = new AuctionBid(auction, "first", 1, 67, main, GetAuthor(43));
+			AuctionBid bid2 = new AuctionBid(auction, "second1", 2, 41, main, GetAuthor(44));
+			AuctionBid bid3 = new AuctionBid(auction, "second2", 3, 41, main, GetAuthor(45));
+			AuctionBid bid4 = new AuctionBid(auction, "alt", 4, 35, main, GetAuthor(46));
+
+			auction.Bids.AddOrUpdate(bid4);
+			auction.Bids.AddOrUpdate(bid2);
+			auction.Bids.AddOrUpdate(bid1);
+			auction.Bids.AddOrUpdate(bid3);
+
+			//Act
+			CompletedAuction completedAuction = target.CalculateWinners(auction);
+
+			//Assert
+			Assert.AreEqual(3, completedAuction.WinningBids.Count);
+
+			WinningBid winner1 = completedAuction.WinningBids[0];
+			WinningBid winner2 = completedAuction.WinningBids[1];
+			WinningBid winner3 = completedAuction.WinningBids[2];
+
+			Assert.AreEqual(bid1.CharacterName, winner1.Bid.CharacterName, "winner1 should be first.");
+			Assert.AreEqual(36, winner1.Price, "winner1 should pay 5");
+
+			Assert.IsTrue(winner2.Bid.CharacterName.StartsWith("second"), "Winner2 should be a second");
+			Assert.AreEqual(36, winner2.Price, "winner2 should pay 5");
+
+			Assert.IsTrue(winner3.Bid.CharacterName.StartsWith("second"), "Winner3 should be a second");
+			Assert.AreEqual(36, winner2.Price, "winner3 should pay 5");
+
+			Assert.AreNotEqual(winner2.Bid.CharacterName, winner3.Bid.CharacterName, "2 and 3 should not be the same.");
+		}
 		[Test]
 		public void CalculateWinners_TwoItems_TwoBidsBid ()
 		{
