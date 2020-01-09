@@ -127,7 +127,7 @@ namespace DiscordDkpBot
 			IConfigurationBuilder builder = new ConfigurationBuilder()
 				.SetBasePath(Directory.GetCurrentDirectory())
 				.AddJsonFile("appsettings.json", true, false)
-				.AddJsonFile("AuthSettings.json", false, false);
+				.AddJsonFile("authsettings.json", false, false);
 			return builder.Build();
 		}
 	}
