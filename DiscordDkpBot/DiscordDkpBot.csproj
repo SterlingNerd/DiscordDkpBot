@@ -5,7 +5,7 @@
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <Version>1.2.0</Version>
-    <AssemblyVersion>1.1.7.0</AssemblyVersion>
+    <AssemblyVersion>1.2.0.0</AssemblyVersion>
     <Authors>Josh Sterling</Authors>
     <Description>A Discord based dkp bot for integration with eqdkp.</Description>
     <PackageLicenseExpression>WTFP</PackageLicenseExpression>
