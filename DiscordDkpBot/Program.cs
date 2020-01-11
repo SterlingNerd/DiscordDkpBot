@@ -19,17 +19,37 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
+using NLog;
+using NLog.Extensions.Logging;
+
+using LogLevel = Microsoft.Extensions.Logging.LogLevel;
+
 namespace DiscordDkpBot
 {
 	public static class Program
 	{
 		public static async Task Main (string[] args)
 		{
-			IConfigurationRoot configuration = GetConfiguration();
+			var logger = LogManager.GetCurrentClassLogger();
 
-			ServiceProvider services = ConfigureServices(configuration);
+			try
+			{
+				logger.Info("Configuring...");
+				IConfigurationRoot configuration = GetConfiguration();
+				IServiceProvider services = ConfigureServices(configuration);
 
-			await services.GetRequiredService<DkpBot>().Run();
+				logger.Info("Starting Up...");
+				await services.GetRequiredService<DkpBot>().Run();
+			}
+			catch (Exception ex)
+			{
+				logger.Error(ex, "Unexpected Exception");
+				throw;
+			}
+			finally
+			{
+				LogManager.Shutdown();
+			}
 		}
 
 		private static IServiceCollection AddChatCommands (this IServiceCollection services)
@@ -115,22 +135,19 @@ namespace DiscordDkpBot
 			return services;
 		}
 
-		private static IServiceCollection AddLogging (this IServiceCollection services, IConfigurationSection loggingConfiguration)
-		{
-			return services.AddLogging(c =>
-										{
-											c.AddConfiguration(loggingConfiguration);
-											c.AddConsole();
-											c.AddFile();
-										});
-		}
-
 		private static ServiceProvider ConfigureServices (IConfigurationRoot configuration)
 		{
 			return new ServiceCollection()
-				.AddLogging(configuration.GetSection("Logging"))
+				.AddLogging(ConfigureLogging)
 				.AddDkpBot(configuration.GetSection("DkpBot"))
 				.BuildServiceProvider();
+		}
+
+		private static void ConfigureLogging(ILoggingBuilder loggingBuilder)
+		{
+			loggingBuilder.ClearProviders();
+			loggingBuilder.SetMinimumLevel(LogLevel.Trace);
+			loggingBuilder.AddNLog();
 		}
 
 		private static DkpBotConfiguration GetBotConfiguration (IConfigurationSection configuration)
