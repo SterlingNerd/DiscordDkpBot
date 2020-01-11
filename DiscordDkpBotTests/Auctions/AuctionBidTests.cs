@@ -8,6 +8,8 @@ using DiscordDkpBot.Auctions;
 using DiscordDkpBot.Configuration;
 using DiscordDkpBot.Dkp.EqDkpPlus.Xml;
 
+using FluentAssertions;
+
 using Microsoft.Extensions.Logging;
 
 using Moq;
@@ -19,6 +21,24 @@ namespace DiscordDkpBotTests.Auctions
 	[TestFixture]
 	public class AuctionBidTests
 	{
+		[Test]
+		public void BidsMustBePositive()
+		{
+			//Arrange
+			RaidInfo raid = new RaidInfo();
+			Auction auction = new Auction(23423, 1, "Nuke", 2, raid, GetMessage(42));
+			RankConfiguration rank1 = new RankConfiguration("rank1", null, 1);
+
+			//Act
+			Action act = () =>
+						{
+							new AuctionBid(auction, "foo", 42, 0, rank1, GetAuthor(1));
+						};
+
+			//Assert
+			act.Should().Throw<InvalidBidException>();
+		}
+
 		[TestCase(200, null, 250, null, ExpectedWinner.Second)]
 		[TestCase(200, null, 200, null, ExpectedWinner.Tie)]
 		[TestCase(200, null, 250, 100, ExpectedWinner.First)]

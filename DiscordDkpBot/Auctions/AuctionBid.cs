@@ -21,6 +21,8 @@ namespace DiscordDkpBot.Auctions
 		{
 			CharacterName = characterName;
 			CharacterId = characterId;
+			if (bidAmount < 1)
+				throw new InvalidBidException("Bid amount must be greater than 0.");
 			BidAmount = bidAmount;
 			Rank = rank;
 			Author = author;
