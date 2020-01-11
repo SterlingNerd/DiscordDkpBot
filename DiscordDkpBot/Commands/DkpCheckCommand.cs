@@ -18,7 +18,7 @@ namespace DiscordDkpBot.Commands
 {
 	public class DkpCheckCommand : IChannelCommand, IDmCommand
 	{
-		private readonly DkpBotConfiguration config;
+		private readonly DiscordConfiguration config;
 		private readonly IDkpProcessor dkpProcessor;
 		private readonly ILogger<DkpCheckCommand> log;
 		private readonly Regex channelPattern;
@@ -27,7 +27,7 @@ namespace DiscordDkpBot.Commands
 		public string ChannelSyntax => $"{config.CommandPrefix} {{character-name}}";
 		public string DmSyntax => "dkp {character-name}";
 
-		public DkpCheckCommand(DkpBotConfiguration config, IDkpProcessor dkpProcessor, ILogger<DkpCheckCommand> log)
+		public DkpCheckCommand(DiscordConfiguration config, IDkpProcessor dkpProcessor, ILogger<DkpCheckCommand> log)
 		{
 			channelPattern = new Regex($@"^\s*((?<character>\w+) dkp|{Regex.Escape(config.CommandPrefix)} (?<character>\w+))\s*$", RegexOptions.IgnoreCase);
 			dmPattern = new Regex($@"^\s*((?<character>\w+) dkp|dkp (?<character>\w+))\s*$", RegexOptions.IgnoreCase);
@@ -72,7 +72,7 @@ namespace DiscordDkpBot.Commands
 			PlayerPoints dkp = await dkpProcessor.GetDkp(character);
 
 			string dkpMessage = $"{character.UppercaseFirst()} has **{dkp.PointsCurrentWithTwink}** available to spend.\n```brainfuck\nLifetime DKP for {character}: Earned {dkp.PointsEarnedWithTwink} - Spent {dkp.PointsSpentWithTwink} - Adjustments {dkp.PointsAdjustmentWithTwink}.```";
-			if (config.Discord.EnableMaggDkp && character.Equals("magg", StringComparison.OrdinalIgnoreCase))
+			if (config.EnableMaggDkp && character.Equals("magg", StringComparison.OrdinalIgnoreCase))
 			{
 				log.LogInformation("magg dkp memes!");
 				using (MemoryStream stream = new MemoryStream(Convert.FromBase64String(Resources.dkpmagg)))

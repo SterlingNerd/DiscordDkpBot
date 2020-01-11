@@ -16,14 +16,14 @@ namespace DiscordDkpBot.Commands
 	public class UseRaidCommand : IChannelCommand
 	{
 		private const string commandName = "UseRaid";
-		private readonly DkpBotConfiguration config;
+		private readonly DiscordConfiguration config;
 		private readonly IDkpProcessor dkpProcessor;
 		private readonly ILogger<UseRaidCommand> log;
 		private readonly Regex pattern;
 
 		public string ChannelSyntax => $"{config.CommandPrefix} {commandName} {{raid-id}}";
 
-		public UseRaidCommand(DkpBotConfiguration config, IDkpProcessor dkpProcessor, ILogger<UseRaidCommand> log)
+		public UseRaidCommand(DiscordConfiguration config, IDkpProcessor dkpProcessor, ILogger<UseRaidCommand> log)
 		{
 			this.config = config;
 			this.dkpProcessor = dkpProcessor;

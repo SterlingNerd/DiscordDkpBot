@@ -33,7 +33,7 @@ namespace DiscordDkpBotTests.Commands
 		[SetUp]
 		public void SetUp ()
 		{
-			configuration = new DkpBotConfiguration();
+			configuration = new DiscordConfiguration();
 			configuration.CommandPrefix = ".dkp ";
 			state = new AuctionState();
 			target = new RevealBidsCommand(configuration, state, new Mock<ILogger<RevealBidsCommand>>().Object);
@@ -43,7 +43,7 @@ namespace DiscordDkpBotTests.Commands
 
 		#region Test Helpers
 
-		private DkpBotConfiguration configuration;
+		private DiscordConfiguration configuration;
 		private AuctionState state;
 
 		private RevealBidsCommand target;

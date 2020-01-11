@@ -44,7 +44,7 @@ namespace DiscordDkpBotTests.Commands
 		[SetUp]
 		public void SetUp()
 		{
-			config = new DkpBotConfiguration();
+			config = new DiscordConfiguration();
 			processor = new Mock<IAuctionProcessor>();
 			log = new Mock<ILogger<CancelAuctionCommand>>();
 		}
@@ -53,7 +53,7 @@ namespace DiscordDkpBotTests.Commands
 
 		#region Test Helpers
 
-		private DkpBotConfiguration config;
+		private DiscordConfiguration config;
 
 		private Mock<ILogger<CancelAuctionCommand>> log;
 		private Mock<IAuctionProcessor> processor;

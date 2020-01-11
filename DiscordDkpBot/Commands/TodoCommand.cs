@@ -11,13 +11,13 @@ namespace DiscordDkpBot.Commands
 {
 	public class TodoCommand : IChannelCommand
 	{
-		private readonly DkpBotConfiguration config;
+		private readonly DiscordConfiguration config;
 		public const string todo = @"```
  - reign in dkpcheck (so it doesn't trigger on "".dkp todo"" etc)
  - add class leaderboards
  - add configuration options for messages.
  ```";
-		public TodoCommand(DkpBotConfiguration config)
+		public TodoCommand(DiscordConfiguration config)
 		{
 			this.config = config;
 		}

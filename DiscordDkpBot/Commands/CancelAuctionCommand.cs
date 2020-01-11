@@ -16,12 +16,12 @@ namespace DiscordDkpBot.Commands
 	{
 		private static readonly string[] CommandTriggers = { "cancelbids", "cancel", "cancelbid" };
 		private readonly IAuctionProcessor auctionProcessor;
-		private readonly DkpBotConfiguration configuration;
+		private readonly DiscordConfiguration configuration;
 		private readonly ILogger<CancelAuctionCommand> log;
 		private readonly Regex pattern;
 		public string ChannelSyntax => $"{configuration.CommandPrefix} {CommandTriggers.First()} \"ItemName\"";
 
-		public CancelAuctionCommand(DkpBotConfiguration configuration, IAuctionProcessor auctionProcessor, ILogger<CancelAuctionCommand> log)
+		public CancelAuctionCommand(DiscordConfiguration configuration, IAuctionProcessor auctionProcessor, ILogger<CancelAuctionCommand> log)
 		{
 			string regex = "^" + Regex.Escape(configuration?.CommandPrefix) + "\\s*(?<trigger>" + string.Join('|', CommandTriggers) + @")?\s*""(?<name>.+)""\s*$";
 			pattern = new Regex(regex, RegexOptions.IgnoreCase);

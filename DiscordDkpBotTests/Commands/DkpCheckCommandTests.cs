@@ -31,7 +31,7 @@ namespace DiscordDkpBotTests.Commands
 		[SetUp]
 		public void SetUp ()
 		{
-			target = new DkpCheckCommand(new DkpBotConfiguration(), new Mock<IDkpProcessor>().Object, new Mock<ILogger<DkpCheckCommand>>().Object);
+			target = new DkpCheckCommand(new DiscordConfiguration(), new Mock<IDkpProcessor>().Object, new Mock<ILogger<DkpCheckCommand>>().Object);
 		}
 
 		#endregion

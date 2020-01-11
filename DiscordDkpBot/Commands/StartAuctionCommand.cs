@@ -15,14 +15,14 @@ namespace DiscordDkpBot.Commands
 	public class StartAuctionCommand : IChannelCommand
 	{
 		private static readonly string[] CommandTriggers = { "startbids", "startbid" };
-		private readonly DkpBotConfiguration configuration;
+		private readonly DiscordConfiguration configuration;
 		private readonly IAuctionProcessor auctionProcessor;
 		private readonly ILogger<StartAuctionCommand> log;
 		private readonly Regex pattern;
 
 		public string ChannelSyntax => $"{configuration.CommandPrefix} {CommandTriggers.First()} {{options}}\n\tOne item:\t\t\t   \"Item_Name\"\n\tTwo of an item:\t\t 2x \"Item_Name\"`\n\tCustom duration:\t\t\"Item_Name\" 4";
 
-		public StartAuctionCommand(DkpBotConfiguration configuration, IAuctionProcessor auctionProcessor, ILogger<StartAuctionCommand> log)
+		public StartAuctionCommand(DiscordConfiguration configuration, IAuctionProcessor auctionProcessor, ILogger<StartAuctionCommand> log)
 		{
 			string regex = "^" + Regex.Escape(configuration.CommandPrefix) + @"\s*(?<trigger>" + string.Join('|', CommandTriggers) + @")?\s+(?<number>\d+)?x?\s*""(?<name>.+)""\s*(?<time>\d+)?\s*$";
 			pattern = new Regex(regex, RegexOptions.IgnoreCase);
@@ -60,7 +60,7 @@ namespace DiscordDkpBot.Commands
 			{
 				return false;
 			}
-			else if (message.Channel.Name != configuration.Discord.SilentAuctionsChannelName)
+			else if (message.Channel.Name != configuration.SilentAuctionsChannelName)
 			{
 				return false;
 			}

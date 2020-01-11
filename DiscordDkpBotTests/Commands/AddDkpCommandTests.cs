@@ -37,7 +37,7 @@ namespace DiscordDkpBotTests.Commands
 		[SetUp]
 		public void SetUp ()
 		{
-			var configuration = new DkpBotConfiguration();
+			DiscordConfiguration configuration = new DiscordConfiguration();
 			configuration.CommandPrefix = "@@";
 			target = new AddDkpCommand(configuration, new Mock<IDkpProcessor>().Object, new Mock<ILogger<AddDkpCommand>>().Object);
 		}

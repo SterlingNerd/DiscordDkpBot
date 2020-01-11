@@ -31,7 +31,7 @@ namespace DiscordDkpBotTests.Commands
 		[SetUp]
 		public void SetUp()
 		{
-			configuration = new DkpBotConfiguration();
+			configuration = new DiscordConfiguration();
 			configuration.CommandPrefix = "@";
 			target = new UseRaidCommand(configuration, new Mock<IDkpProcessor>().Object, new Mock<ILogger<UseRaidCommand>>().Object);
 		}
@@ -40,7 +40,7 @@ namespace DiscordDkpBotTests.Commands
 
 		#region Test Helpers
 
-		private DkpBotConfiguration configuration;
+		private DiscordConfiguration configuration;
 		private UseRaidCommand target;
 
 		#endregion

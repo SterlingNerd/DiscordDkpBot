@@ -14,14 +14,14 @@ namespace DiscordDkpBot.Commands
 	public class AddDkpCommand : IChannelCommand
 	{
 		private const string commandName = "AddDkp";
-		private readonly DkpBotConfiguration config;
+		private readonly DiscordConfiguration config;
 		private readonly IDkpProcessor dkpProcessor;
 		private readonly ILogger<AddDkpCommand> log;
 		private readonly Regex pattern;
 
 		public string ChannelSyntax => $"{config.CommandPrefix} {commandName} {{eventId}} {{value}} {{comment (optional)}}{{newLine(s)}}\n{{text to parse}}";
 
-		public AddDkpCommand (DkpBotConfiguration config, IDkpProcessor dkpProcessor, ILogger<AddDkpCommand> log)
+		public AddDkpCommand (DiscordConfiguration config, IDkpProcessor dkpProcessor, ILogger<AddDkpCommand> log)
 		{
 			this.config = config;
 			this.dkpProcessor = dkpProcessor;

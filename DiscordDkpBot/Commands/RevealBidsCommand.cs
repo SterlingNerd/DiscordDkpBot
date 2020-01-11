@@ -16,7 +16,7 @@ namespace DiscordDkpBot.Commands
 {
 	public class RevealBidsCommand : IChannelCommand
 	{
-		private readonly DkpBotConfiguration configuration;
+		private readonly DiscordConfiguration configuration;
 		private readonly ILogger<RevealBidsCommand> log;
 		private readonly Regex pattern;
 		private readonly string revealChannel;
@@ -24,13 +24,13 @@ namespace DiscordDkpBot.Commands
 
 		public string ChannelSyntax => $"{configuration.CommandPrefix} reveal {{auctionId}} (Only in configured officer channel).";
 
-		public RevealBidsCommand(DkpBotConfiguration configuration, AuctionState state, ILogger<RevealBidsCommand> log)
+		public RevealBidsCommand(DiscordConfiguration configuration, AuctionState state, ILogger<RevealBidsCommand> log)
 		{
 			pattern = new Regex($@"^{Regex.Escape(configuration.CommandPrefix)}\s*reveal\s+(?<auction>\d+)\s*$", RegexOptions.IgnoreCase);
 			this.configuration = configuration;
 			this.state = state;
 			this.log = log;
-			revealChannel = configuration.Discord.RevealBidsChannelName;
+			revealChannel = configuration.RevealBidsChannelName;
 		}
 
 		public (bool success, int auctionId) ParseArgs(string messageContent)

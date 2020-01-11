@@ -21,13 +21,13 @@ namespace DiscordDkpBot.Commands
 	public class CommandProcessor : ICommandProcessor
 	{
 		private readonly ICollection<IChannelCommand> channelCommands;
-		private readonly DkpBotConfiguration config;
+		private readonly DiscordConfiguration config;
 		private readonly ICollection<IDmCommand> dmCommands;
 
 		private readonly string HelpMessage;
 		private readonly ILogger<CommandProcessor> log;
 
-		public CommandProcessor (DkpBotConfiguration config, IEnumerable<IChannelCommand> channelCommands, IEnumerable<IDmCommand> dmCommands, ILogger<CommandProcessor> log)
+		public CommandProcessor (DiscordConfiguration config, IEnumerable<IChannelCommand> channelCommands, IEnumerable<IDmCommand> dmCommands, ILogger<CommandProcessor> log)
 		{
 			this.channelCommands = channelCommands?.ToList() ?? new List<IChannelCommand>();
 			this.dmCommands = dmCommands?.ToList() ?? new List<IDmCommand>();

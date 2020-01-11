@@ -1,8 +1,11 @@
 ﻿{
 	"DkpBot": {
+		"Discord_Comment": "This is your bot's discord token. (dev portal->applications->yourbot's app->bot->token)"
 		"Discord": {
 			"Token": "Jimmy!"
 		},
+
+		"EqDkpPlus_Comment": "This is the API Key for the user account to use in eqdkp. It needs officer level permissions."
 		"EqDkpPlus": {
 			"Token": "Jimmy!"
 		}
