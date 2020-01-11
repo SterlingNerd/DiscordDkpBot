@@ -56,7 +56,7 @@ namespace DiscordDkpBot.Items
 		private Embed BuildFakeEmbed(string itemName)
 		{
 			EmbedBuilder builder = new EmbedBuilder();
-			builder.Description = "Item Not Found. This could be because (in order of probability)\n- The item name has a typo in it\n- eq.allakahazam.com is down/uber slow\nThis item is not in the item database";
+			builder.Description = "Item Not Found. This could be because (in order of probability)\n- The item name has a typo in it\n- the item website is down/uber slow\n- This item is not in the item database";
 			builder.Color = Color.Red;
 			builder.Title = itemName;
 

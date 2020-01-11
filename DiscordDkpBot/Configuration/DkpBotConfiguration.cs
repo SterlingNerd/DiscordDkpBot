@@ -5,6 +5,7 @@ namespace DiscordDkpBot.Configuration
 {
 	public class DkpBotConfiguration
 	{
+		public string ItemSource { get; set; } = "Allakhazam";
 		public string CommandPrefix { get; set; } = ".dkp";
 		public int DefaultAuctionDurationMinutes { get; set; } = 4;
 		public DiscordConfiguration Discord { get; set; } = new DiscordConfiguration();

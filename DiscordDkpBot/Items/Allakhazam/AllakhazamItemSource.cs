@@ -4,98 +4,48 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-using Discord;
-
 using HtmlAgilityPack;
 
 namespace DiscordDkpBot.Items.Allakhazam
 {
-	public class AllakhazamItemSource : IItemSource
+	public class AllakhazamItemSource : ItemSourceBase
 	{
-		private readonly IHttpClientFactory clientFactory;
+		protected override string BaseUrl => "https://everquest.allakhazam.com";
 
-		public AllakhazamItemSource (IHttpClientFactory clientFactory)
+		public AllakhazamItemSource(IHttpClientFactory clientFactory) : base(clientFactory)
 		{
-			this.clientFactory = clientFactory;
 		}
 
-		public async Task<Embed> BuildEmbed (int id)
+		protected override Task<HttpResponseMessage> DoItemLookup(string itemName, HttpClient client)
 		{
-			EmbedBuilder builder = new EmbedBuilder();
-			HtmlDocument htmlDoc = new HtmlDocument();
-
-			htmlDoc.LoadHtml(await GetItemTooltipHtml(id));
-
-			builder.Color = Color.Gold;
-
-			HtmlNode itemNameNode = htmlDoc.DocumentNode.SelectSingleNode("//span[@class=\"iname\"]");
-			builder.Title = itemNameNode.InnerText;
-
-			itemNameNode.Remove();
-
-			ReplaceHyperlinks(htmlDoc);
-
-			builder.ThumbnailUrl = htmlDoc.DocumentNode.SelectSingleNode("//body/img").Attributes["src"].Value;
-
-			builder.Description = htmlDoc.DocumentNode.SelectSingleNode("//body/div").InnerText;
-			builder.Url = $"http://everquest.allakhazam.com/db/item.html?item={id}";
-
-			builder.WithFooter("everquest.allakhazam.com", "http://zam.zamimg.com/images/8/2/821dfe832c32bfd442c7a322d901fed6.png");
-
-			return builder.Build();
+			return client.GetAsync($@"{BaseUrl}/db/searchdb.html?iname={itemName}");
 		}
 
-		private static void ReplaceHyperlinks (HtmlDocument htmlDoc)
-		{
-			HtmlNodeCollection effects = htmlDoc.DocumentNode.SelectNodes("//a");
-			if (effects?.Any() == true)
-			{
-				foreach (HtmlNode link in effects)
-				{
-					HtmlNode newNode = HtmlNode.CreateNode($"[{link.InnerText}](http://everquest.allakhazam.com/{link.Attributes["href"].Value.TrimStart('/')})");
-
-					link.ParentNode.ReplaceChild(newNode, link);
-				}
-			}
-		}
-
-		public async Task<List<int>> GetItemIds (string itemName)
+		protected override List<int> GetItemIdsFromHtml(string itemName, string html)
 		{
 			List<int> itemIds = new List<int>();
+			HtmlDocument htmlDoc = new HtmlDocument();
+			htmlDoc.LoadHtml(html);
 
-			HttpClient client = clientFactory.CreateClient();
+			HtmlNode div = htmlDoc.GetElementbyId("Items_t");
+			HtmlNode table = div?.FirstChild;// table
+			HtmlNode body = table?.ChildNodes.Single(x => x.Name == "tbody");
+			IEnumerable<HtmlNode> trs = body?.ChildNodes.Where(x => x.Name == "tr");
+			IEnumerable<HtmlNode> tds = trs?.Select(tr => tr.ChildNodes.Skip(1).First());
+			IEnumerable<HtmlNode> links1 = tds?.Select(td => td.ChildNodes.First(x => x.Name == "a"));
+			IEnumerable<HtmlNode> links = links1;
 
-			Task<HttpResponseMessage> lookup = client.GetAsync($@"http://everquest.allakhazam.com/search.html?q={itemName}");
-
-			await Task.WhenAny(lookup, Task.Delay(TimeSpan.FromSeconds(10)));
-
-			if (lookup.IsCompleted)
+			if (links?.Any() == true)
 			{
-				string html = await lookup.Result.Content.ReadAsStringAsync();
-
-				HtmlDocument htmlDoc = new HtmlDocument();
-				htmlDoc.LoadHtml(html);
-
-				var div = htmlDoc.GetElementbyId("Items_t");
-				var table = div?.FirstChild;// table
-				var body = table?.ChildNodes.Single(x => x.Name == "tbody");
-				var trs = body?.ChildNodes.Where(x => x.Name == "tr");
-				var tds = trs?.Select(tr => tr.ChildNodes.Skip(1).First());
-				var links = tds?.Select(td => td.ChildNodes.First(x => x.Name == "a"));
-
-				if (links?.Any() == true)
+				foreach (HtmlNode link in links)
 				{
-					foreach (HtmlNode link in links)
+					int id = ParseId(link);
+
+					string name = link.FirstChild?.InnerText?.Trim();
+
+					if (name?.Equals(itemName, StringComparison.CurrentCultureIgnoreCase) == true)
 					{
-						string idString = link.Attributes["href"].Value.Replace("/db/item.html?item=", string.Empty);
-						int id = int.Parse(idString);
-
-						string name = link.FirstChild.InnerText.Trim();
-
-						if (name?.Equals(itemName, StringComparison.CurrentCultureIgnoreCase) == true)
-						{
-							itemIds.Add(id);
-						}
+						itemIds.Add(id);
 					}
 				}
 			}
@@ -103,10 +53,35 @@ namespace DiscordDkpBot.Items.Allakhazam
 			return itemIds;
 		}
 
-		public async Task<string> GetItemTooltipHtml (int id)
+		protected override async Task<ItemTooltip> GetTooltip(int itemId, HttpClient client)
 		{
-			HttpClient client = clientFactory.CreateClient();
-			HttpResponseMessage response = await client.GetAsync($@"http://everquest.allakhazam.com/cluster/ihtml.pl?item={id}");
+			string tooltipHtml = await GetItemTooltipHtml(itemId, client);
+
+			HtmlDocument htmlDoc = new HtmlDocument();
+			htmlDoc.LoadHtml(tooltipHtml);
+			HtmlNode itemNameNode = htmlDoc.DocumentNode.SelectSingleNode("//span[@class=\"iname\"]");
+			ItemTooltip tooltip = new ItemTooltip();
+			tooltip.ItemName = itemNameNode.InnerText;
+			itemNameNode.Remove();
+			tooltip.ThumbnailUrl = htmlDoc.DocumentNode.SelectSingleNode("//body/img").Attributes["src"].Value;
+			ReplaceHyperlinks(htmlDoc);
+			tooltip.Description = htmlDoc.DocumentNode.SelectSingleNode("//body/div").InnerText;
+			tooltip.ItemUrl = $"{BaseUrl}/db/item.html?item={itemId}";
+			tooltip.FooterText = "everquest.allakhazam.com";
+			tooltip.FooterIconUrl = "https://zam.zamimg.com/images/8/2/821dfe832c32bfd442c7a322d901fed6.png";
+
+			return tooltip;
+		}
+
+		protected override int ParseId(HtmlNode link)
+		{
+			string idString = link.Attributes["href"].Value.Replace("/db/item.html?item=", string.Empty);
+			return int.Parse(idString);
+		}
+
+		private async Task<string> GetItemTooltipHtml(int id, HttpClient client)
+		{
+			HttpResponseMessage response = await client.GetAsync($@"{BaseUrl}/cluster/ihtml.pl?item={id}");
 			return await response.Content.ReadAsStringAsync();
 		}
 	}
