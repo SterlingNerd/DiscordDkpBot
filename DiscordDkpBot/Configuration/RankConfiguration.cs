@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace DiscordDkpBot.Configuration
 {
@@ -14,6 +15,7 @@ namespace DiscordDkpBot.Configuration
 		}
 
 		public string Name { get; set; }
+		public string Aliases { get; set; }
 
 		public int PriceMultiplier
 		{
@@ -21,15 +23,28 @@ namespace DiscordDkpBot.Configuration
 			set => priceMultiplier = value;
 		}
 
-		public RankConfiguration ()
+		public RankConfiguration()
 		{
 		}
 
-		public RankConfiguration (string name, int? maxBid, int? priceMultiplier)
+		public RankConfiguration(string name, int? maxBid, int? priceMultiplier, string aliases = null)
 		{
 			Name = name;
 			MaxBid = maxBid ?? int.MaxValue;
 			PriceMultiplier = priceMultiplier ?? 1;
+			Aliases = aliases;
+		}
+
+		public override string ToString()
+		{
+			if (Aliases != null)
+			{
+				return $"{Name}/{string.Join("/", Aliases.Split(',').Select(x=>x.Trim()))}";
+			}
+			else
+			{
+				return Name;
+			}
 		}
 	}
 }
