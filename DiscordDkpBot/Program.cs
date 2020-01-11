@@ -114,7 +114,7 @@ namespace DiscordDkpBot
 				.AddDkpBot(configuration.GetSection("DkpBot"))
 				.BuildServiceProvider();
 		}
-
+		
 		private static DkpBotConfiguration GetBotConfiguration (IConfigurationSection configuration)
 		{
 			DkpBotConfiguration botConfig = new DkpBotConfiguration();
@@ -127,7 +127,9 @@ namespace DiscordDkpBot
 			IConfigurationBuilder builder = new ConfigurationBuilder()
 				.SetBasePath(Directory.GetCurrentDirectory())
 				.AddJsonFile("appsettings.json", true, false)
-				.AddJsonFile("authsettings.json", false, false);
+				.AddJsonFile("authsettings.json", true, false)
+				.AddJsonFile("AuthSettings.json", true, false);
+
 			return builder.Build();
 		}
 	}
