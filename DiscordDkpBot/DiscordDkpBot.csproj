@@ -9,7 +9,8 @@
     <Authors>Josh Sterling</Authors>
     <Description>A Discord based dkp bot for integration with eqdkp.</Description>
     <PackageLicenseExpression>WTFP</PackageLicenseExpression>
-    <PublishSingleFile>true</PublishSingleFile>
+    <!--<PublishSingleFile>true</PublishSingleFile>-->
+    <!--<PublishTrimmed>true</PublishTrimmed>-->
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
   </PropertyGroup>
 
