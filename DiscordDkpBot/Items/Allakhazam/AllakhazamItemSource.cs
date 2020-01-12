@@ -65,7 +65,7 @@ namespace DiscordDkpBot.Items.Allakhazam
 			itemNameNode.Remove();
 			tooltip.ThumbnailUrl = htmlDoc.DocumentNode.SelectSingleNode("//body/img").Attributes["src"].Value;
 			ReplaceHyperlinks(htmlDoc);
-			tooltip.Description = htmlDoc.DocumentNode.SelectSingleNode("//body/div").InnerText;
+			tooltip.Description = htmlDoc.DocumentNode.SelectSingleNode("//body/div").InnerText.Replace("http://", "https://");
 			tooltip.ItemUrl = $"{BaseUrl}/db/item.html?item={itemId}";
 			tooltip.FooterText = "everquest.allakhazam.com";
 			tooltip.FooterIconUrl = "https://zam.zamimg.com/images/8/2/821dfe832c32bfd442c7a322d901fed6.png";
