@@ -27,7 +27,7 @@ namespace DiscordDkpBot.Auctions
 
 		public AuctionProcessor (DkpBotConfiguration configuration, AuctionState state, IItemProcessor itemProcessor, IDkpProcessor dkpProcessor, ILogger<AuctionProcessor> log)
 		{
-			ranks = configuration.Ranks.ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
+			ranks = configuration.ExpandedRanks;
 			this.configuration = configuration;
 			this.state = state;
 			this.itemProcessor = itemProcessor;

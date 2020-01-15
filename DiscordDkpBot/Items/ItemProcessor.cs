@@ -39,28 +39,17 @@ namespace DiscordDkpBot.Items
 					embed = await itemSource.BuildEmbed(itemIds.Min());
 					matchesFound = itemIds.Count;
 				}
+				else
+				{
+					embed = itemSource.BuildFakeEmbed(itemName);
+				}
 			}
 			catch (Exception ex)
 			{
 				log.LogError(ex, $"Failed to lookup item '{itemName}'");
 			}
 
-			if (embed == null)
-			{
-				embed = BuildFakeEmbed(itemName);
-			}
-
 			return new ItemLookupResult(embed, matchesFound);
-		}
-
-		private Embed BuildFakeEmbed(string itemName)
-		{
-			EmbedBuilder builder = new EmbedBuilder();
-			builder.Description = "Item Not Found. This could be because (in order of probability)\n- The item name has a typo in it\n- the item website is down/uber slow\n- This item is not in the item database";
-			builder.Color = Color.Red;
-			builder.Title = itemName;
-
-			return builder.Build();
 		}
 	}
 }

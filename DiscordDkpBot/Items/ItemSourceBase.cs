@@ -23,6 +23,16 @@ namespace DiscordDkpBot.Items
 			this.clientFactory = clientFactory;
 		}
 
+		public Embed BuildFakeEmbed (string itemName)
+		{
+			EmbedBuilder builder = new EmbedBuilder();
+			builder.Description = "Item Not Found. This could be because (in order of probability)\n- The item name has a typo in it\n- The item website is down/uber slow\n- This item is not in the item database";
+			builder.Color = Color.Red;
+			builder.Title = itemName;
+
+			return builder.Build();
+		}
+
 		public async Task<Embed> BuildEmbed(int itemId)
 		{
 			ItemTooltip tooltip = await GetTooltip(itemId, GetHttpClient());
