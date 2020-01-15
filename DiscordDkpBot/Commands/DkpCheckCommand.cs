@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Buffers.Text;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -18,19 +17,19 @@ namespace DiscordDkpBot.Commands
 {
 	public class DkpCheckCommand : IChannelCommand, IDmCommand
 	{
+		private readonly Regex channelPattern;
 		private readonly DiscordConfiguration config;
 		private readonly IDkpProcessor dkpProcessor;
-		private readonly ILogger<DkpCheckCommand> log;
-		private readonly Regex channelPattern;
 		private readonly Regex dmPattern;
-
+		private readonly ILogger<DkpCheckCommand> log;
 		public string ChannelSyntax => $"{config.CommandPrefix} {{character-name}}";
+		public string CommandDescription => "Check Dkp";
 		public string DmSyntax => "dkp {character-name}";
 
 		public DkpCheckCommand(DiscordConfiguration config, IDkpProcessor dkpProcessor, ILogger<DkpCheckCommand> log)
 		{
 			channelPattern = new Regex($@"^\s*((?<character>\w+) dkp|{Regex.Escape(config.CommandPrefix)} (?<character>\w+))\s*$", RegexOptions.IgnoreCase);
-			dmPattern = new Regex($@"^\s*((?<character>\w+) dkp|dkp (?<character>\w+))\s*$", RegexOptions.IgnoreCase);
+			dmPattern = new Regex(@"^\s*((?<character>\w+) dkp|dkp (?<character>\w+))\s*$", RegexOptions.IgnoreCase);
 			this.config = config;
 			this.dkpProcessor = dkpProcessor;
 			this.log = log;

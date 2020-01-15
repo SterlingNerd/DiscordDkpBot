@@ -18,7 +18,7 @@ namespace DiscordDkpBot.Commands
 		private readonly IDkpProcessor dkpProcessor;
 		private readonly ILogger<AddDkpCommand> log;
 		private readonly Regex pattern;
-
+		public string CommandDescription => "Add Dkp Attendance";
 		public string ChannelSyntax => $"{config.CommandPrefix} {commandName} {{eventId}} {{value}} {{comment (optional)}}{{newLine(s)}}\n{{text to parse}}";
 
 		public AddDkpCommand (DiscordConfiguration config, IDkpProcessor dkpProcessor, ILogger<AddDkpCommand> log)

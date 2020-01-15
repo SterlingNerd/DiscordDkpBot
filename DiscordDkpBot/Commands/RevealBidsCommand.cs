@@ -21,8 +21,8 @@ namespace DiscordDkpBot.Commands
 		private readonly Regex pattern;
 		private readonly string revealChannel;
 		private readonly AuctionState state;
-
-		public string ChannelSyntax => $"{configuration.CommandPrefix} reveal {{auctionId}} (Only in configured officer channel).";
+		public string ChannelSyntax => $"{configuration.CommandPrefix} reveal {{auctionId}}";
+		public string CommandDescription => "Reveal Bids (Only in configured officer channel)";
 
 		public RevealBidsCommand(DiscordConfiguration configuration, AuctionState state, ILogger<RevealBidsCommand> log)
 		{

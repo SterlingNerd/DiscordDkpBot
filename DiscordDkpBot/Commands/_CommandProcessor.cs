@@ -128,9 +128,21 @@ namespace DiscordDkpBot.Commands
 		{
 			StringBuilder builder = new StringBuilder();
 			builder.AppendLine("**Valid Channel Commands**");
-			builder.AppendLine(string.Join(Environment.NewLine, channelCommands.Select(x => $"```\n{x.ChannelSyntax}\n```")));
+		
+			foreach (var command in channelCommands)
+			{
+				builder.AppendLine($"{command.CommandDescription}: ```css\n{command.ChannelSyntax}```");
+			}
+
+			builder.AppendLine();
+			
 			builder.AppendLine("**Valid DM Commands**");
-			builder.AppendLine(string.Join(Environment.NewLine, dmCommands.Select(x => $"```\n{x.DmSyntax}\n```")));
+			foreach (var command in dmCommands)
+			{
+				builder.AppendLine($"{command.CommandDescription}: ```css\n{command.DmSyntax}```");
+			}
+
+
 			return builder.ToString();
 		}
 

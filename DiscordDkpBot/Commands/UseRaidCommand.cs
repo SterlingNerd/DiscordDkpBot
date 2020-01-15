@@ -13,15 +13,15 @@ using Microsoft.Extensions.Logging;
 
 namespace DiscordDkpBot.Commands
 {
-	public class UseRaidCommand : IChannelCommand
+	public abstract class UseRaidCommand : IChannelCommand
 	{
 		private const string commandName = "UseRaid";
 		private readonly DiscordConfiguration config;
 		private readonly IDkpProcessor dkpProcessor;
 		private readonly ILogger<UseRaidCommand> log;
 		private readonly Regex pattern;
-
 		public string ChannelSyntax => $"{config.CommandPrefix} {commandName} {{raid-id}}";
+		public string CommandDescription => "Use Raid";
 
 		public UseRaidCommand(DiscordConfiguration config, IDkpProcessor dkpProcessor, ILogger<UseRaidCommand> log)
 		{

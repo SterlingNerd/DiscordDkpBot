@@ -9,7 +9,7 @@ using DiscordDkpBot.Configuration;
 
 namespace DiscordDkpBot.Commands
 {
-	public class TodoCommand : IChannelCommand
+	public abstract class TodoCommand : IChannelCommand
 	{
 		private readonly DiscordConfiguration config;
 		public const string todo = @"```
@@ -17,6 +17,7 @@ namespace DiscordDkpBot.Commands
  - add class leaderboards
  - add configuration options for messages.
  ```";
+		public string CommandDescription => "TODO:";
 		public TodoCommand(DiscordConfiguration config)
 		{
 			this.config = config;

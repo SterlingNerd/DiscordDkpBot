@@ -14,12 +14,12 @@ namespace DiscordDkpBot.Commands
 {
 	public class StartAuctionCommand : IChannelCommand
 	{
-		private static readonly string[] CommandTriggers = { "startbids", "startbid" };
+		private static readonly string[] CommandTriggers = { "startbids", "startbid", "startauction" };
 		private readonly DiscordConfiguration configuration;
 		private readonly IAuctionProcessor auctionProcessor;
 		private readonly ILogger<StartAuctionCommand> log;
 		private readonly Regex pattern;
-
+		public string CommandDescription => "Start Auction";
 		public string ChannelSyntax => $"{configuration.CommandPrefix} {CommandTriggers.First()} {{options}}\n\tOne item:\t\t\t   \"Item_Name\"\n\tTwo of an item:\t\t 2x \"Item_Name\"`\n\tCustom duration:\t\t\"Item_Name\" 4";
 
 		public StartAuctionCommand(DiscordConfiguration configuration, IAuctionProcessor auctionProcessor, ILogger<StartAuctionCommand> log)

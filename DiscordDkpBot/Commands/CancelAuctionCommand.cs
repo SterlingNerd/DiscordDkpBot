@@ -14,12 +14,13 @@ namespace DiscordDkpBot.Commands
 {
 	public class CancelAuctionCommand : IChannelCommand
 	{
-		private static readonly string[] CommandTriggers = { "cancelbids", "cancel", "cancelbid" };
+		private static readonly string[] CommandTriggers = { "cancelbids", "cancel", "cancelbid", "cancelauction" };
 		private readonly IAuctionProcessor auctionProcessor;
 		private readonly DiscordConfiguration configuration;
 		private readonly ILogger<CancelAuctionCommand> log;
 		private readonly Regex pattern;
 		public string ChannelSyntax => $"{configuration.CommandPrefix} {CommandTriggers.First()} \"ItemName\"";
+		public string CommandDescription => "Cancel An Auction";
 
 		public CancelAuctionCommand(DiscordConfiguration configuration, IAuctionProcessor auctionProcessor, ILogger<CancelAuctionCommand> log)
 		{

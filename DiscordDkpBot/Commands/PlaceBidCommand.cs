@@ -3,7 +3,6 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 using Discord;
-using Discord.WebSocket;
 
 using DiscordDkpBot.Auctions;
 
@@ -17,6 +16,7 @@ namespace DiscordDkpBot.Commands
 
 		private readonly IAuctionProcessor auctionProcessor;
 		private readonly ILogger<PlaceBidCommand> log;
+		public string CommandDescription => "Place a Bid";
 		public string DmSyntax => "\"{Item_Name_With_Typos}\" {Character} {Amount} {Rank}";
 
 		public PlaceBidCommand(IAuctionProcessor auctionProcessor, ILogger<PlaceBidCommand> log)

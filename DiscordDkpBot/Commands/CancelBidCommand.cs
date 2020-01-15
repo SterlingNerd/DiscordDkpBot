@@ -19,6 +19,7 @@ namespace DiscordDkpBot.Commands
 
 		private readonly IAuctionProcessor auctionProcessor;
 		private readonly ILogger<CancelAuctionCommand> log;
+		public string CommandDescription => "Cancel a Bid";
 		public string DmSyntax => "\"{Item_Name_With_Typos}\" {Character} {Amount} {Rank}";
 
 		public CancelBidCommand(IAuctionProcessor auctionProcessor, ILogger<CancelAuctionCommand> log)

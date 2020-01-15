@@ -7,6 +7,7 @@ namespace DiscordDkpBot.Commands
 {
 	public interface ICommand
 	{
+		string CommandDescription { get; }
 		Task<bool> TryInvokeAsync(IMessage message);
 	}
 }

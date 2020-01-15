@@ -14,13 +14,13 @@ using Microsoft.Extensions.Logging;
 
 namespace DiscordDkpBot.Commands
 {
-	public class GetEventsCommand : IDmCommand
+	public abstract class GetEventsCommand : IDmCommand
 	{
 		private static readonly string[] CommandTriggers = { "getevent", "getevents" };
 		private readonly IDkpProcessor dkpProcessor;
 		private readonly ILogger<GetEventsCommand> log;
 		private readonly Regex pattern;
-
+		public string CommandDescription => "Get Events";
 		public string DmSyntax => "getevents {partial-event-name}";
 
 		public GetEventsCommand(IDkpProcessor dkpProcessor, ILogger<GetEventsCommand> log)
