@@ -12,7 +12,7 @@ namespace DiscordDkpBot.Commands
 {
 	public class PlaceBidCommand : IDmCommand
 	{
-		private static readonly Regex pattern = new Regex(@"^\s*""(?<Item>.+)""\s+(?<Character>\w+)(\s+(?<Bid>\d+)\s+(?<Rank>\w+)|\s+(?<Rank>\w+)\s+(?<Bid>\d+))\s*$", RegexOptions.IgnoreCase);
+		private static readonly Regex pattern = new Regex(@"^\s*\S(?<Item>.+?)\S\s+(?<Character>\w+)\s+(?<Bid>\d+)\s+(?<Rank>\w+)\s*$", RegexOptions.IgnoreCase);
 
 		private readonly IAuctionProcessor auctionProcessor;
 		private readonly ILogger<PlaceBidCommand> log;

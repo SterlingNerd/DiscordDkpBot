@@ -1,44 +1,44 @@
-﻿using System;
+﻿//using System;
 
-using DiscordDkpBot.Commands;
-using DiscordDkpBot.Dkp;
+//using DiscordDkpBot.Commands;
+//using DiscordDkpBot.Dkp;
 
-using Microsoft.Extensions.Logging;
+//using Microsoft.Extensions.Logging;
 
-using Moq;
+//using Moq;
 
-using NUnit.Framework;
+//using NUnit.Framework;
 
-namespace DiscordDkpBotTests.Commands
-{
-	[TestFixture]
-	public class GetEventsCommandTests
-	{
-		[TestCase("getevents pop", "pop")]
-		[TestCase("getevents", "")]
-		public void ParseArgs(string args, string expectedName)
-		{
-			//Act
-			(bool success, string name) = target.ParseArgs(args);
+//namespace DiscordDkpBotTests.Commands
+//{
+//	[TestFixture]
+//	public class GetEventsCommandTests
+//	{
+//		[TestCase("getevents pop", "pop")]
+//		[TestCase("getevents", "")]
+//		public void ParseArgs(string args, string expectedName)
+//		{
+//			//Act
+//			(bool success, string name) = target.ParseArgs(args);
 
-			//Assert
-			Assert.AreEqual(expectedName, name);
-		}
+//			//Assert
+//			Assert.AreEqual(expectedName, name);
+//		}
 
-		#region Setup/Teardown
+//		#region Setup/Teardown
 
-		[SetUp]
-		public void SetUp()
-		{
-			target = new GetEventsCommand(new Mock<IDkpProcessor>().Object, new Mock<ILogger<GetEventsCommand>>().Object);
-		}
+//		[SetUp]
+//		public void SetUp()
+//		{
+//			target = new GetEventsCommand(new Mock<IDkpProcessor>().Object, new Mock<ILogger<GetEventsCommand>>().Object);
+//		}
 
-		#endregion
+//		#endregion
 
-		#region Test Helpers
+//		#region Test Helpers
 
-		private GetEventsCommand target;
+//		private GetEventsCommand target;
 
-		#endregion
-	}
-}
+//		#endregion
+//	}
+//}

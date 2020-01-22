@@ -1,48 +1,48 @@
-﻿using System;
+﻿//using System;
 
-using DiscordDkpBot.Commands;
-using DiscordDkpBot.Configuration;
-using DiscordDkpBot.Dkp;
+//using DiscordDkpBot.Commands;
+//using DiscordDkpBot.Configuration;
+//using DiscordDkpBot.Dkp;
 
-using Microsoft.Extensions.Logging;
+//using Microsoft.Extensions.Logging;
 
-using Moq;
+//using Moq;
 
-using NUnit.Framework;
+//using NUnit.Framework;
 
-namespace DiscordDkpBotTests.Commands
-{
-	[TestFixture]
-	public class UseRaidCommandTests
-	{
-		[TestCase("@ UseRaid 12345", 12345)]
-		[TestCase("@ useraid 42", 42)]
-		public void ParseArgs(string args, int expectedRaidId)
-		{
-			//Act
-			(bool success, int raidId) = target.ParseArgs(args);
+//namespace DiscordDkpBotTests.Commands
+//{
+//	[TestFixture]
+//	public class UseRaidCommandTests
+//	{
+//		[TestCase("@ UseRaid 12345", 12345)]
+//		[TestCase("@ useraid 42", 42)]
+//		public void ParseArgs(string args, int expectedRaidId)
+//		{
+//			//Act
+//			(bool success, int raidId) = target.ParseArgs(args);
 
-			//Assert
-			Assert.AreEqual(expectedRaidId, raidId);
-		}
+//			//Assert
+//			Assert.AreEqual(expectedRaidId, raidId);
+//		}
 
-		#region Setup/Teardown
+//		#region Setup/Teardown
 
-		[SetUp]
-		public void SetUp()
-		{
-			configuration = new DiscordConfiguration();
-			configuration.CommandPrefix = "@";
-			target = new UseRaidCommand(configuration, new Mock<IDkpProcessor>().Object, new Mock<ILogger<UseRaidCommand>>().Object);
-		}
+//		[SetUp]
+//		public void SetUp()
+//		{
+//			configuration = new DiscordConfiguration();
+//			configuration.CommandPrefix = "@";
+//			target = new UseRaidCommand(configuration, new Mock<IDkpProcessor>().Object, new Mock<ILogger<UseRaidCommand>>().Object);
+//		}
 
-		#endregion
+//		#endregion
 
-		#region Test Helpers
+//		#region Test Helpers
 
-		private DiscordConfiguration configuration;
-		private UseRaidCommand target;
+//		private DiscordConfiguration configuration;
+//		private UseRaidCommand target;
 
-		#endregion
-	}
-}
+//		#endregion
+//	}
+//}
