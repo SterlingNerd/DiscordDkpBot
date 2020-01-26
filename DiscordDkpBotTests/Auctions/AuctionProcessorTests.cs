@@ -87,6 +87,30 @@ namespace DiscordDkpBotTests.Auctions
 
 			Assert.AreEqual(26, mainWinner.Price, "main should pay 26");
 		}
+
+		[Test]
+		public void CalculateWinners_OneItem_TieBidsOverCap ()
+		{
+			//Arrange
+			RaidInfo raid = new RaidInfo();
+			Auction auction = new Auction(23423, 1, "Nuke", 2, raid, GetMessage(42));
+
+			AuctionBid mainBid = new AuctionBid(auction, "main", 1, 126, main, GetAuthor(42));
+			AuctionBid altBid = new AuctionBid(auction, "alt", 2, 126, alt, GetAuthor(44));
+
+			auction.Bids.AddOrUpdate(mainBid);
+			auction.Bids.AddOrUpdate(altBid);
+
+			//Act
+			CompletedAuction completedAuction = target.CalculateWinners(auction);
+
+			//Assert
+			Assert.AreEqual(1, completedAuction.WinningBids.Count);
+
+
+			Assert.AreEqual(26, completedAuction.WinningBids.First().Price, "Winner should pay 26.");
+		}
+
 		[Test]
 		public void CalculateWinners_OneItem_TieBids ()
 		{
@@ -106,7 +130,7 @@ namespace DiscordDkpBotTests.Auctions
 			//Assert
 			Assert.AreEqual(1, completedAuction.WinningBids.Count);
 
-			
+
 			Assert.AreEqual(10, completedAuction.WinningBids.First().Price, "Winner should pay 10.");
 		}
 
@@ -285,6 +309,7 @@ namespace DiscordDkpBotTests.Auctions
 			Assert.AreEqual(barogue.CharacterName, winner2.Bid.CharacterName);
 			Assert.AreEqual(11, winner2.Price);
 		}
+
 		[Test]
 		public void CalculateWinners_TwoItems_ManyRaiderBids ()
 		{

@@ -200,7 +200,9 @@ namespace DiscordDkpBot.Auctions
 						loser = losers.OrderBy(x=>x).FirstOrDefault();
 
 						//If the loser tied a winner, that adjusts the final price.
-						if (loser?.BidAmount == winners.LastOrDefault()?.BidAmount)
+						//But only if they didn't outbid their cap'
+						if (loser?.BidAmount == winners.LastOrDefault()?.BidAmount
+						&& loser.BidAmount <= loser.MaxBid)
 						{
 							loserTied = true;
 						}
