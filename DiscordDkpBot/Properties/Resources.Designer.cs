@@ -61,6 +61,15 @@ namespace DiscordDkpBot.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to R0lGODlh5gF4AXAAACwAAAAA5gF4AYcAAAAKCxQOEwwNERUWDAkWDBIZFAsYFxccGiQcIRocJCUeKjQeOTMpGBMoGyYvJxcnJycsKDMrMissMjQ1KSYzKjc5NCg3Nzc3LUg/MmA9QRU7Qjk8QkQ1RlE6UUhPExNQGSRKLRdKNS1sERVwGCZuLhNtLCxFOkxHOmVvNENOShhSSTJdYB1aYzRtSxlsUTNsbRh4djVHR0dLSlNMUUtNU1RVSkdUS1RWU0pXV1dbTnZbYllcY2VqV0xhUHh4ckpoaGhra3JrcWptcXN0amhzbHR2c2t3d3ddT4NjUIJ5dIh+gRt9gTR8gUZ7gXx8g4N5mKWIFBqPGSqOLg+RJy6zFhu2GS2sMwuvJDOZG0OTLEW0GkKzKEONUxmJVimFeBWCezivRhSwTi2odDqJV0iIVmOGd0uJeG21Tk2vUmWpeFCwcmXFEB7CFzHDOhHCJDrGGULDLEXPThbSVizPYB/XYzDpWBbpWCjo [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string dkpkalmarea {
+            get {
+                return ResourceManager.GetString("dkpkalmarea", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to /9j/4QAWRXhpZgAATU0AKgAAAAgAAAAAAAD//gA0T3B0aW1pemVkIGJ5IEpQRUdtaW5pIDMuMTQuMTQuNzI2NzA4NjAgMHhlNjVlYTY4MAD/2wBDAAgFBgcGBQgHBwcJCAgJDBQNDAsLDBgREg4UHBkeHRwZGxsfIy0mHyEqIhsbJzUnKi4wMjMyHiU3OzYxOy0xMjD/2wBDAQgJCQwKDBcNDRcwIBsgMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDD/wAARCAEIAQgDASIAAhEBAxEB/8QAHAAAAQUBAQEAAAAAAAAAAAAABAACAwUGBwEI/8QAThAAAQMCBAQDBQQGBwQHCQAAAQIDEQAEBRIhMQYTQVEHImEUMnGBkSOhscEIFkJSYtEVJCUzkvDxF3Ki0jRDU3OCs+E4VFVjdISjsrT/xAAZAQADAQEBAAAAAAAAAAAAAAABAgMABAX/xAAjEQACAgIC [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string dkpmagg {
