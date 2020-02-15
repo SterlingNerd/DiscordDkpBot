@@ -24,7 +24,7 @@ namespace DiscordDkpBot.Commands
 		public string ChannelSyntax => $"{configuration.CommandPrefix} reveal {{auctionId}}";
 		public string CommandDescription => "Reveal Bids (Only in configured officer channel)";
 
-		public RevealBidsCommand(DiscordConfiguration configuration, AuctionState state, ILogger<RevealBidsCommand> log)
+		public RevealBidsCommand (DiscordConfiguration configuration, AuctionState state, ILogger<RevealBidsCommand> log)
 		{
 			pattern = new Regex($@"^{Regex.Escape(configuration.CommandPrefix)}\s*reveal\s+(?<auction>\d+)\s*$", RegexOptions.IgnoreCase);
 			this.configuration = configuration;
@@ -33,7 +33,7 @@ namespace DiscordDkpBot.Commands
 			revealChannel = configuration.RevealBidsChannelName;
 		}
 
-		public (bool success, int auctionId) ParseArgs(string messageContent)
+		public (bool success, int auctionId) ParseArgs (string messageContent)
 		{
 			Match match = pattern.Match(messageContent);
 			if (!match.Success)
@@ -45,7 +45,7 @@ namespace DiscordDkpBot.Commands
 			return (true, auctionId);
 		}
 
-		public async Task<bool> TryInvokeAsync(IMessage message)
+		public async Task<bool> TryInvokeAsync (IMessage message)
 		{
 			if (message.Channel.Name != revealChannel)
 			{
@@ -69,20 +69,31 @@ namespace DiscordDkpBot.Commands
 			}
 
 			StringBuilder builder = new StringBuilder();
+			builder.Append($"**[{auction.Auction.ShortDescription}]** ");
+
 			IEnumerable<string> winners = auction.WinningBids.Select(winner => $"**{winner.Bid.CharacterName}**");
+			string winnersString = string.Join(", ", winners);
 
-			builder.AppendLine($"**[{auction.Auction.ShortDescription}]** Awarded to {string.Join(", ", winners)}");
-			builder.AppendLine("Bids in ranked order:");
-
-			builder.AppendLine("```css");
-			List<AuctionBid> bids = auction.Auction.Bids.ToList();
-			bids.Sort();
-			foreach (AuctionBid bid in bids)
+			if (string.IsNullOrWhiteSpace(winnersString))
 			{
-				builder.AppendLine(bid.RevealString);
+				builder.AppendLine("No bids received.");
 			}
-			builder.AppendLine("```");
+			else
+			{
+				builder.AppendLine($"Awarded to {winnersString}.");
+				builder.AppendLine("Bids in ranked order:");
+
+				builder.AppendLine("```css");
+				List<AuctionBid> bids = auction.Auction.Bids.ToList();
+				bids.Sort();
+				foreach (AuctionBid bid in bids)
+				{
+					builder.AppendLine(bid.RevealString);
+				}
+				builder.AppendLine("```");
+			}
 			builder.AppendLine($"(AuctionID: {auction.ID}) {auction.Auction.Author.Username}");
+			builder.AppendLine($"Bot Version: {DkpBotConfiguration.Version}");
 
 			await message.Channel.SendMessageAsync(builder.ToString());
 			return true;

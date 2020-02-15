@@ -106,7 +106,7 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 			client.BaseAddress = new Uri(config.EqDkpPlus.BaseAddress);
 			client.DefaultRequestHeaders.Add("Accept", "application/xml");
 			client.DefaultRequestHeaders.Add("X-Custom-Authorization", $"token={config.EqDkpPlus.Token}&type=user");
-			client.DefaultRequestHeaders.Add("User-Agent", $"DiscordDkpBot-{config.Version}");
+			client.DefaultRequestHeaders.Add("User-Agent", $"DiscordDkpBot-{DkpBotConfiguration.Version}");
 
 			return client;
 		}

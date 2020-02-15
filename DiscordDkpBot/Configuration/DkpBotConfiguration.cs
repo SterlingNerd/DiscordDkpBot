@@ -12,7 +12,7 @@ namespace DiscordDkpBot.Configuration
 		public Dictionary<string, RankConfiguration> ExpandedRanks => ExpandRanks();
 		public string ItemSource { get; set; } = "Allakhazam";
 		public RankConfiguration[] Ranks { get; set; } = new RankConfiguration[0];
-		public string Version => Assembly.GetEntryAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
+		public static string Version => Assembly.GetEntryAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
 
 		private Dictionary<string, RankConfiguration> ExpandRanks()
 		{
