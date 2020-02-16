@@ -50,7 +50,10 @@ namespace DiscordDkpBot.Auctions
 
 			int characterId = await dkpProcessor.GetCharacterId(character);
 			PlayerPoints points = await dkpProcessor.GetDkp(characterId);
-			int pointsAlreadyBid = state.Auctions.Values.SelectMany(x => x.Bids).Where(b => b.CharacterId == characterId).Sum(x => x.BidAmount) * rankConfig.PriceMultiplier;
+			int pointsAlreadyBid = state.Auctions.Values.SelectMany(x => x.Bids)
+				.Where(b => b.CharacterId == characterId // From This character
+							&& b.Auction != auction) // Don't count this current auction, because we're replacing it.
+				.Sum(x => x.BidAmount) * rankConfig.PriceMultiplier;
 			decimal availableDkp = (points.PointsCurrentWithTwink - pointsAlreadyBid) / rankConfig.PriceMultiplier;
 
 			if (availableDkp < bid)
@@ -145,12 +148,12 @@ namespace DiscordDkpBot.Auctions
 			{
 				ItemLookupResult itemResult = await itemProcessor.GetItemEmbed(name);
 				string announcementText = auction.GetAnnouncementText(configuration.Ranks);
-				if (itemResult.MatchesFound > 1)
+				if (itemResult?.MatchesFound > 1)
 				{
 					announcementText += "There were several items found with the same name, this might not actually be the correct item stats.";
 				}
 
-				IUserMessage announcement = await auction.Channel.SendMessageAsync(announcementText, false, itemResult.Embed);
+				IUserMessage announcement = await auction.Channel.SendMessageAsync(announcementText, false, itemResult?.Embed);
 
 				auction.Tick += async (o, s) => await announcement.ModifyAsync(m => m.Content = auction.GetAnnouncementText(configuration.Ranks));
 				auction.Completed += async (o, s) =>
