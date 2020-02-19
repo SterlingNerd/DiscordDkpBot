@@ -25,20 +25,22 @@ namespace DiscordDkpBot.Commands
 		private readonly ICollection<IDmCommand> dmCommands;
 
 		private readonly string HelpMessage;
+		private readonly string BiddingHelpMessage;
 		private readonly ILogger<CommandProcessor> log;
 
-		public CommandProcessor (DiscordConfiguration config, IEnumerable<IChannelCommand> channelCommands, IEnumerable<IDmCommand> dmCommands, ILogger<CommandProcessor> log)
+		public CommandProcessor(DiscordConfiguration config, IEnumerable<IChannelCommand> channelCommands, IEnumerable<IDmCommand> dmCommands, ILogger<CommandProcessor> log)
 		{
 			this.channelCommands = channelCommands?.ToList() ?? new List<IChannelCommand>();
 			this.dmCommands = dmCommands?.ToList() ?? new List<IDmCommand>();
 
 			HelpMessage = GetHelpMessage(channelCommands, dmCommands);
+			BiddingHelpMessage = GetBiddingHelpMessage();
 
 			this.config = config;
 			this.log = log;
 		}
 
-		public async Task ProcessCommand (SocketMessage message)
+		public async Task ProcessCommand(SocketMessage message)
 		{
 			if (!message.Content.StartsWith(config.CommandPrefix, StringComparison.CurrentCultureIgnoreCase) && !(message.Channel is IDMChannel))
 			{
@@ -47,6 +49,7 @@ namespace DiscordDkpBot.Commands
 			}
 
 			log.LogInformation($"{message.Author} ({message.Channel}): {message}");
+
 			List<Task<bool>> commandTasks = new List<Task<bool>>();
 			try
 			{
@@ -65,7 +68,15 @@ namespace DiscordDkpBot.Commands
 				//As an extra help, if we're dealing with PMs and nothing matched, we can give them the help message.
 				if (message.Channel is IPrivateChannel && commandTasks.All(x => x.Result == false))
 				{
-					commandTasks.Add(SendHelp(message.Author));
+					// If they're actually asking for help give them everything.
+					if (message.Content.Contains("help", StringComparison.CurrentCultureIgnoreCase))
+					{
+						commandTasks.Add(SendHelp(message.Author));
+					}
+					else
+					{
+						commandTasks.Add(SendBiddingHelp(message.Author));
+					}
 				}
 			}
 			catch (Exception ex)
@@ -75,7 +86,7 @@ namespace DiscordDkpBot.Commands
 			}
 		}
 
-		private IEnumerable<Task<bool>> ProcessChannelCommand (SocketMessage message)
+		private IEnumerable<Task<bool>> ProcessChannelCommand(SocketMessage message)
 		{
 			List<Task<bool>> commandTasks = new List<Task<bool>>();
 			if (Regex.Match(message.Content, $@"{Regex.Escape(config.CommandPrefix)}\s+help", RegexOptions.IgnoreCase).Success)
@@ -89,7 +100,7 @@ namespace DiscordDkpBot.Commands
 			return commandTasks;
 		}
 
-		private IEnumerable<Task<bool>> ProcessDmCommand (SocketMessage message)
+		private IEnumerable<Task<bool>> ProcessDmCommand(SocketMessage message)
 		{
 			List<Task<bool>> commandTasks = new List<Task<bool>>();
 			if (message.Content.StartsWith("help", StringComparison.OrdinalIgnoreCase))
@@ -107,7 +118,7 @@ namespace DiscordDkpBot.Commands
 			return commandTasks;
 		}
 
-		private async Task<bool> RunCommand (ICommand command, IMessage message)
+		private async Task<bool> RunCommand(ICommand command, IMessage message)
 		{
 			try
 			{
@@ -124,32 +135,67 @@ namespace DiscordDkpBot.Commands
 		}
 
 
-		private static string GetHelpMessage (IEnumerable<IChannelCommand> channelCommands, IEnumerable<IDmCommand> dmCommands)
+		private static string GetHelpMessage(IEnumerable<IChannelCommand> channelCommands, IEnumerable<IDmCommand> dmCommands)
 		{
 			StringBuilder builder = new StringBuilder();
 			builder.AppendLine("**Valid Channel Commands**");
-		
+
 			foreach (var command in channelCommands)
 			{
 				builder.AppendLine($"{command.CommandDescription}: ```css\n{command.ChannelSyntax}```");
 			}
 
 			builder.AppendLine();
-			
-			builder.AppendLine("**Valid DM Commands**");
+
+			builder.AppendLine("**Valid Direct Message Commands**");
 			foreach (var command in dmCommands)
 			{
 				builder.AppendLine($"{command.CommandDescription}: ```css\n{command.DmSyntax}```");
 			}
 
+			return builder.ToString();
+		}
+		private static string GetBiddingHelpMessage()
+		{
+			StringBuilder builder = new StringBuilder();
+			builder.AppendLine("**How to place a bid:**");
+			builder.AppendLine();
+			builder.AppendLine("> 1) Copy / paste the example from the auction:                     `\"Test\" character 69 Mainspec / MS / Offspec / OS`");
+			builder.AppendLine("> 2) Replace character with your character's name:              `\"Test\" YoMomma 69 Mainspec/MS/Offspec/OS`");
+			builder.AppendLine("> 3) Replace 69 with how much you want to bid:                   `\"Test\" YoMomma 420 Mainspec / MS / Offspec / OS`");
+			builder.AppendLine("> 4) Replace the rank with the appropriate rank:                    `\"Test\" YoMomma 420 ms`");
+			builder.AppendLine("> 5) Message your bid me directly.");
+			builder.AppendLine("> 	(you can click on my name in chat and paste it into the chat bar at the bottom of the popup window)");
+			builder.AppendLine("");
+			builder.AppendLine("Here are some examples of properly formatted bids:");
+			builder.AppendLine("```");
+			builder.AppendLine("\"Caub's Bread\" Maldinaw 12 os");
+			builder.AppendLine("``````");
+			builder.AppendLine("\"Exercise Wheel\" Hamsterlunch 9000 mainspec");
+			builder.AppendLine("```");
+			builder.AppendLine("Notes:");
+			builder.AppendLine("- The quotations around the item name are important and must be included.");
+			builder.AppendLine("- If there are typos in the item's name, they must also be in your bid. Easiest way to ensure accuracy is to copy/paste the item name from the auction.");
+			builder.AppendLine("- Choose only one role.");
+			builder.AppendLine("- Nothing is case sensitive.");
+			builder.AppendLine("- Use the character name recieving the item. Not an abbreviation etc.");
+			builder.AppendLine("- Characters must exist in the dkp site.");
+			builder.AppendLine("");
+			builder.AppendLine("If you require help with other commands, say: `help`");
 
 			return builder.ToString();
 		}
 
-		private async Task<bool> SendHelp (IUser author)
+		private async Task<bool> SendHelp(IUser author)
 		{
 			IDMChannel dm = await author.GetOrCreateDMChannelAsync();
 			await dm.SendMessageAsync(HelpMessage);
+			return true;
+		}
+		private async Task<bool> SendBiddingHelp(IUser author)
+		{
+			IDMChannel dm = await author.GetOrCreateDMChannelAsync();
+			await dm.SendMessageAsync(BiddingHelpMessage);
 			return true;
 		}
 	}
