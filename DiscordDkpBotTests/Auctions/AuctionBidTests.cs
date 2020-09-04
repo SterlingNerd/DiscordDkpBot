@@ -105,6 +105,36 @@ namespace DiscordDkpBotTests.Auctions
 
 		}
 
+		[Test]
+		public void MultipleWinnersMixedRank()
+		{
+			//Arrange
+			RaidInfo raid = new RaidInfo();
+			Auction auction = new Auction(23423, 2, "Nuke", 2, raid, GetMessage(44));
+			RankConfiguration main = new RankConfiguration("main", null, 1);
+			RankConfiguration box = new RankConfiguration("box", 100, 1);
+			
+
+			AuctionBid mainBid = new AuctionBid(auction, "main", 1, 107, main, GetAuthor(1));
+			AuctionBid mainBid2 = new AuctionBid(auction, "main", 1, 54, main, GetAuthor(5));
+			AuctionBid boxBid1 = new AuctionBid(auction, "box1", 1, 200, box, GetAuthor(2));
+			AuctionBid boxBid2 = new AuctionBid(auction, "box2", 1, 55, box, GetAuthor(3));
+			AuctionBid boxBid3 = new AuctionBid(auction, "box3", 1, 50, box, GetAuthor(4));
+
+			List<AuctionBid> list = new List<AuctionBid> { boxBid3, boxBid1, mainBid2, boxBid2, mainBid };
+
+			//Act
+			list.Sort();
+
+			//Assert
+			Assert.AreEqual(mainBid, list[0]);
+			Assert.AreEqual(boxBid1, list[1]);
+			Assert.AreEqual(boxBid2, list[2]);
+			Assert.AreEqual(mainBid2, list[3]);
+			Assert.AreEqual(boxBid3, list[4]);
+
+		}	
+		
 		#region Test Helpers
 
 		private IUser GetAuthor (ulong id)

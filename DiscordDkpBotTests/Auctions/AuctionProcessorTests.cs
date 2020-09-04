@@ -180,6 +180,24 @@ namespace DiscordDkpBotTests.Auctions
 		}
 
 		[Test]
+		public void CalculateWinners_TwoItems_MixedTier()
+		{
+			//Arrange
+			Auction auction = raid.NewAuction(2);
+			AuctionBid mainBid = auction.AddBid("main", 107, main);
+			AuctionBid boxBid1 = auction.AddBid("box1", 200, box);
+			AuctionBid boxBid2 = auction.AddBid("box2", 55, box);
+
+			//Act
+			CompletedAuction completedAuction = target.CalculateWinners(auction);
+
+			//Assert
+			completedAuction.AssertNumberOfWinners(2);
+			completedAuction.AssertWinner(mainBid, 56);
+			completedAuction.AssertWinner(boxBid1, 168);
+		}
+
+		[Test]
 		public void CalculateWinners_OneItem_ThreeBids()
 		{
 			//Arrange
