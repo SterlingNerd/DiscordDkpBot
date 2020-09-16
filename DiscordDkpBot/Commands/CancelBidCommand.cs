@@ -15,7 +15,7 @@ namespace DiscordDkpBot.Commands
 	[UsedImplicitly]
 	public class CancelBidCommand : IDmCommand
 	{
-		private static readonly Regex pattern = new Regex(@"^""(?<Item>.+)""\s+cancel\s*$", RegexOptions.IgnoreCase);
+		private static readonly Regex pattern = new Regex(@"^\s*\S(?<Item>.+)\S\s+cancel\s*$", RegexOptions.IgnoreCase);
 
 		private readonly IAuctionProcessor auctionProcessor;
 		private readonly ILogger<CancelAuctionCommand> log;
