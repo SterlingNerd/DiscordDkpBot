@@ -70,22 +70,12 @@ namespace DiscordDkpBot.Commands
 
 			PlayerPoints dkp = await dkpProcessor.GetDkp(character);
 
-			string dkpMessage = $"{character.UppercaseFirst()} has **{dkp.PointsCurrentWithTwink}** available to spend.\n```brainfuck\nLifetime DKP for {character}: Earned {dkp.PointsEarnedWithTwink} - Spent {dkp.PointsSpentWithTwink} - Adjustments {dkp.PointsAdjustmentWithTwink}.```";
-			if (config.EnableMaggDkp && character.Equals("magg", StringComparison.CurrentCultureIgnoreCase))
-			{
-				log.LogInformation("magg dkp memes!");
-				using (MemoryStream stream = new MemoryStream(Convert.FromBase64String(Resources.dkpmagg)))
-				{
-					await message.Channel.SendFileAsync(stream, "dkpmagg.jpg", dkpMessage);
-				}
-			}
-			else if (config.EnableKalmareaDkp && character.Equals("kalmarea", StringComparison.CurrentCultureIgnoreCase))
-			{
-				log.LogInformation("kalmarea dkp memes!");
-				using (MemoryStream stream = new MemoryStream(Convert.FromBase64String(Resources.dkpkalmarea)))
-				{
-					await message.Channel.SendFileAsync(stream, "dkpkalmarea.gif", dkpMessage);
-				}
+			string dkpMessage = $"{character.UppercaseFirst()} has **{dkp.PointsCurrentWithTwink}** available to spend.\n```\nLifetime DKP for {character}: Earned {dkp.PointsEarnedWithTwink} - Spent {dkp.PointsSpentWithTwink} - Adjustments {dkp.PointsAdjustmentWithTwink}.```";
+			string memePath = config.MemeDkpPath + character + ".jpg"; ;
+
+			if (config.EnableMemeDkp && File.Exists(memePath)) {
+				log.LogInformation("dkp memes!");
+				await message.Channel.SendFileAsync(memePath, dkpMessage);
 			}
 			else
 			{
