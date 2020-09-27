@@ -8,7 +8,7 @@ namespace DiscordDkpBot.Configuration
 		public string CommandPrefix { get; set; } = ".dkp";
 		public string RevealBidsChannelName { get; set; } = "mgmt_issues";
 		public string SilentAuctionsChannelName { get; set; } = "silent_auctions";
-		public bool EnableMaggDkp { get; set; } = true;
-		public bool EnableKalmareaDkp { get; set; } = true;
+		public bool EnableMemeDkp { get; set; } = true;
+		public string MemeDkpPath { get; set; } = "";
 	}
 }
