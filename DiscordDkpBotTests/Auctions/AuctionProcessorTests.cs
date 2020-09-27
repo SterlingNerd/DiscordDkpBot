@@ -430,7 +430,7 @@ namespace DiscordDkpBotTests.Auctions
 
 			//Assert
 			completedAuction.AssertNumberOfWinners(2);
-			completedAuction.AssertWinner(mainBid, 26);
+			completedAuction.AssertWinner(mainBid, 18);
 			completedAuction.AssertWinner(altBid, 18);
 		}
 

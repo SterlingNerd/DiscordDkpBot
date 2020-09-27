@@ -189,7 +189,7 @@ namespace DiscordDkpBot.Auctions
 					AuctionBid loser = null;
 
 					// check and see if we won because we out-bid somebody's cap.
-					AuctionBid outbidWinner = winners.OrderBy(x => x).Skip(winnerNumber).FirstOrDefault();
+					AuctionBid outbidWinner = winners.OrderBy(x => x).Skip(winners.Count).FirstOrDefault();
 
 					if (outbidWinner != null && outbidWinner.MaxBid < winner.BidAmount)
 					{
