@@ -37,7 +37,7 @@ namespace DiscordDkpBot.Commands
 			string character = match.Groups["Character"].Value;
 			int bid = int.Parse(match.Groups["Bid"].Value);
 
-			log.LogTrace("Parsed bid arguments: \"{0}\" {1} ({2}) for {3} dkp.", item, character, bid);
+			log.LogTrace("Parsed bid arguments: \"{0}\" {1} for {2} dkp.", item, character, bid);
 
 			return (true, item, character,  bid);
 		}
