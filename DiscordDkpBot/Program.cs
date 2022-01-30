@@ -107,7 +107,7 @@ namespace DiscordDkpBot
 				.AddHttpClient()
 				.AddChatCommands()
 				.AddSingleton<EqDkpPlusClient>()
-				.AddSingleton<IDkpProcessor, EqDkpPlusProcessor>()
+				.AddSingleton<IDkpProcessor, NullDkpProcessor>()
 				.AddSingleton<IAttendanceParser, RaidWindowParser>()
 				.AddItemSource(config)
 				.AddDefaultImplementations()

@@ -147,6 +147,25 @@ namespace DiscordDkpBotTests.Auctions
 		}
 
 		[Test]
+		public void CalculateWinners_GDKP()
+		{
+			//Arrange
+			Auction auction = raid.NewAuction(3);
+			AuctionBid bid1 = auction.AddBid("1", 1000, main);
+			AuctionBid bid2 = auction.AddBid("2", 1000, main);
+			AuctionBid bid3 = auction.AddBid("3", 1001, main);
+			AuctionBid bid4 = auction.AddBid("4", 1000, main);
+			AuctionBid bid5 = auction.AddBid("5", 1000, main);
+
+			//Act
+			CompletedAuction completedAuction = target.CalculateWinners(auction);
+
+			//Assert
+			completedAuction.AssertNumberOfWinners(3);
+			completedAuction.AssertWinner(bid3, 1001);
+		}
+
+		[Test]
 		public void CalculateWinners_OneItem_OneBid()
 		{
 			//Arrange
