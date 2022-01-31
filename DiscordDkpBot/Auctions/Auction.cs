@@ -45,7 +45,7 @@ namespace DiscordDkpBot.Auctions
 
 		public string GetAnnouncementText(IEnumerable<RankConfiguration> ranks)
 		{
-			return $"**[{ShortDescription}]**\nBids are open for **{ShortDescription}** for **{MinutesRemaining}** minutes.\n```\"{Name}\" character 69 {string.Join("/", ranks)}```";
+			return $"**[{ShortDescription}]**\nBids are open for **{ShortDescription}** for **{MinutesRemaining}** minutes.\n```\"{Name}\" character 69```";
 		}
 
 		public void Start()

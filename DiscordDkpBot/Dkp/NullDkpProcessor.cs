@@ -21,7 +21,7 @@ namespace DiscordDkpBot.Dkp
 
 		public Task<int> GetCharacterId(string characterName)
 		{
-			return Task.FromResult(1);
+			return Task.FromResult(characterName.GetHashCode());
 		}
 
 		public Task<RaidInfo> GetDailyItemsRaid()
