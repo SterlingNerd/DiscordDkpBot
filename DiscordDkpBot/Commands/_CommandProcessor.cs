@@ -188,13 +188,13 @@ namespace DiscordDkpBot.Commands
 
 		private async Task<bool> SendHelp(IUser author)
 		{
-			IDMChannel dm = await author.CreateDMChannelAsync();
+			IDMChannel dm = await author.GetOrCreateDMChannelAsync();
 			await dm.SendMessageAsync(HelpMessage);
 			return true;
 		}
 		private async Task<bool> SendBiddingHelp(IUser author)
 		{
-			IDMChannel dm = await author.CreateDMChannelAsync();
+			IDMChannel dm = await author.GetOrCreateDMChannelAsync();
 			await dm.SendMessageAsync(BiddingHelpMessage);
 			return true;
 		}

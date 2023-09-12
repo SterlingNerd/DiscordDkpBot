@@ -556,11 +556,7 @@ namespace DiscordDkpBotTests.Auctions
 												It.IsAny<Embed>(), 
 												It.IsAny<RequestOptions>(), 
 												It.IsAny<AllowedMentions>(),
-												It.IsAny<MessageReference>(),
-												It.IsAny<MessageComponent>(),
-												It.IsAny<ISticker[]>(),
-												It.IsAny<Embed[]>(),
-												It.IsAny<MessageFlags>()
+												It.IsAny<MessageReference>()
 												))
 				.Returns(Task.FromResult(new Mock<IUserMessage>().Object));
 			message = new Mock<IMessage>();
