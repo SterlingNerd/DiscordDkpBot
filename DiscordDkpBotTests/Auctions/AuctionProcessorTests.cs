@@ -550,7 +550,18 @@ namespace DiscordDkpBotTests.Auctions
 			raid = new RaidInfo();
 
 			Mock<IMessageChannel> channel = new Mock<IMessageChannel>();
-			channel.Setup(x => x.SendMessageAsync(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<Embed>(), It.IsAny<RequestOptions>()))
+			channel.Setup(x => x.SendMessageAsync(
+												It.IsAny<string>(), 
+												It.IsAny<bool>(), 
+												It.IsAny<Embed>(), 
+												It.IsAny<RequestOptions>(), 
+												It.IsAny<AllowedMentions>(),
+												It.IsAny<MessageReference>(),
+												It.IsAny<MessageComponent>(),
+												It.IsAny<ISticker[]>(),
+												It.IsAny<Embed[]>(),
+												It.IsAny<MessageFlags>()
+												))
 				.Returns(Task.FromResult(new Mock<IUserMessage>().Object));
 			message = new Mock<IMessage>();
 			message.SetupGet(x => x.Channel).Returns(channel.Object);
