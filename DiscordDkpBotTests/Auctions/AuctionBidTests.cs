@@ -6,7 +6,7 @@ using Discord;
 
 using DiscordDkpBot.Auctions;
 using DiscordDkpBot.Configuration;
-using DiscordDkpBot.Dkp.EqDkpPlus.Xml;
+using DiscordDkpBot.Dkp;
 
 using FluentAssertions;
 

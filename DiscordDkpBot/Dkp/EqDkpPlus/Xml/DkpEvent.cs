@@ -23,5 +23,10 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus.Xml
 
 		[XmlArray("itempools")]
 		public ItemPool[] ItemPools { get; set; }
+
+		public Dkp.DkpEvent ToCore ()
+		{
+			return new Dkp.DkpEvent(Id, Name, Value);
+		}
 	}
 }

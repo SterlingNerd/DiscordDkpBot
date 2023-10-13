@@ -6,7 +6,7 @@ using System.Timers;
 using Discord;
 
 using DiscordDkpBot.Configuration;
-using DiscordDkpBot.Dkp.EqDkpPlus.Xml;
+using DiscordDkpBot.Dkp;
 
 namespace DiscordDkpBot.Auctions
 {

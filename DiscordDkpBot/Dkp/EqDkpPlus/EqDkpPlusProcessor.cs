@@ -19,9 +19,9 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 		private readonly EqDkpPlusConfiguration config;
 		private readonly ILogger<EqDkpPlusProcessor> log;
 		private readonly IAttendanceParser parser;
-		private readonly DkpState state;
+		private readonly EqDkpState state;
 
-		public EqDkpPlusProcessor (EqDkpPlusConfiguration config, DkpState state, EqDkpPlusClient client, IAttendanceParser parser, ILogger<EqDkpPlusProcessor> log)
+		public EqDkpPlusProcessor (EqDkpPlusConfiguration config, EqDkpState state, EqDkpPlusClient client, IAttendanceParser parser, ILogger<EqDkpPlusProcessor> log)
 		{
 			this.config = config;
 			this.client = client;
@@ -120,7 +120,7 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 				player = points?.Players?.FirstOrDefault();
 			}
 
-			return player?.Points?.FirstOrDefault() ?? throw new PlayerNotFoundException($"Player id '{id}' not found.");
+			return player?.Points?.FirstOrDefault()?.ToCore() ?? throw new PlayerNotFoundException($"Player id '{id}' not found.");
 		}
 
 		public async Task<IEnumerable<DkpEvent>> GetEvents (string name = null)
@@ -128,11 +128,11 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 			EventsResponse response = await client.GetEvents();
 			if (!string.IsNullOrWhiteSpace(name))
 			{
-				return response?.Events?.Where(x => x?.Name?.Contains(name, StringComparison.OrdinalIgnoreCase) == true);
+				return response?.Events?.Where(x => x?.Name?.Contains(name, StringComparison.OrdinalIgnoreCase) == true).Select(x=>x.ToCore());
 			}
 			else
 			{
-				return response?.Events?.Where(x => config.FavoriteEvents?.Contains(x.Id) == true);
+				return response?.Events?.Where(x => config.FavoriteEvents?.Contains(x.Id) == true).Select(x=>x.ToCore());
 			}
 		}
 

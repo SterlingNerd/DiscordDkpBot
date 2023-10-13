@@ -7,7 +7,6 @@ using Discord;
 
 using DiscordDkpBot.Configuration;
 using DiscordDkpBot.Dkp;
-using DiscordDkpBot.Dkp.EqDkpPlus.Xml;
 using DiscordDkpBot.Extensions;
 
 using Microsoft.Extensions.Logging;

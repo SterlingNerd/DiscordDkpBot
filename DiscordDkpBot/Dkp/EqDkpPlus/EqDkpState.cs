@@ -5,9 +5,9 @@ using System.Collections.ObjectModel;
 
 using DiscordDkpBot.Dkp.EqDkpPlus.Xml;
 
-namespace DiscordDkpBot.Dkp
+namespace DiscordDkpBot.Dkp.EqDkpPlus
 {
-	public class DkpState
+	public class EqDkpState
 	{
 		public RaidInfo CurrentRaid { get; set; }
 		public ReadOnlyDictionary<string, int> PlayerIds { get; set; } = new ReadOnlyDictionary<string, int>(new Dictionary<string, int>());

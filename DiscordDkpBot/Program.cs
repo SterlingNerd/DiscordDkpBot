@@ -112,7 +112,7 @@ namespace DiscordDkpBot
 				.AddItemSource(config)
 				.AddDefaultImplementations()
 				.AddSingleton<AuctionState>()
-				.AddSingleton<DkpState>()
+				.AddSingleton<EqDkpState>()
 				.AddSingleton<DkpBot>()
 				.AddDiscordNet()
 				;

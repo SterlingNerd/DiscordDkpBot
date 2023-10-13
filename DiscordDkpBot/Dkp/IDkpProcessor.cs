@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using DiscordDkpBot.Auctions;
-using DiscordDkpBot.Dkp.EqDkpPlus.Xml;
 
 namespace DiscordDkpBot.Dkp
 {
@@ -16,7 +15,21 @@ namespace DiscordDkpBot.Dkp
 		Task<PlayerPoints> GetDkp(string characterName);
 		Task<PlayerPoints> GetDkp(int characterId);
 		Task<IEnumerable<DkpEvent>> GetEvents(string name = null);
-		Task<RaidInfo> StartRaid(int EventId, IEnumerable<int> characterIds, int value, string note);
-		Task<RaidInfo> UseRaid(int raidId);
+		Task<RaidInfo> StartRaid(int EventId, IEnumerable<int> characterIds, int value, string note);		
+	}
+
+	public class DkpEvent {
+		public DkpEvent (int id, string name, decimal value)
+		{
+			
+		}
+
+		public string Name { get; set; }
+	}
+
+	public class DkpItem {
+		public DkpItem (int bidCharacterId, DateTime now, string auctionName, int winnerPrice, int raidId) {
+			throw new NotImplementedException();
+		}
 	}
 }

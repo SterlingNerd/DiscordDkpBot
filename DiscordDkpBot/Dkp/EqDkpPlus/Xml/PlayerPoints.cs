@@ -32,5 +32,10 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus.Xml
 
 		[XmlElement ("points_earned_with_twink")]
 		public decimal PointsEarnedWithTwink { get; set; }
+
+		public Dkp.PlayerPoints ToCore ()
+		{
+			return new(PointsEarned, PointsEarnedWithTwink, PointsSpent, PointsSpentWithTwink, PointsAdjustment, PointsAdjustmentWithTwink, PointsCurrent, PointsCurrentWithTwink);
+		}
 	}
 }

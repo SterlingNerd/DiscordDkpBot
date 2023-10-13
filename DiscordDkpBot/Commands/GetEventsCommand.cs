@@ -8,7 +8,6 @@
 //using Discord;
 
 //using DiscordDkpBot.Dkp;
-//using DiscordDkpBot.Dkp.EqDkpPlus.Xml;
 
 //using Microsoft.Extensions.Logging;
 

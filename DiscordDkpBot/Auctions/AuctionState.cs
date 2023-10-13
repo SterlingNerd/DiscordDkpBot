@@ -4,8 +4,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading;
 
-using DiscordDkpBot.Dkp.EqDkpPlus.Xml;
-
 namespace DiscordDkpBot.Auctions
 {
 	public class AuctionState

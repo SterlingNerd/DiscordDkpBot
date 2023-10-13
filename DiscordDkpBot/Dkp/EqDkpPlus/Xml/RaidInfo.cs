@@ -40,5 +40,10 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus.Xml
 		{
 			return $"({Id}) : {EventName}({EventId}) @{Date}";
 		}
+
+		public Dkp.RaidInfo ToCore ()
+		{
+			return new Dkp.RaidInfo(Id, this.Date.DateTime, this.EventId, this.Value, this.EventName);
+		}
 	}
 }

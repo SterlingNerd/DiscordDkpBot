@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -59,7 +60,7 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, uri.ToString());
 			GetRaidsResponse response = await SendAsync<GetRaidsResponse>(request);
 
-			return response?.Raids ?? new RaidInfo[0];
+			return response?.Raids?.Select(x=>x.ToCore()).ToArray() ?? Array.Empty<RaidInfo>();
 		}
 
 		public Task<EventsResponse> GetEvents()
@@ -96,7 +97,7 @@ namespace DiscordDkpBot.Dkp.EqDkpPlus
 			HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, uri.ToString());
 			GetRaidsResponse response = await SendAsync<GetRaidsResponse>(request);
 
-			return response?.Raids ?? new RaidInfo[0];
+			return response?.Raids?.Select(x=>x.ToCore()).ToArray() ?? Array.Empty<RaidInfo>();
 		}
 
 		private HttpClient GetClient()
