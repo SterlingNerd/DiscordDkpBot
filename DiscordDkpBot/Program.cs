@@ -11,6 +11,7 @@ using DiscordDkpBot.Commands;
 using DiscordDkpBot.Configuration;
 using DiscordDkpBot.Dkp;
 using DiscordDkpBot.Dkp.EqDkpPlus;
+using DiscordDkpBot.Dkp.NullDkp;
 using DiscordDkpBot.Items;
 using DiscordDkpBot.Items.Allakhazam;
 using DiscordDkpBot.Items.Wowhead;
@@ -36,17 +37,16 @@ namespace DiscordDkpBot
 			{
 				logger.Info("Configuring...");
 				IConfigurationRoot configuration = GetConfiguration();
-				IServiceProvider services = ConfigureServices(configuration);
+				IServiceProvider services = ConfigureServices(configuration, args);
 
 				logger.Info("Starting Up...");
+
 				await services.GetRequiredService<DkpBot>().Run();
-			}
-			catch (Exception ex)
+			} catch (Exception ex)
 			{
 				logger.Error(ex, "Unexpected Exception");
 				throw;
-			}
-			finally
+			} finally
 			{
 				LogManager.Shutdown();
 			}
@@ -95,27 +95,43 @@ namespace DiscordDkpBot
 			return services.AddTransient<DiscordSocketClient>();
 		}
 
-		private static IServiceCollection AddDkpBot (this IServiceCollection services, IConfigurationSection dkpBotConfiguration)
+		private static IServiceCollection AddDkpBot (this IServiceCollection services, IConfigurationSection dkpBotConfiguration, string[] args)
 		{
 			DkpBotConfiguration config = GetBotConfiguration(dkpBotConfiguration);
 
-			return services
-				.AddSingleton(config)
-				.AddSingleton(config.EqDkpPlus)
-				.AddSingleton(config.Discord)
-				.AddSingleton(config.Ranks)
-				.AddHttpClient()
-				.AddChatCommands()
-				.AddSingleton<EqDkpPlusClient>()
-				.AddSingleton<IDkpProcessor, EqDkpPlusProcessor>()
-				.AddSingleton<IAttendanceParser, RaidWindowParser>()
-				.AddItemSource(config)
-				.AddDefaultImplementations()
-				.AddSingleton<AuctionState>()
-				.AddSingleton<EqDkpState>()
-				.AddSingleton<DkpBot>()
-				.AddDiscordNet()
-				;
+			config.Discord.Token = string.IsNullOrWhiteSpace(config.Discord.Token) ? args?.FirstOrDefault() : config.Discord.Token;
+			if (string.IsNullOrWhiteSpace(config.Discord.Token))
+			{
+				throw new ApplicationException("Discord token required.");
+			}
+			
+			config.EqDkpPlus.Token = string.IsNullOrWhiteSpace(config.EqDkpPlus.Token) ? args?.Skip(1).FirstOrDefault() : config.EqDkpPlus.Token;
+
+			services.AddSingleton(config);
+			services.AddSingleton(config.EqDkpPlus);
+			services.AddSingleton(config.Discord);
+			services.AddSingleton(config.Ranks);
+			services.AddHttpClient();
+			services.AddChatCommands();
+
+			if (!string.IsNullOrWhiteSpace(config.EqDkpPlus.Token))
+			{
+				services.AddSingleton<EqDkpPlusClient>();
+				services.AddSingleton<IDkpProcessor, EqDkpPlusProcessor>();
+			} else
+			{
+				services.AddSingleton<IDkpProcessor, NullDkpProcessor>();
+			}
+
+			services.AddSingleton<IAttendanceParser, RaidWindowParser>();
+			services.AddItemSource(config);
+			services.AddDefaultImplementations();
+			services.AddSingleton<AuctionState>();
+			services.AddSingleton<EqDkpState>();
+			services.AddSingleton<DkpBot>();
+			services.AddDiscordNet();
+
+			return services;
 		}
 
 		private static IServiceCollection AddItemSource (this IServiceCollection services, DkpBotConfiguration config)
@@ -123,31 +139,30 @@ namespace DiscordDkpBot
 			if (config.ItemSource.Equals("Wowhead", StringComparison.OrdinalIgnoreCase))
 			{
 				services.AddSingleton<IItemSource, WowheadItemSource>();
-			}
-			else if (config.ItemSource.Equals("WowheadClassic", StringComparison.OrdinalIgnoreCase))
+			} else if (config.ItemSource.Equals("WowheadClassic", StringComparison.OrdinalIgnoreCase))
 			{
 				services.AddSingleton<IItemSource, WowheadClassicItemSource>();
-			}
-			else
+			} else
 			{
 				services.AddSingleton<IItemSource, AllakhazamItemSource>();
 			}
 			return services;
 		}
 
-		private static ServiceProvider ConfigureServices (IConfigurationRoot configuration)
+		private static ServiceProvider ConfigureServices (IConfigurationRoot configuration, string[] args)
 		{
 			return new ServiceCollection()
 				.AddLogging(ConfigureLogging)
-				.AddDkpBot(configuration.GetSection("DkpBot"))
+				.AddDkpBot(configuration.GetSection("DkpBot"), args)
 				.BuildServiceProvider();
 		}
 
-		private static void ConfigureLogging(ILoggingBuilder loggingBuilder)
+		private static void ConfigureLogging (ILoggingBuilder loggingBuilder)
 		{
 			loggingBuilder.ClearProviders();
 			loggingBuilder.SetMinimumLevel(LogLevel.Trace);
 			loggingBuilder.AddNLog();
+			loggingBuilder.AddConsole();
 		}
 
 		private static DkpBotConfiguration GetBotConfiguration (IConfigurationSection configuration)

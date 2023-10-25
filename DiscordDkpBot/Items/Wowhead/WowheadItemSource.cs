@@ -56,11 +56,14 @@ namespace DiscordDkpBot.Items.Wowhead
 					line = reader.ReadLine();
 				}
 			}
-			listViewItems = listViewItems.Substring(20, listViewItems.IndexOf(';') - 20);
+			listViewItems = listViewItems?.Substring(20, listViewItems.IndexOf(';') - 20);
+			if (!string.IsNullOrWhiteSpace(listViewItems))
+			{
+				List<ListViewItem> items = JsonConvert.DeserializeObject<List<ListViewItem>>(listViewItems);
 
-			List<ListViewItem> items = JsonConvert.DeserializeObject<List<ListViewItem>>(listViewItems);
-
-			return items.Where(x => itemName.Equals(x.Name, StringComparison.CurrentCultureIgnoreCase)).Select(x => x.Id).ToList();
+				return items.Where(x => itemName.Equals(x.Name, StringComparison.CurrentCultureIgnoreCase)).Select(x => x.Id).ToList();
+			}
+			return new List<int>();
 		}
 
 		protected override async Task<ItemTooltip> GetTooltip (int itemId, HttpClient client)

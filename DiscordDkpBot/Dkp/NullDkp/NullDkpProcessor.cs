@@ -118,7 +118,13 @@ namespace DiscordDkpBot.Dkp.NullDkp
 
 		private int GetNextRaidId ()
 		{
-			return this.Raids.Keys.Max() + 1;
+			if (this.Raids.Any())
+			{
+				return this.Raids.Keys.Max() + 1;
+			} else
+			{
+				return 1;
+			}
 		}
 	}
 }
